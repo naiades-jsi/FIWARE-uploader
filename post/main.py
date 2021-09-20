@@ -1,5 +1,5 @@
-from post_FIWARE import SendData
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import argparse
 import sys
 import json
@@ -15,6 +15,14 @@ def main():
         help=u"Config file located in ./config/ directory",
     )
 
+    parser.add_argument(
+        "-w",
+        "--watchdog",
+        dest="watchdog",
+        action='store_true',
+        help=u"Ping watchdog",
+    )
+
     # Display help if no arguments are defined
     if len(sys.argv)==1:
         parser.print_help()
@@ -26,10 +34,7 @@ def main():
     with open("config/" + args.config) as configuration:
         conf = json.load(configuration)
     
-    config = conf["config"]
+    
 
-    influx_config = conf["influx_config"]
-
-    braila_leakage = SendData(config)
-
-    braila_leakage.send()
+if __name__ == '__main__':
+    main()

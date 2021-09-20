@@ -1,0 +1,147 @@
+{
+    "list":
+    [
+        {
+            "api_config": {
+                "type":{
+                    "name": "consumption",
+                    "time_name": "stampm",
+                    "data_name": ["value"]
+                },
+                "kafka":{
+                    "topics": [
+                        "predictions_alicante_alipark_flow",
+                        "predictions_alicante_benalua_flow",
+                        "predictions_alicante_autobuses_flow",
+                        "predictions_alicante_diputacion_flow",
+                        "predictions_alicante_mercado_flow",
+                        "predictions_alicante_montaneta_flow",
+                        "predictions_alicante_rambla_flow"
+                    ],
+                    "bootstrap_servers": "localhost:9092",
+                    "offset":"earliest"
+                },
+                "fiware":{
+                    "headers": {
+                        "Fiware-Service": "alicante",
+                        "Content-Type": "application/json"
+                    },
+                    "update": true,
+                    "url": "http://5.53.108.182:1026/v2/entities/",
+                    "id": "Consumption:Spain-Alicante-",
+                    "sensor_name_re": "predictions_alicante_(.+)_flow"
+                }
+            },        
+            "influx_config": {
+                    "token" : "----INFLOX_TOKEN-------",
+                    "org" : "naiades",
+                    "url" : "http://localhost:8086/"
+                }
+        },
+        {
+            "api_config": {
+                "type":{
+                    "name": "cosumption",
+                    "time_name": "timestamp",
+                    "data_name": ["value"]
+                },
+                "kafka":{
+                    "topics": [
+                        "anomalies_braila_flow_211106H360",
+                        "anomalies_braila_flow_211206H360",
+                        "anomalies_braila_flow_211306H360",
+                        "anomalies_braila_flow_318505H498",
+                        "anomalies_braila_pressure_5770",
+                        "anomalies_braila_pressure_5771",
+                        "anomalies_braila_pressure_5772",
+                        "anomalies_braila_pressure_5773"
+            
+                    ],
+                    "bootstrap_servers": "localhost:9092",
+                    "offset":"earlist"
+                },
+                "fiware":{
+                    "headers": {
+                        "Fiware-Service": "braila",
+                        "Content-Type": "application/json"
+                    },
+                    "update": true,
+                    "url": "http://5.53.108.182:1026/v2/entities/",
+                    "id": "Consumption:Romania-Braila-",
+                    "sensor_name_re": "anomalies_braila_(.+)"
+                }
+            },        
+            "influx_config": {
+                    "token" : "----INFLOX_TOKEN-------",
+                    "org" : "naiades",
+                    "url" : "http://localhost:8086/"
+                }
+        },
+        {
+            "api_config": {
+                "type":{
+                    "name": "consumption",
+                    "time_name": "stampm",
+                    "data_name": ["value"]
+                },
+                "kafka":{
+                    "topics": [
+                        
+                        "predictions_braila_flow318505H498_prediction",
+                        "predictions_braila_flow211306H360_prediction",
+                        "predictions_braila_flow211106H360_prediction",
+                        "predictions_braila_flow211206H360_prediction"
+                        ],
+                    "bootstrap_servers": "localhost:9092",
+                    "offset":"earlist"
+                },
+                "fiware":{
+                    "headers": {
+                        "Fiware-Service": "braila",
+                        "Content-Type": "application/json"
+                    },
+                    "update": true,
+                    "url": "http://5.53.108.182:1026/v2/entities/",
+                    "id": "Consumption-Romania:Romania-Braila-",
+                    "sensor_name_re": "predictions_braila_(flow.+)_prediction"
+                }
+            },            
+            "influx_config": {
+                    "token" : "----INFLUX-TOKEN----------",
+                    "org" : "naiades",
+                    "url" : "http://atena.ijs.si:8086"
+                }
+        },
+        {
+            "api_config": {
+                "type":{
+                    "name": "cosumption",
+                    "time_name": "timestamp",
+                    "data_name": ["value"]
+                },
+                "kafka":{
+                    "topics": [
+                        "braila_leakage_groups"
+                    ],
+                    "bootstrap_servers": "localhost:9092",
+                    "offset":"earlist"
+                },
+                "fiware":{
+                    "headers": {
+                        "Fiware-Service": "braila",
+                        "Content-Type": "application/json"
+                    },
+                    "update": true,
+                    "url": "http://5.53.108.182:1026/v2/entities/",
+                    "id": "AffectedGroup:Romania-Braila-",
+                    "sensor_name_re": "braila_leakage_(groups)"
+                }
+            },
+            "influx_config": {
+                "token" : "----INFLOX_TOKEN-------",
+                "org" : "naiades",
+                "url" : "http://localhost:8086/"
+            }
+        }        
+    ]
+}

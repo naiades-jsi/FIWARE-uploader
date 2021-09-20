@@ -1,42 +1,38 @@
 from post_FIWARE import SendData
 
-config_ali = {
-    'type':{
-        'name': 'consumption',
-        'time_name': 'stampm',
-        'data_name': ['value']
-    },
-    'kafka':{
-        'topics': [
-            "predictions_alicante_alipark_flow",
-            "predictions_alicante_benalua_flow",
-            "predictions_alicante_autobuses_flow",
-            "predictions_alicante_diputacion_flow",
-            "predictions_alicante_mercado_flow",
-            "predictions_alicante_montaneta_flow",
-            "predictions_alicante_rambla_flow"
-        ],
-        'bootstrap_servers': "localhost:9092",
-        'offset':'earliest'  #'earliest', 'latest'
-    },
-    'fiware':{
-        'headers': {
-            'Fiware-Service': 'alicante',
-            'Content-Type': 'application/json',
-        },
-        'update': True,
-        'url': 'http://5.53.108.182:1026/v2/entities/',
-        'id': 'Consumption:Spain-Alicante-',
-        'sensor_name_re': 'predictions_alicante_(.+)_flow'
-    }
-}
+import argparse
+import sys
+import json
 
-influx_config = {
-        "token" : "----INFLOX_TOKEN-------",
-        "org" : "naiades",
-        "url" : "http://localhost:8086/"
-    }
+def main():
+    parser = argparse.ArgumentParser(description="Modeling component")
 
-alicante_consumption = SendData(config_ali, config_influx=influx_config)
+    parser.add_argument(
+        "-c",
+        "--config",
+        dest="config",
+        default="config.json",
+        help=u"Config file located in ./config/ directory",
+    )
 
-alicante_consumption.send()
+    # Display help if no arguments are defined
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit(1)
+
+    # Parse input arguments
+    args = parser.parse_args()
+
+    with open("config/" + args.config) as configuration:
+        conf = json.load(configuration)
+    
+    config = conf["config"]
+
+    influx_config = conf["influx_config"]
+    
+    alicante_consumption = SendData(config, config_influx=influx_config)
+
+    alicante_consumption.send()
+
+if __name__ == '__main__':
+    main()

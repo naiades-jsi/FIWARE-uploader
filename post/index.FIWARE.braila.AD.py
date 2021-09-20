@@ -1,38 +1,35 @@
 from post_FIWARE import SendData
 
-config_ad = {
-    'type':{
-        'name': 'cosumption',
-        'time_name': 'timestamp',
-        'data_name': ['value']
-    },
-    'kafka':{
-        'topics': [
-            "anomalies_braila_flow_211106H360",
-            "anomalies_braila_flow_211206H360",
-            "anomalies_braila_flow_211306H360",
-            "anomalies_braila_flow_318505H498",
-            "anomalies_braila_pressure_5770",
-            "anomalies_braila_pressure_5771",
-            "anomalies_braila_pressure_5772",
-            "anomalies_braila_pressure_5773"
+import argparse
+import sys
+import json
 
-        ],
-        'bootstrap_servers': "localhost:9092",
-        'offset':'earlist'
-    },
-    'fiware':{
-        'headers': {
-            'Fiware-Service': 'braila',
-            'Content-Type': 'application/json',
-        },
-        'update': True,
-        'url': 'http://5.53.108.182:1026/v2/entities/',
-        'id': 'Consumption:Romania-Braila-',
-        'sensor_name_re': 'anomalies_braila_(.+)'
-    }
-}
+def main():
+    parser = argparse.ArgumentParser(description="Modeling component")
 
-braila_anomaly = SendData(config_ad)
+    parser.add_argument(
+        "-c",
+        "--config",
+        dest="config",
+        default="config.json",
+        help=u"Config file located in ./config/ directory",
+    )
 
-braila_anomaly.send()
+    # Display help if no arguments are defined
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit(1)
+
+    # Parse input arguments
+    args = parser.parse_args()
+
+    with open("config/" + args.config) as configuration:
+        conf = json.load(configuration)
+    
+    config = conf["config"]
+
+    influx_config = conf["influx_config"]
+
+    braila_anomaly = SendData(config)
+
+    braila_anomaly.send()

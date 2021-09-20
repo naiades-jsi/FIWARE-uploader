@@ -80,6 +80,7 @@ class SendData():
         # data model
         entity_id = self.id + sensor_name + '_' + horizon # + time_stamp.strftime("%Y%m%d")
 
+        # TODO during winter time it needs to be +1
         data_model['dateCreated']['value'] = (time_stamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + '.00Z+02' # +2 ali +1
         data_model['consumptionFrom']['value'] = (time_stamp + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + '.00Z+02'
         data_model['consumptionTo']['value'] = (time_stamp + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + '.00Z+02'
