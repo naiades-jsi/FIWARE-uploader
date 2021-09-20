@@ -15,10 +15,9 @@
                 "anomalies_braila_pressure_5771",
                 "anomalies_braila_pressure_5772",
                 "anomalies_braila_pressure_5773"
-    
             ],
             "bootstrap_servers": "localhost:9092",
-            "offset":"earlist"
+            "offset":"latest"
         },
         "fiware":{
             "headers": {

@@ -10,12 +10,10 @@ class PushToDB():
         self.org = org
         
         self.client = InfluxDBClient(url=self.url, token=self.token, org=self.org)
-        pass
-        
+
     def push_data(self, point, bucket: str = 'TestBucket'):
         writer = self.client.write_api(write_options=SYNCHRONOUS)
         writer.write(bucket=bucket, record=point)
-        pass
 
     def create_point(self, measurement: str, time, tags: dict=None, fields:dict=None):
         point = Point(measurement)

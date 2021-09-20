@@ -96,18 +96,18 @@ class SendData():
         #influx
         if self.config_influx != None:
             measurement = sensor_name
-            print(measurement)
+            # TODO timestamp should probably be in nanoseconds
             point = self.influx.create_point(measurement=measurement, time=datetime.fromtimestamp(timestamp), tags= {"horizont": horizon}, fields={'prediction': value} )
             if "alicante" in topic:
                 self.influx.push_data(point=point, bucket = 'alicante_forecasting' )
-                pass
             elif "braila" in topic:
                 self.influx.push_data(point=point, bucket = 'braila_forecasting' )
-                pass
 
     def anomaly(self, msg):
         rec = eval(msg.value) # kafka record
-        timestamp = int(int(rec[self.time_name]) / 1000) # tmestamp in seconds
+        # NOTE: we assume the timestamp is in ms
+        timestamp = int(int(rec[self.time_name]) / 1000) # timestamp in seconds
+        timestamp_in_ns = int(rec[self.time_name]) * 1000
         topic = msg.topic # topic name
 
         value = rec[self.data_name] # extract value from record
@@ -117,7 +117,7 @@ class SendData():
 
         entity_id = self.id + sensor_name
         dic = {
-            -1 : "Error: check algorithm.",
+            -1 : "Error",
             0 : "Warning",
             1 : "OK",
             2 : "Undefined"
@@ -131,17 +131,38 @@ class SendData():
             data_model["subCategory"]["value"] = "long_term"
 
         data_model['description']['value'] = dic[int(rec['status_code'])]
+        # TODO during winter time it needs to be +1
         data_model['dateIssued']['value'] = (time_stamp).isoformat() + '.00Z+02'
 
         data_model['validFrom']['value'] = (time_stamp).isoformat() + '.00Z+02'
 
         self.postToFiware(data_model, entity_id)
 
+        #influx
+        if self.config_influx != None:
+            measurement = sensor_name
+            
+            output_dict = {'algorithm': rec["algorithm"],
+                            "value": rec["value"],
+                            "status": rec["status"],
+                            "status_code": rec["status_code"]}
+            if("suggested_value" in rec):
+                output_dict["suggested_value"] = rec["suggested_value"]
+            
+
+            point = self.influx.create_point(measurement=measurement,
+                                             time=timestamp_in_ns,
+                                             tags= {},
+                                             fields= output_dict)
+            if "alicante" in topic:
+                self.influx.push_data(point=point, bucket = 'alicante_anomaly' )
+            elif "braila" in topic:
+                self.influx.push_data(point=point, bucket = 'braila_forecasting' )
         
 
     def leakage(self, msg):
         rec = eval(msg.value) # kafka record
-        timestamp = int(rec[self.time_name] / 1000) # itmestamp in seconds
+        timestamp = int(rec[self.time_name] / 1000) # timestamp in seconds
         topic = msg.topic # topic name
 
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
@@ -169,6 +190,8 @@ class SendData():
         data_model["affectedGroup"]["value"] = rec
 
         self.postToFiware(data_model, entity_id)
+
+        #TODO add influx
 
     def leakage_position(self, msg):
         # TODO

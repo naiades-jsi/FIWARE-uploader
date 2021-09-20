@@ -6,8 +6,7 @@
             "data_name": ["value"]
         },
         "kafka":{
-            "topics": [
-                
+            "topics": [ 
                 "predictions_braila_flow318505H498_prediction",
                 "predictions_braila_flow211306H360_prediction",
                 "predictions_braila_flow211106H360_prediction",
