@@ -24,7 +24,7 @@
         }
     },
     "influx_config": {
-            "token" : "----INFLUX-TOKEN----------",
+        "token" : "AOAm_a0wPNlX3u10m0Fl7gBLeKZwjV67tYPvpU4FRLxNZPmRLS-BDV81jtUKzC_siO1VPqCkTfzo8H9OVEv5eQ==",
             "org" : "naiades",
             "url" : "http://atena.ijs.si:8086"
         }
