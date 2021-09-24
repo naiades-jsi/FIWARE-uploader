@@ -22,7 +22,7 @@ def main():
 
     # Parse input arguments
     args = parser.parse_args()
-
+    #print("here", flush=True)
     with open("config/" + args.config) as configuration:
         conf = json.load(configuration)
     
@@ -30,6 +30,9 @@ def main():
 
     influx_config = conf["influx_config"]
 
-    braila_anomaly = SendData(config)
+    braila_anomaly = SendData(config, config_influx=influx_config)
 
     braila_anomaly.send()
+
+if (__name__ == '__main__'):
+    main()

@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 
@@ -10,6 +11,14 @@ class PushToDB():
         self.org = org
         
         self.client = InfluxDBClient(url=self.url, token=self.token, org=self.org)
+
+    def write_data(self, to_write: Dict[str, Any], bucket: str,
+                   measurement: str, timestamp: int, tags: dict={}):
+        writer = self.client.write_api(write_options=SYNCHRONOUS)
+        writer.write(bucket, self.org,
+                     [{"measurement": measurement,
+                     "tags": tags, "fields": to_write,
+                     "time": timestamp}])
 
     def push_data(self, point, bucket: str = 'TestBucket'):
         writer = self.client.write_api(write_options=SYNCHRONOUS)

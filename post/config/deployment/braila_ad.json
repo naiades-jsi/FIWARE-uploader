@@ -1,9 +1,19 @@
 {
     "config": {
         "type":{
-            "name": "cosumption",
+            "name": "anomaly",
             "time_name": "timestamp",
-            "data_name": ["value"]
+            "data_name": ["value"],
+            "locations": [
+                null,
+                null,
+                null,
+                null,
+                [45.27161, 27.97429],
+                [45.27161, 27.97429],
+                [45.27161, 27.97429],
+                [45.27161, 27.97429]
+            ]
         },
         "kafka":{
             "topics": [
@@ -26,12 +36,12 @@
             },
             "update": true,
             "url": "http://5.53.108.182:1026/v2/entities/",
-            "id": "Consumption:Romania-Braila-",
+            "id": "urn:ngsi-ld:Alert:ES-Alert-",
             "sensor_name_re": "anomalies_braila_(.+)"
         }
     },    
     "influx_config": {
-        "token" : "AOAm_a0wPNlX3u10m0Fl7gBLeKZwjV67tYPvpU4FRLxNZPmRLS-BDV81jtUKzC_siO1VPqCkTfzo8H9OVEv5eQ==",
+            "token" : "FIUcc6mm_RS0jNAKAplpYE-uW_05ymquHPP6nnFO0AIpQKV4m75ML1JQF_lxQ5TPJPUHkyxrFguN9aGEfUmneQ==",
             "org" : "naiades",
             "url" : "http://localhost:8086/"
         }

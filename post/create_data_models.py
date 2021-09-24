@@ -4,17 +4,32 @@ alert_template = {
     #"id": "",
     "type": "Alert",
     "category": {
-        "value": "anomaly"
+        "type": "Text",
+        "value": "environment"
     },
     "subCategory": {
-        "value": "lobng_term"
+        "type": "Text",
+        "value": "waterPollution"
     },
     "description": {
-        "value": ""
+        "type": "Text"
+        # Value will be added
     },
     "dateIssued": {
         "type": "DateTime",
-        "value": "2017-01-02T09:25:55.00Z"
+        # eg. "value": "2017-01-02T09:25:55.00Z"
+    },
+    "alertSource":{
+        "type": "Text",
+        # Value will be added
+    },
+    "location": {
+        "type": "geo:json",
+        "value": {
+            "type": "Point",
+            "coordinates": [ # to be inserted
+            ]
+        }
     }
 }
 
