@@ -42,7 +42,7 @@
         }
     },    
     "influx_config": {
-            "token" : "gQfh1V025IThOeSX-YcE_aUZO4de4Z_zk9YE_omCnYhsDc-8Pe1ferFelfSuZ8zfpMpFI5hTOUtOVF6DsKgepQ==",
+            "token" : "AOAm_a0wPNlX3u10m0Fl7gBLeKZwjV67tYPvpU4FRLxNZPmRLS-BDV81jtUKzC_siO1VPqCkTfzo8H9OVEv5eQ==",
             "org" : "naiades",
             "url" : "http://localhost:8086/"
         }
