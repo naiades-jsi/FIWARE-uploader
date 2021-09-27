@@ -19,6 +19,7 @@ from pushToInflux import PushToDB
 class SendData():
     type: str
     time_name: str
+    time_format: str
     data_name: str
     locations: List[str]
     
@@ -38,8 +39,16 @@ class SendData():
     def __init__(self, config, config_influx = None):
         self.type = config["type"]["name"]
         self.time_name = config["type"]["time_name"]
+        self.time_format = config["type"]["time_format"]
         self.data_name = config["type"]["data_name"]
         self.locations = config["type"]["locations"]
+
+        # Check if format is is acceptable
+        if(self.unix_time_format != "s" and self.unix_time_format != "ms" and
+           self.unix_time_format != "ns" and self.unix_time_format != "us"):
+           print("Invalid unix_time_format at %s.", self.measurement,
+                 flush=True)
+           exit(1)
 
         self.topics = config["kafka"]["topics"]
         self.consumer = KafkaConsumer(bootstrap_servers=config["kafka"]["bootstrap_servers"], auto_offset_reset=config["kafka"]["offset"])
@@ -143,8 +152,17 @@ class SendData():
         else:
             city = "unknown"
         # NOTE: we assume the timestamp is in ms
+        
         timestamp = int(int(rec[self.time_name]) / 1000) # timestamp in seconds
-        timestamp_in_ns = int(rec[self.time_name]) * 1000
+        
+        # Change timestamp to ns
+        if(self.unix_time_format == "s"):
+            timestamp_in_ns = int(timestamp*1000000000)
+        elif(self.unix_time_format == "ms"):
+            timestamp_in_ns = int(timestamp*1000000)
+        elif(self.unix_time_format == "us"):
+            timestamp_in_ns = int(timestamp*1000)
+
         # time to datetime
         time_stamp = datetime.utcfromtimestamp(timestamp)
         day_of_month = f'{time_stamp.day:02d}'
@@ -197,7 +215,7 @@ class SendData():
                 bucket = "braila_anomaly"
 
             point = self.influx.write_data(measurement=measurement,
-                                             time=timestamp_in_ns,
+                                             timestamp=timestamp_in_ns,
                                              tags= {},
                                              to_write= output_dict,
                                              bucket=bucket)

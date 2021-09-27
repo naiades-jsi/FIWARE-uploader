@@ -3,6 +3,7 @@
         "type":{
             "name": "anomaly",
             "time_name": "timestamp",
+            "time_format": "ms",
             "data_name": ["value"],
             "locations": [
                 null,
