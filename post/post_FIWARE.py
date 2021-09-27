@@ -44,8 +44,8 @@ class SendData():
         self.locations = config["type"]["locations"]
 
         # Check if format is is acceptable
-        if(self.unix_time_format != "s" and self.unix_time_format != "ms" and
-           self.unix_time_format != "ns" and self.unix_time_format != "us"):
+        if(self.time_format != "s" and self.time_format != "ms" and
+           self.time_format != "ns" and self.time_format != "us"):
            print("Invalid unix_time_format at %s.", self.measurement,
                  flush=True)
            exit(1)
@@ -156,12 +156,12 @@ class SendData():
         timestamp = int(int(rec[self.time_name]) / 1000) # timestamp in seconds
         
         # Change timestamp to ns
-        if(self.unix_time_format == "s"):
-            timestamp_in_ns = int(timestamp*1000000000)
-        elif(self.unix_time_format == "ms"):
-            timestamp_in_ns = int(timestamp*1000000)
-        elif(self.unix_time_format == "us"):
-            timestamp_in_ns = int(timestamp*1000)
+        if(self.time_format == "s"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000000)
+        elif(self.time_format == "ms"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000)
+        elif(self.time_format == "us"):
+            timestamp_in_ns = int(rec[self.time_name]*1000)
 
         # time to datetime
         time_stamp = datetime.utcfromtimestamp(timestamp)
@@ -213,14 +213,12 @@ class SendData():
                 bucket = "alicante_anomaly" 
             elif "braila" in topic:
                 bucket = "braila_anomaly"
-
-            point = self.influx.write_data(measurement=measurement,
+            print(timestamp_in_ns, flush=True)
+            self.influx.write_data(measurement=measurement,
                                              timestamp=timestamp_in_ns,
                                              tags= {},
                                              to_write= output_dict,
                                              bucket=bucket)
-            
-        
 
     def leakage(self, msg):
         rec = eval(msg.value) # kafka record

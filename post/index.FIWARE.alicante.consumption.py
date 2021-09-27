@@ -34,5 +34,5 @@ def main():
 
     alicante_consumption.send()
 
-if __name__ == '__main__':
-    main()
+"""if __name__ == '__main__':
+    main()"""

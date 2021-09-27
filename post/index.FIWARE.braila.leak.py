@@ -33,3 +33,6 @@ def main():
     braila_leakage = SendData(config)
 
     braila_leakage.send()
+
+"""if __name__ == '__main__':
+    main()"""
