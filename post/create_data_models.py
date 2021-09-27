@@ -5,11 +5,11 @@ alert_template = {
     "type": "Alert",
     "category": {
         "type": "Text",
-        "value": "environment"
+        "value": "anomaly"
     },
     "subCategory": {
         "type": "Text",
-        "value": "waterPollution"
+        "value": "longTerm"
     },
     "description": {
         "type": "Text"
