@@ -204,7 +204,10 @@ class SendData():
             measurement = sensor_name
 
             output_dict = { "value": rec["value"],
-                            "status_code": rec["status_code"]}
+                            "status_code": rec["status_code"],
+                            "algorithm": rec["algorithm"],
+                            "status": rec["status"]}
+            print("{} => to influx: {}".format(datetime.now(), output_dict), flush=True)
             if("suggested_value" in rec):
                 output_dict["suggested_value"] = rec["suggested_value"]
             
@@ -213,7 +216,7 @@ class SendData():
                 bucket = "alicante_anomaly" 
             elif "braila" in topic:
                 bucket = "braila_anomaly"
-            print(timestamp_in_ns, flush=True)
+            #print(timestamp_in_ns, flush=True)
             self.influx.write_data(measurement=measurement,
                                              timestamp=timestamp_in_ns,
                                              tags= {},
