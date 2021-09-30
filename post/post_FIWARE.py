@@ -203,11 +203,16 @@ class SendData():
         if self.config_influx != None:
             measurement = sensor_name
 
-            output_dict = { "value": rec["value"],
+            output_dict = { "value": rec["value"][0],
                             "status_code": rec["status_code"],
                             "algorithm": rec["algorithm"],
                             "status": rec["status"]}
+            
+            # DEBUG
             print("{} => to influx: {}".format(datetime.now(), output_dict), flush=True)
+            print(sensor_name, flush=True)
+            print(timestamp_in_ns)
+            
             if("suggested_value" in rec):
                 output_dict["suggested_value"] = rec["suggested_value"]
             
