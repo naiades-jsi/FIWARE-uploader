@@ -87,34 +87,38 @@ consumption_template = {
 flower_bed_template = {
     #"id": "",
     "type": "FlowerBed",
-    "category": {
-        "value": ["FlowerBed"]
-    },
-    "soilMoistureVwc": {
-        "value": None
-    },
-    "dateNextWatering": {
+    #"category": {
+    #    "value": ["FlowerBed"]
+    #},
+    #"soilMoistureVwc": {
+    #    "value": None
+    #},
+    "nextWateringDeadline": {
         "type": "DateTime",
         "value": "2017-03-31T08:00"
     },
-    "soilTemperature": {
-        "value": None
-    },
-    "address": {
-        "type": "PostalAddress",
-        "value": {
-            "addressCountry": "",
-            "streetAddress": "",
-            "adressLocality": ""
-        }
-    },
-    "location": {
-        "type": "GeoProperty",
-        "value": {
-            "type": "Point",
-            "coordinates": [0.0, 0.0]
-        }
+    "nextWateringAmountRecommendation": {
+        "type": "Number",
+        "value": 0.5
     }
+    #"soilTemperature": {
+    #    "value": None
+    #},
+    #"address": {
+    #    "type": "PostalAddress",
+    #    "value": {
+    #        "addressCountry": "",
+    #        "streetAddress": "",
+    #        "adressLocality": ""
+    #    }
+    #},
+    #"location": {
+    #    "type": "GeoProperty",
+    #    "value": {
+    #        "type": "Point",
+    #        "coordinates": [0.0, 0.0]
+    #    }
+    #}
 }
 
 leakage_model_template = {

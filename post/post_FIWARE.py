@@ -6,6 +6,7 @@ import random
 import pandas as pd
 import copy
 import re
+import time
 
 import json
 
@@ -41,7 +42,9 @@ class SendData():
         self.time_name = config["type"]["time_name"]
         self.time_format = config["type"]["time_format"]
         self.data_name = config["type"]["data_name"]
-        self.locations = config["type"]["locations"]
+
+        if(self.type == "anomaly"):
+            self.locations = config["type"]["locations"]
 
         # Check if format is is acceptable
         if(self.time_format != "s" and self.time_format != "ms" and
@@ -203,7 +206,7 @@ class SendData():
         if self.config_influx != None:
             measurement = sensor_name
 
-            output_dict = { "value": rec["value"][0],
+            output_dict = { "value": float(rec["value"][0]),
                             "status_code": rec["status_code"],
                             "algorithm": rec["algorithm"],
                             "status": rec["status"]}
@@ -211,7 +214,7 @@ class SendData():
             # DEBUG
             print("{} => to influx: {}".format(datetime.now(), output_dict), flush=True)
             print(sensor_name, flush=True)
-            print(timestamp_in_ns)
+            print(timestamp_in_ns, flush=True)
             
             if("suggested_value" in rec):
                 output_dict["suggested_value"] = rec["suggested_value"]
@@ -271,26 +274,76 @@ class SendData():
         data_model = {} # create data_model
     
     def flower_bed(self, msg):
-        # TODO 
         rec = eval(msg.value) # kafka record
-        timestamp = int(rec[self.time_name] / 1000) # itmestamp in seconds
         topic = msg.topic # topic name
 
-        value = rec[self.data_name] # extract value from record
+        # Change timestamp to ns
+        if(self.time_format == "s"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000000)
+        elif(self.time_format == "ms"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000)
+        elif(self.time_format == "us"):
+            timestamp_in_ns = int(rec[self.time_name]*1000)
 
         sensor_name = re.findall(self.sensor_name_re, topic)[0]
-        data_model = {}
+        
+        # Construct data model
+        data_model = copy.deepcopy(flower_bed_template) # create data_model  
 
-        data_model["type"] = "FlowerBed"
-        data_model["nextWateringAmountRecommendation"]["type"] = "Number"
         data_model["nextWateringAmountRecommendation"]["value"] = rec["WA"]
 
-        data_model["nextWateringDeadline"]["type"] = "DateTime"
-        data_model["nextWateringDeadline"]["value"] = rec["T"] + ".00Z+02"
+        time_string = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z+02"
+        data_model["nextWateringDeadline"]["value"] = time_string
 
-        entity_id = self.id + sensor_name 
+        # Find the correct entity
+        entity_mapper = {
+            "0a7d": "urn:ngsi-ld:FlowerBed:FlowerBed-3",
+            "1f10": "urn:ngsi-ld:FlowerBed:FlowerBed-3",
+            "0a80": "urn:ngsi-ld:FlowerBed:FlowerBed-4",
+            "1f06": "urn:ngsi-ld:FlowerBed:FlowerBed-4",
+            "0a6a": "urn:ngsi-ld:FlowerBed:FlowerBed-5",
+            "1efd": "urn:ngsi-ld:FlowerBed:FlowerBed-5",
+            "0a83": "urn:ngsi-ld:FlowerBed:FlowerBed-6",
+            "1eff": "urn:ngsi-ld:FlowerBed:FlowerBed-6",
+            "0972": "urn:ngsi-ld:FlowerBed:FlowerBed-7",
+            "1f02": "urn:ngsi-ld:FlowerBed:FlowerBed-7",
+            "0a81": "urn:ngsi-ld:FlowerBed:FlowerBed-8",
+            "1efe": "urn:ngsi-ld:FlowerBed:FlowerBed-8",
+            "0a7c": "urn:ngsi-ld:FlowerBed:FlowerBed-1",
+            "1f0d": "urn:ngsi-ld:FlowerBed:FlowerBed-1",
+            "0a35": "urn:ngsi-ld:FlowerBed:FlowerBed-2",
+            "1f08": "urn:ngsi-ld:FlowerBed:FlowerBed-2"
+        }
+        entity_id = entity_mapper[sensor_name]
 
         self.postToFiware(data_model, entity_id)
+
+        #influx
+        if self.config_influx != None:
+            measurement = sensor_name + "_watering"
+
+            output_dict = {"watering_amount": rec["WA"]}
+            
+            timestamp_of_watering = int(time.mktime(datetime.strptime(rec["T"], "%Y-%m-%d %H:%M:%S").timetuple()))*1000000000
+
+            # DEBUG
+            print("{} => to influx: {}".format(datetime.now(), output_dict), flush=True)
+            print(sensor_name, flush=True)
+            print(timestamp_of_watering, flush=True)
+            print(measurement)
+            print(output_dict)
+            
+            if("suggested_value" in rec):
+                output_dict["suggested_value"] = rec["suggested_value"]
+            
+            # Select bucket
+            bucket = "carouge_watering"
+
+            self.influx.write_data(measurement=measurement,
+                                             timestamp=timestamp_of_watering,
+                                             tags= {},
+                                             to_write= output_dict,
+                                             bucket=bucket)
 
     def postToFiware(self, data_model, entity_id):
         params = (

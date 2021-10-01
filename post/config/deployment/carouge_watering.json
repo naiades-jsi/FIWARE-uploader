@@ -1,0 +1,41 @@
+{
+    "config": {
+        "type":{
+            "name": "flower_bed",
+            "time_format": "ms",
+            "time_name": "timestamp",
+            "data_name": ["WA"]
+        },
+        "kafka":{
+            "topics": [
+                "device_1efd_pred_output", 
+                "device_1efe_pred_output",
+                "device_1eff_pred_output",
+                "device_1f0d_pred_output",
+                "device_1f02_pred_output",
+                "device_1f06_pred_output",
+                "device_1f08_pred_output",
+                "device_1f09_pred_output",
+                "device_1f10_pred_output"
+                
+            ],
+            "bootstrap_servers": "localhost:9092",
+            "offset":"latest"  
+        },
+        "fiware":{
+            "headers": {
+                "Fiware-Service": "carouge",
+                "Content-Type": "application/json"
+            },
+            "update": true,
+            "url": "http://5.53.108.182:1026/v2/entities/",
+            "id": "",
+            "sensor_name_re": "device_(.+)_pred_output"
+        }
+    },    
+    "influx_config": {
+        "token" : "qatrYs6Aw5N8q_pXYxo0rk8bN6xOhTog-sTGVCcHaCxDi4SuS22Ruwiy0S1KLrbWuoeYTuepO_xYepmXk31tdA==",
+        "org" : "naiades",
+        "url" : "http://localhost:8086/"
+    }
+}
