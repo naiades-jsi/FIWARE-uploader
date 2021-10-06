@@ -123,22 +123,30 @@ flower_bed_template = {
 
 leakage_model_template = {
     #"id": "",
-    "type": "Alert",
+    "type" : {
+		"type" : "text",
+		"value" : "Alert"
+	},
     "category": {
+        "type" : "enum",
         "value": "water"
     },
     "subCategory": {
+        "type" : "enum",
         "value": "leakage"
     },
-    "affectedGroup": {
-        "Type": "Array",
-        "Value": {
-            "0": [],
-            "1": []
+    "data": {
+        "type" : "structuredvalue",
+        "affectedGroup": {
+            "Type": "Array",
+            "Value": {
+                "0": [],
+                "1": []
+            }
         }
     },
     "dateIssued": {
-        "type": "DateTime",
+        "type": "datetime",
         "value": "2017-01-02T09:25:55.00Z"
     }
 }

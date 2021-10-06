@@ -232,37 +232,38 @@ class SendData():
                                              bucket=bucket)
 
     def leakage(self, msg):
+        # Leakage group (Zan) => uploads to alert
         rec = eval(msg.value) # kafka record
-        timestamp = int(rec[self.time_name] / 1000) # timestamp in seconds
-        topic = msg.topic # topic name
-
-        sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
         
-        data_model = {} # create data_model
+        # Change timestamp to ns
+        if(self.time_format == "s"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000000)
+        elif(self.time_format == "ms"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000)
+        elif(self.time_format == "us"):
+            timestamp_in_ns = int(rec[self.time_name]*1000)
 
-        data_model["type"] = "Alert"
-
-        data_model["category"] = {
-                "value": "water"
-            }
-
-        data_model["subCategory"] = {
-                "value": "leakage"
-            }
+        # Only one topic (braila_leakage_groups)
+        #topic = msg.topic # topic name
+        #sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
+        
+        data_model = copy.deepcopy(leakage_model_template) # create data_model
 
         # time
-        time_stamp = datetime.utcfromtimestamp(timestamp) 
+        time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000) 
+        day_of_month = f'{time_stamp.day:02d}'
+        hour_of_day = f'{time_stamp.hour:02d}'
 
-        entity_id = self.id + sensor_name
-        data_model["dateIssued"]["type"] = "DateTime"
-        data_model["dateIssued"]["value"] = (time_stamp).replace(microsecond=0).isoformat() + ".00Z+02"
+        # We are exporting to only one entity
+        entity_id = "urn:ngsi-ld:Alert:ES-Alert-Braila-leakageGroup-" + day_of_month + "-" + hour_of_day
+        
+        data_model["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z+02"
 
-        data_model["affectedGroup"]["type"] = "Array"
         data_model["affectedGroup"]["value"] = rec
 
         self.postToFiware(data_model, entity_id)
 
-        #TODO add influx
+        #TODO add influx do we need it?
 
     def leakage_position(self, msg):
         # TODO
