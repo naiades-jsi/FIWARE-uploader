@@ -43,7 +43,7 @@ class SendData():
         self.time_format = config["type"]["time_format"]
         self.data_name = config["type"]["data_name"]
 
-        if(self.type == "anomaly"):
+        if("locations" in config["type"]):
             self.locations = config["type"]["locations"]
 
         # Check if format is is acceptable
@@ -70,7 +70,6 @@ class SendData():
 
         print("{} => configuration finished".format(datetime.now()), flush=True)
 
-
     def send(self):
         print("{} => started listening".format(datetime.now()), flush=True)
         for msg in self.consumer:
@@ -78,8 +77,8 @@ class SendData():
             try:
                 if self.type == "consumption":
                     self.consumption(msg)
-                elif self.type == "leakage":
-                    self.leakage(msg)
+                elif self.type == "leakage_group":
+                    self.leakage_group(msg)
                 elif self.type == "leakage_position":
                     self.leakage_position(msg)
                 elif self.type == "flower_bed":
@@ -91,7 +90,6 @@ class SendData():
             except Exception as e:
                 print(e, flush=True)
                 print("Did not send successfully.", flush=True)
-            #return 0
 
     def consumption(self, msg):
         rec = json.loads(msg.value.decode("utf-8"))
@@ -231,7 +229,7 @@ class SendData():
                                              to_write= output_dict,
                                              bucket=bucket)
 
-    def leakage(self, msg):
+    def leakage_group(self, msg):
         # Leakage group (Zan) => uploads to alert
         rec = eval(msg.value) # kafka record
         
@@ -256,10 +254,10 @@ class SendData():
 
         # We are exporting to only one entity
         entity_id = "urn:ngsi-ld:Alert:ES-Alert-Braila-leakageGroup-" + day_of_month + "-" + hour_of_day
-        
+
         data_model["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z+02"
 
-        data_model["affectedGroup"]["value"] = rec
+        data_model["data"]["value"]["affectedGroup"]["value"] = rec
 
         self.postToFiware(data_model, entity_id)
 

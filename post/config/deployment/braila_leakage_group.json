@@ -1,7 +1,7 @@
 {
     "config": {
         "type":{
-            "name": "anomaly",
+            "name": "leakage_group",
             "time_name": "timestamp",
             "time_format": "ms",
             "data_name": ["value"]
@@ -18,7 +18,7 @@
                 "Fiware-Service": "braila",
                 "Content-Type": "application/json"
             },
-            "update": true,
+            "update": false,
             "url": "http://5.53.108.182:1026/v2/entities/",
             "id": "urn:ngsi-ld:Alert:ES-Alert-",
             "sensor_name_re": "anomalies_braila_(.+)"
