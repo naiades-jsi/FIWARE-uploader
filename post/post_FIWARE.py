@@ -74,64 +74,83 @@ class SendData():
         print("{} => started listening".format(datetime.now()), flush=True)
         for msg in self.consumer:
             print("{} => message recieved".format(datetime.now()), flush=True)
-            try:
-                if self.type == "consumption":
-                    self.consumption(msg)
-                elif self.type == "leakage_group":
-                    self.leakage_group(msg)
-                elif self.type == "leakage_position":
-                    self.leakage_position(msg)
-                elif self.type == "flower_bed":
-                    self.flower_bed(msg)
-                elif self.type == "anomaly":
-                    self.anomaly(msg)
-                else :
-                    print("Wrong type name.", flush=True)
-            except Exception as e:
-                print(e, flush=True)
-                print("Did not send successfully.", flush=True)
+            #try:
+            if self.type == "consumption":
+                self.consumption(msg)
+            elif self.type == "leakage_group":
+                self.leakage_group(msg)
+            elif self.type == "leakage_position":
+                self.leakage_position(msg)
+            elif self.type == "flower_bed":
+                self.flower_bed(msg)
+            elif self.type == "anomaly":
+                self.anomaly(msg)
+            else :
+                print("Wrong type name.", flush=True)
+            #except Exception as e:
+            #    print(e, flush=True)
+            #    print("Did not send successfully.", flush=True)
 
     def consumption(self, msg):
-        rec = json.loads(msg.value.decode("utf-8"))
-
-        timestamp = int(int(rec[self.time_name]) / 1000) # itmestamp in seconds
+        # sample output: {"timestamp": "2021-10-11 11:38:47.374354", "value": "[0.36906925]", "horizon": "24"}
+        rec = eval(msg.value)
 
         topic = msg.topic # topic name
-        #topic = msg["topic"]
-        value = rec["value"] # extract value from record
+
+        # Change timestamp to ns
+        if(self.time_format == "s"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000000)
+        elif(self.time_format == "ms"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000)
+        elif(self.time_format == "us"):
+            timestamp_in_ns = int(rec[self.time_name]*1000)
+
+        # extract value from record
+        value = eval(rec["value"])[0]
+        horizon = str(int(int(rec["horizon"]) / 24)) + "d" # Horizon is expected in hours
+        prediction_time = int(rec["prediction_time"]/1000) # Must be in miliseconds
+        from_time = timestamp_in_ns/1000000000
+        to_time = from_time + int(rec["horizon"]) * 3600
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
-        
-        data_model = copy.deepcopy(consumption_template) # create data_model
 
         # time
-        time_stamp = datetime.utcfromtimestamp(timestamp) 
+        prediction_time_timestamp = datetime.utcfromtimestamp(prediction_time)
+        from_time_timestamp = datetime.utcfromtimestamp(from_time)
+        to_time_timestamp = datetime.utcfromtimestamp(to_time)
 
-        horizon = int(rec["horizon"] / 24) + "d"
         # data model
+        data_model = copy.deepcopy(consumption_template) # create data_model
         entity_id = self.id + sensor_name + "_" + horizon # + time_stamp.strftime("%Y%m%d")
 
         # TODO during winter time it needs to be +1
-        data_model["dateCreated"]["value"] = (time_stamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02" # +2 ali +1
-        data_model["consumptionFrom"]["value"] = (time_stamp + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02"
-        data_model["consumptionTo"]["value"] = (time_stamp + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02"
+        data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02" # +2 ali +1
+        data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02"
+        data_model["consumptionTo"]["value"] = (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02"
 
         data_model["consumption"]["value"] = value
         #data_model["consumptionMax"] = None
         #data_model["consumptionMin"] = None
-        
-        data_model["consumptionUnit"] = "m3/s"
 
         self.postToFiware(data_model, entity_id)
 
         #influx
         if self.config_influx != None:
             measurement = sensor_name
-            # TODO timestamp should probably be in nanoseconds
-            point = self.influx.create_point(measurement=measurement, time=datetime.fromtimestamp(timestamp), tags= {"horizont": horizon}, fields={"prediction": value} )
+            prediction_time_in_ns = prediction_time * 1000000000
+
+            output_dict = { "value": value }
+            
+            # Select bucket
             if "alicante" in topic:
-                self.influx.push_data(point=point, bucket = "alicante_forecasting" )
+                bucket = "alicante_forecasting" 
             elif "braila" in topic:
-                self.influx.push_data(point=point, bucket = "braila_forecasting" )
+                bucket = "braila_forecasting"
+
+            self.influx.write_data(measurement=measurement,
+                                   timestamp=prediction_time_in_ns,
+                                   tags= {},
+                                   to_write= output_dict,
+                                   bucket=bucket)
 
     def anomaly(self, msg):
         # Translate codes to string
@@ -154,7 +173,7 @@ class SendData():
             city = "unknown"
         # NOTE: we assume the timestamp is in ms
         
-        timestamp = int(int(rec[self.time_name]) / 1000) # timestamp in seconds
+        #timestamp = int(int(rec[self.time_name]) / 1000) # timestamp in seconds
         
         # Change timestamp to ns
         if(self.time_format == "s"):
@@ -165,7 +184,7 @@ class SendData():
             timestamp_in_ns = int(rec[self.time_name]*1000)
 
         # time to datetime
-        time_stamp = datetime.utcfromtimestamp(timestamp)
+        time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000)
         day_of_month = f'{time_stamp.day:02d}'
         hour_of_day = f'{time_stamp.hour:02d}'
         
@@ -209,11 +228,6 @@ class SendData():
                             "algorithm": rec["algorithm"],
                             "status": rec["status"]}
             
-            # DEBUG
-            print("{} => to influx: {}".format(datetime.now(), output_dict), flush=True)
-            print(sensor_name, flush=True)
-            print(timestamp_in_ns, flush=True)
-            
             if("suggested_value" in rec):
                 output_dict["suggested_value"] = rec["suggested_value"]
             
@@ -245,7 +259,7 @@ class SendData():
         #topic = msg.topic # topic name
         #sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
         
-        data_model = copy.deepcopy(leakage_model_template) # create data_model
+        data_model = copy.deepcopy(leakage_group_model_template) # create data_model
 
         # time
         time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000) 
@@ -264,13 +278,46 @@ class SendData():
         #TODO add influx do we need it?
 
     def leakage_position(self, msg):
-        # TODO
+        # jaka's component
+        # sample data : { "timestamp": 12912903193912, "position": [ LAT, LNG ], "final_location": boolean }
         rec = eval(msg.value) # kafka record
-        timestamp = int(rec[self.time_name] / 1000) # itmestamp in seconds
+        
+        # Change timestamp to ns
+        if(self.time_format == "s"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000000)
+        elif(self.time_format == "ms"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000)
+        elif(self.time_format == "us"):
+            timestamp_in_ns = int(rec[self.time_name]*1000)
+        
         topic = msg.topic # topic name
 
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
-        data_model = {} # create data_model
+        position = rec["position"]
+        final_location = rec["final_location"]
+        
+        data_model = copy.deepcopy(leakage_model_template) # create data_model
+        if(final_location):
+            data_model["finalLeackageLocation"] = {
+                "type": "geo:json",
+                "value": {
+                    "type": "Point",
+                    "coordinates": position
+                }
+            }
+        else:
+            data_model["newLocation"] = {
+                "type": "geo:json",
+                    "value": {
+                    "type": "Point",
+                    "coordinates": position
+                }
+            }
+        
+        entity_id = "urn:ngsi-ld:Device:Device-" + sensor_name
+
+        self.postToFiware(data_model, entity_id)
+        #TODO kafka?
     
     def flower_bed(self, msg):
         rec = eval(msg.value) # kafka record
@@ -324,13 +371,6 @@ class SendData():
             output_dict = {"watering_amount": rec["WA"]}
             
             timestamp_of_watering = int(time.mktime(datetime.strptime(rec["T"], "%Y-%m-%d %H:%M:%S").timetuple()))*1000000000
-
-            # DEBUG
-            print("{} => to influx: {}".format(datetime.now(), output_dict), flush=True)
-            print(sensor_name, flush=True)
-            print(timestamp_of_watering, flush=True)
-            print(measurement)
-            print(output_dict)
             
             if("suggested_value" in rec):
                 output_dict["suggested_value"] = rec["suggested_value"]

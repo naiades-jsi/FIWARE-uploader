@@ -1,13 +1,17 @@
 {
     "config": {
         "type":{
-            "name": "cosumption",
+            "name": "leakage_position",
             "time_name": "timestamp",
+            "time_format": "ms",
             "data_name": ["value"]
         },
         "kafka":{
             "topics": [
-                "braila_leakage_groups"
+                "braila_leakage_position2182",
+                "braila_leakage_position5980",
+                "braila_leakage_position5981",
+                "braila_leakage_position5982"
             ],
             "bootstrap_servers": "localhost:9092",
             "offset":"earlist"
@@ -19,13 +23,13 @@
             },
             "update": true,
             "url": "http://5.53.108.182:1026/v2/entities/",
-            "id": "AffectedGroup:Romania-Braila-",
-            "sensor_name_re": "braila_leakage_(groups)"
+            "id": "",
+            "sensor_name_re": "braila_leakage_position(.+)"
         }
     },
     "influx_config": {
         "token" : "AOAm_a0wPNlX3u10m0Fl7gBLeKZwjV67tYPvpU4FRLxNZPmRLS-BDV81jtUKzC_siO1VPqCkTfzo8H9OVEv5eQ==",
             "org" : "naiades",
-            "url" : "http://atena.ijs.si:8086"
+            "url" : "http://localhost:8086/"
         }
 }

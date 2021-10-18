@@ -33,7 +33,6 @@ alert_template = {
     }
 }
 
-
 consumption_template = {
     #"id": None,
     "type": "Consumption",
@@ -69,7 +68,7 @@ consumption_template = {
     },
     "consumptionUnit": {
         "type": "Text",
-        "value": "m3",
+        "value": "m3/s",
         "metadata": {}
     },
     "consumptionFrom": {
@@ -87,12 +86,6 @@ consumption_template = {
 flower_bed_template = {
     #"id": "",
     "type": "FlowerBed",
-    #"category": {
-    #    "value": ["FlowerBed"]
-    #},
-    #"soilMoistureVwc": {
-    #    "value": None
-    #},
     "nextWateringDeadline": {
         "type": "DateTime",
         "value": "2017-03-31T08:00"
@@ -101,27 +94,9 @@ flower_bed_template = {
         "type": "Number",
         "value": 0.5
     }
-    #"soilTemperature": {
-    #    "value": None
-    #},
-    #"address": {
-    #    "type": "PostalAddress",
-    #    "value": {
-    #        "addressCountry": "",
-    #        "streetAddress": "",
-    #        "adressLocality": ""
-    #    }
-    #},
-    #"location": {
-    #    "type": "GeoProperty",
-    #    "value": {
-    #        "type": "Point",
-    #        "coordinates": [0.0, 0.0]
-    #    }
-    #}
 }
 
-leakage_model_template = {
+leakage_group_model_template = {
     #"id": "",
     "type": "Alert",
     "category": {
@@ -148,5 +123,14 @@ leakage_model_template = {
     "dateIssued": {
         "type": "datetime",
         "value": "2017-01-02T09:25:55.00Z"
+    }
+}
+
+leakage_model_template = {
+    "type": "Device",
+    "isMovedToNewLocation":  {
+        "type": "Boolean",
+        "value": False,
+        "metadata": {}
     }
 }

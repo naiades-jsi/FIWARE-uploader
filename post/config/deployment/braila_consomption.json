@@ -2,7 +2,8 @@
     "config": {
         "type":{
             "name": "consumption",
-            "time_name": "stampm",
+            "time_name": "timestamp",
+            "time_format": "ms",
             "data_name": ["value"]
         },
         "kafka":{
