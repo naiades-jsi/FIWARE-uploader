@@ -317,7 +317,7 @@ class SendData():
         entity_id = "urn:ngsi-ld:Device:Device-" + sensor_name
 
         self.postToFiware(data_model, entity_id)
-        #TODO kafka?
+        #TODO influx?
     
     def flower_bed(self, msg):
         rec = eval(msg.value) # kafka record
