@@ -93,6 +93,10 @@ flower_bed_template = {
     "nextWateringAmountRecommendation": {
         "type": "Number",
         "value": 0.5
+    },
+    "feedback": {
+        "type": "Text",
+        "value": ""
     }
 }
 

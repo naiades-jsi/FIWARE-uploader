@@ -74,22 +74,22 @@ class SendData():
         print("{} => started listening".format(datetime.now()), flush=True)
         for msg in self.consumer:
             print("{} => message recieved".format(datetime.now()), flush=True)
-            #try:
-            if self.type == "consumption":
-                self.consumption(msg)
-            elif self.type == "leakage_group":
-                self.leakage_group(msg)
-            elif self.type == "leakage_position":
-                self.leakage_position(msg)
-            elif self.type == "flower_bed":
-                self.flower_bed(msg)
-            elif self.type == "anomaly":
-                self.anomaly(msg)
-            else :
-                print("Wrong type name.", flush=True)
-            #except Exception as e:
-            #    print(e, flush=True)
-            #    print("Did not send successfully.", flush=True)
+            try:
+                if self.type == "consumption":
+                    self.consumption(msg)
+                elif self.type == "leakage_group":
+                    self.leakage_group(msg)
+                elif self.type == "leakage_position":
+                    self.leakage_position(msg)
+                elif self.type == "flower_bed":
+                    self.flower_bed(msg)
+                elif self.type == "anomaly":
+                    self.anomaly(msg)
+                else :
+                    print("Wrong type name.", flush=True)
+            except Exception as e:
+                print(e, flush=True)
+                print("Did not send successfully.", flush=True)
 
     def consumption(self, msg):
         # sample output: {"timestamp": "2021-10-11 11:38:47.374354", "value": "[0.36906925]", "horizon": "24"}
@@ -320,6 +320,7 @@ class SendData():
         #TODO influx?
     
     def flower_bed(self, msg):
+        # TODO add predictions
         rec = eval(msg.value) # kafka record
         topic = msg.topic # topic name
 
@@ -337,6 +338,7 @@ class SendData():
         data_model = copy.deepcopy(flower_bed_template) # create data_model  
 
         data_model["nextWateringAmountRecommendation"]["value"] = rec["WA"]
+        data_model["feedback"]["value"] = str(rec["predicted_profile"])
 
         time_string = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z+02"
         data_model["nextWateringDeadline"]["value"] = time_string
