@@ -13,7 +13,7 @@ import json
 from kafka import KafkaConsumer
 from kafka import KafkaProducer
 
-from create_data_models import consumption_template, alert_template, flower_bed_template, leakage_model_template
+from create_data_models import consumption_template, alert_template, flower_bed_template, leakage_model_template, leakage_group_model_template
 
 from pushToInflux import PushToDB
 
@@ -74,22 +74,22 @@ class SendData():
         print("{} => started listening".format(datetime.now()), flush=True)
         for msg in self.consumer:
             print("{} => message recieved".format(datetime.now()), flush=True)
-            try:
-                if self.type == "consumption":
-                    self.consumption(msg)
-                elif self.type == "leakage_group":
-                    self.leakage_group(msg)
-                elif self.type == "leakage_position":
-                    self.leakage_position(msg)
-                elif self.type == "flower_bed":
-                    self.flower_bed(msg)
-                elif self.type == "anomaly":
-                    self.anomaly(msg)
-                else :
-                    print("Wrong type name.", flush=True)
-            except Exception as e:
-                print(e, flush=True)
-                print("Did not send successfully.", flush=True)
+            #try:
+            if self.type == "consumption":
+                self.consumption(msg)
+            elif self.type == "leakage_group":
+                self.leakage_group(msg)
+            elif self.type == "leakage_position":
+                self.leakage_position(msg)
+            elif self.type == "flower_bed":
+                self.flower_bed(msg)
+            elif self.type == "anomaly":
+                self.anomaly(msg)
+            else :
+                print("Wrong type name.", flush=True)
+            #except Exception as e:
+            #    print(e, flush=True)
+            #    print("Did not send successfully.", flush=True)
 
     def consumption(self, msg):
         # sample output: {"timestamp": "2021-10-11 11:38:47.374354", "value": "[0.36906925]", "horizon": "24"}
@@ -263,11 +263,13 @@ class SendData():
 
         # time
         time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000) 
+        print(time_stamp)
         day_of_month = f'{time_stamp.day:02d}'
         hour_of_day = f'{time_stamp.hour:02d}'
 
         # We are exporting to only one entity
         entity_id = "urn:ngsi-ld:Alert:ES-Alert-Braila-leakageGroup-" + day_of_month + "-" + hour_of_day
+        print(entity_id)
 
         data_model["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z+02"
 
@@ -278,6 +280,7 @@ class SendData():
         #TODO add influx do we need it?
 
     def leakage_position(self, msg):
+        #TODO: changed model
         # jaka's component
         # sample data : { "timestamp": 12912903193912, "position": [ LAT, LNG ], "final_location": boolean }
         rec = eval(msg.value) # kafka record

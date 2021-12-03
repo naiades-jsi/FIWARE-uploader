@@ -3,7 +3,7 @@
         "type":{
             "name": "leakage_group",
             "time_name": "timestamp",
-            "time_format": "ms",
+            "time_format": "s",
             "data_name": ["value"]
         },
         "kafka":{
