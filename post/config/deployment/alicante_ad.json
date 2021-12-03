@@ -1,0 +1,43 @@
+{
+    "config": {
+        "type":{
+            "name": "anomaly",
+            "time_name": "timestamp",
+            "time_format": "ms",
+            "data_name": ["value"],
+            "locations": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ]
+        },
+        "kafka":{
+            "topics": [
+                "anomalies_alicante_salinity_EA001_36_level",
+                "anomalies_alicante_salinity_EA001_36_level_duration",
+                "anomalies_alicante_salinity_EA003_36_conductivity",
+                "anomalies_alicante_salinity_EA003_36_conductivity_daily",
+                "anomalies_alicante_salinity_EA003_36_conductivity_hourly"
+            ],
+            "bootstrap_servers": "localhost:9092",
+            "offset":"latest"
+        },
+        "fiware":{
+            "headers": {
+                "Fiware-Service": "alicante",
+                "Content-Type": "application/json"
+            },
+            "update": true,
+            "url": "http://5.53.108.182:1026/v2/entities/",
+            "id": "urn:ngsi-ld:Alert:ES-Alert-",
+            "sensor_name_re": "anomalies_alicante_(.+)"
+        }
+    },    
+    "influx_config": {
+        "token" : "AOAm_a0wPNlX3u10m0Fl7gBLeKZwjV67tYPvpU4FRLxNZPmRLS-BDV81jtUKzC_siO1VPqCkTfzo8H9OVEv5eQ==",
+        "org" : "naiades",
+        "url" : "http://localhost:8086/"
+    }
+}

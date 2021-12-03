@@ -191,6 +191,7 @@ class SendData():
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
         # Entity ID based on alert notification
         entity_id = self.id + city + "-" + sensor_name + "-" + day_of_month + '-' + hour_of_day
+        print(entity_id)
         #print(entity_id)
 
         #print("{} => creating model".format(datetime.now()), flush=True)
@@ -204,7 +205,7 @@ class SendData():
         elif "flow" in topic:
             data_model["subCategory"]["value"] = "long_term"""
 
-        data_model["description"]["value"] = dic[int(rec["status_code"])]
+        data_model["description"]["value"] = rec["status"]
         data_model["alertSource"]["value"] = sensor_name
         # TODO during winter time it needs to be +1
         data_model["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z+02"
