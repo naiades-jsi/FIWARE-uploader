@@ -121,7 +121,7 @@ class SendData():
         # data model
         data_model = copy.deepcopy(consumption_template) # create data_model
         entity_id = self.id + sensor_name + "_" + horizon # + time_stamp.strftime("%Y%m%d")
-
+        print(entity_id)
         # TODO during winter time it needs to be +1
         data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02" # +2 ali +1
         data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02"
@@ -298,7 +298,7 @@ class SendData():
 
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
         position = rec["position"]
-        final_location = rec["final_location"]
+        final_location = rec["is_final"]
         
         data_model = copy.deepcopy(leakage_model_template) # create data_model
         if(final_location):
@@ -324,7 +324,6 @@ class SendData():
         #TODO influx?
     
     def flower_bed(self, msg):
-        # TODO add predictions
         rec = eval(msg.value) # kafka record
         topic = msg.topic # topic name
 

@@ -6,7 +6,7 @@ producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
                          value_serializer=lambda x: 
                          dumps(x).encode('utf-8'))
 
-topic = "predictions_alicante_alipark_flow"
+topic = "predictions_braila_flow318505H498_prediction"
 
 message = {
     "timestamp": 1632743895000,
