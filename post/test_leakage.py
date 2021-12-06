@@ -9,7 +9,7 @@ producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
 topic = "braila_leakage_position2182"
 
 message = { 
-   "timestamp": 1635167318000000,
+   "timestamp": 1638821116,
    "position": {1: [[ 1.5, 5.2 ]], 2: [[1.5, 5.2], [2, 4]]},
    "is_final": "true"
 }
