@@ -264,13 +264,13 @@ class SendData():
 
         # time
         time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000) 
-        print(time_stamp)
+        #print(time_stamp)
         day_of_month = f'{time_stamp.day:02d}'
         hour_of_day = f'{time_stamp.hour:02d}'
 
         # We are exporting to only one entity
         entity_id = "urn:ngsi-ld:Alert:ES-Alert-Braila-leakageGroup-" + day_of_month + "-" + hour_of_day
-        print(entity_id)
+        #print(entity_id)
 
         data_model["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z+02"
 
