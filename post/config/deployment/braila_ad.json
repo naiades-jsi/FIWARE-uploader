@@ -37,7 +37,7 @@
             },
             "update": true,
             "url": "http://5.53.108.182:1026/v2/entities/",
-            "id": "urn:ngsi-ld:Alert:ES-Alert-",
+            "id": "urn:ngsi-ld:Alert:RO-",
             "sensor_name_re": "anomalies_braila_(.+)"
         }
     },    

@@ -185,13 +185,11 @@ class SendData():
 
         # time to datetime
         time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000)
-        day_of_month = f'{time_stamp.day:02d}'
-        hour_of_day = f'{time_stamp.hour:02d}'
         
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
         # Entity ID based on alert notification
-        entity_id = self.id + city + "-" + sensor_name + "-" + day_of_month + '-' + hour_of_day
-        print(entity_id)
+        entity_id = self.id + city + "-" + sensor_name
+        #print(entity_id)
         #print(entity_id)
 
         #print("{} => creating model".format(datetime.now()), flush=True)
@@ -264,12 +262,9 @@ class SendData():
 
         # time
         time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000) 
-        #print(time_stamp)
-        day_of_month = f'{time_stamp.day:02d}'
-        hour_of_day = f'{time_stamp.hour:02d}'
 
         # We are exporting to only one entity
-        entity_id = "urn:ngsi-ld:Alert:ES-Alert-Braila-leakageGroup-" + day_of_month + "-" + hour_of_day
+        entity_id = "urn:ngsi-ld:Alert:RO-Braila-leakageGroup"
         #print(entity_id)
 
         data_model["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z+02"
@@ -281,7 +276,6 @@ class SendData():
         #TODO add influx do we need it?
 
     def leakage_position(self, msg):
-        #TODO: changed model
         # jaka's component
         # sample data : { "timestamp": 12912903193912, "position": [ LAT, LNG ], "final_location": boolean }
         rec = eval(msg.value) # kafka record
