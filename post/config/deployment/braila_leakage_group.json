@@ -3,7 +3,7 @@
         "type":{
             "name": "leakage_group",
             "time_name": "timestamp",
-            "time_format": "ms",
+            "time_format": "s",
             "data_name": ["value"]
         },
         "kafka":{
@@ -20,7 +20,7 @@
             },
             "update": false,
             "url": "http://5.53.108.182:1026/v2/entities/",
-            "id": "urn:ngsi-ld:Alert:ES-Alert-",
+            "id": "urn:ngsi-ld:Alert:RO-Braila-leakageGroup",
             "sensor_name_re": "anomalies_braila_(.+)"
         }
     },    

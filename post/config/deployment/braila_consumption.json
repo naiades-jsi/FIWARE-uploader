@@ -14,7 +14,7 @@
                 "predictions_braila_flow211206H360_prediction"
                 ],
             "bootstrap_servers": "localhost:9092",
-            "offset":"earlist"
+            "offset":"latest"
         },
         "fiware":{
             "headers": {
@@ -23,7 +23,7 @@
             },
             "update": true,
             "url": "http://5.53.108.182:1026/v2/entities/",
-            "id": "Consumption-Romania:Romania-Braila-",
+            "id": "urn:ngsi-ld:Consumption-Romania:Romania-Braila-",
             "sensor_name_re": "predictions_braila_(flow.+)_prediction"
         }
     },

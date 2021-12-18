@@ -10,35 +10,29 @@
                 null,
                 null,
                 null,
-                [45.27161, 27.97429],
-                [45.27161, 27.97429],
-                [45.27161, 27.97429],
-                [45.27161, 27.97429]
+                null
             ]
         },
         "kafka":{
             "topics": [
-                "anomalies_braila_flow_211106H360",
-                "anomalies_braila_flow_211206H360",
-                "anomalies_braila_flow_211306H360",
-                "anomalies_braila_flow_318505H498",
-                "anomalies_braila_pressure_5770",
-                "anomalies_braila_pressure_5771",
-                "anomalies_braila_pressure_5772",
-                "anomalies_braila_pressure_5773"
+                "anomalies_alicante_salinity_EA001_36_level",
+                "anomalies_alicante_salinity_EA001_36_level_duration",
+                "anomalies_alicante_salinity_EA003_36_conductivity",
+                "anomalies_alicante_salinity_EA003_36_conductivity_daily",
+                "anomalies_alicante_salinity_EA003_36_conductivity_hourly"
             ],
             "bootstrap_servers": "localhost:9092",
             "offset":"latest"
         },
         "fiware":{
             "headers": {
-                "Fiware-Service": "braila",
+                "Fiware-Service": "alicante",
                 "Content-Type": "application/json"
             },
             "update": true,
             "url": "http://5.53.108.182:1026/v2/entities/",
-            "id": "urn:ngsi-ld:Alert:RO-",
-            "sensor_name_re": "anomalies_braila_(.+)"
+            "id": "urn:ngsi-ld:Alert:ES-Alert-",
+            "sensor_name_re": "anomalies_alicante_(.+)"
         }
     },    
     "influx_config": {

@@ -9,11 +9,15 @@ producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
 topic = "braila_leakage_position2182"
 
 message = { 
-   "timestamp": 1635167318000000,
-   "position": [ 1.1, 2.2 ],
-   "final_location": "false"
+   "timestamp": 1638821116,
+   "position": {1: [[ 1.5, 5.2 ]], 2: [[1.5, 5.2], [2, 4]]},
+   "is_final": "true"
 }
-
+"""{ 
+   "timestamp": 12912903193912,
+   "position": [ LAT, LNG ] / {1: [LAT, LONG], 2:[[LAT, LONG, LAT2, LONG2, LAT3, LONG3,...],[...]]},
+   "is_final": boolean
+}"""
 for i in range(100):
     print(i)
     producer.send(topic, value=message)

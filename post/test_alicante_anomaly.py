@@ -6,13 +6,14 @@ producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
                          value_serializer=lambda x: 
                          dumps(x).encode('utf-8'))
 
-topic = "predictions_braila_flow318505H498_prediction"
+topic = "anomalies_alicante_salinity_EA001_36_level"
 
 message = {
-    "timestamp": 1632743895000,
-    "value": "[0.36906925]",
-    "horizon": "24",
-    "prediction_time": 1632743896000
+    "algorithm": "Border check",
+    "value": [6120.0],
+    "status": "Error: measurement above upper limit",
+    "timestamp": 1638399536,
+    "status_code": -1
 }
 
 for i in range(100):

@@ -13,7 +13,7 @@ import json
 from kafka import KafkaConsumer
 from kafka import KafkaProducer
 
-from create_data_models import consumption_template, alert_template, flower_bed_template, leakage_model_template
+from create_data_models import consumption_template, alert_template, flower_bed_template, leakage_model_template, leakage_group_model_template
 
 from pushToInflux import PushToDB
 
@@ -121,7 +121,7 @@ class SendData():
         # data model
         data_model = copy.deepcopy(consumption_template) # create data_model
         entity_id = self.id + sensor_name + "_" + horizon # + time_stamp.strftime("%Y%m%d")
-
+        print(entity_id)
         # TODO during winter time it needs to be +1
         data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02" # +2 ali +1
         data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02"
@@ -185,12 +185,11 @@ class SendData():
 
         # time to datetime
         time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000)
-        day_of_month = f'{time_stamp.day:02d}'
-        hour_of_day = f'{time_stamp.hour:02d}'
         
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
         # Entity ID based on alert notification
-        entity_id = self.id + city + "-" + sensor_name + "-" + day_of_month + '-' + hour_of_day
+        entity_id = self.id + city + "-" + sensor_name
+        #print(entity_id)
         #print(entity_id)
 
         #print("{} => creating model".format(datetime.now()), flush=True)
@@ -204,7 +203,7 @@ class SendData():
         elif "flow" in topic:
             data_model["subCategory"]["value"] = "long_term"""
 
-        data_model["description"]["value"] = dic[int(rec["status_code"])]
+        data_model["description"]["value"] = rec["status"]
         data_model["alertSource"]["value"] = sensor_name
         # TODO during winter time it needs to be +1
         data_model["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z+02"
@@ -263,11 +262,10 @@ class SendData():
 
         # time
         time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000) 
-        day_of_month = f'{time_stamp.day:02d}'
-        hour_of_day = f'{time_stamp.hour:02d}'
 
         # We are exporting to only one entity
-        entity_id = "urn:ngsi-ld:Alert:ES-Alert-Braila-leakageGroup-" + day_of_month + "-" + hour_of_day
+        entity_id = "urn:ngsi-ld:Alert:RO-Braila-leakageGroup"
+        #print(entity_id)
 
         data_model["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z+02"
 
@@ -294,7 +292,7 @@ class SendData():
 
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
         position = rec["position"]
-        final_location = rec["final_location"]
+        final_location = rec["is_final"]
         
         data_model = copy.deepcopy(leakage_model_template) # create data_model
         if(final_location):
@@ -320,7 +318,6 @@ class SendData():
         #TODO influx?
     
     def flower_bed(self, msg):
-        # TODO add predictions
         rec = eval(msg.value) # kafka record
         topic = msg.topic # topic name
 
