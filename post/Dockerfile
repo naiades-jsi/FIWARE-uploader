@@ -8,8 +8,8 @@ COPY ./requirements.txt /requirements.txt
 WORKDIR /
 RUN pip3 install -r requirements.txt
 COPY . /
-# CMD ["python3", "main.py", "-c", "deployment/alicante_consumption.json"]
+CMD ["python3", "main.py", "-c", "deployment/alicante_consumption.json"]
 # CMD ["python3", "main.py", "-c", "deployment/braila_ad.json"]
 # CMD ["python3", "main.py", "-c", "deployment/braila_leak.json"]
 # CMD ["python3", "main.py", "-c", "deployment/braila_leakage_group.json"]
-CMD ["python3", "main.py", "-c", "deployment/carouge_watering.json"]
+# CMD ["python3", "main.py", "-c", "deployment/carouge_watering.json"]
