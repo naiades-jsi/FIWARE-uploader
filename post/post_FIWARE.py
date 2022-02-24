@@ -406,3 +406,34 @@ class SendData():
             response = requests.post(self.url , headers=self.headers, params=params, data=json.dumps(data_model) )
 
         #print(response.status_code, response.content)
+
+    def encode(self, output_dict):
+        debug = False
+
+        #TODO assign api pass and user
+        # Transforms the JSON string ('dataJSON') to file (json.txt)
+        os.system('echo %s > json.txt' %dataJSON)
+
+        #Sign the file using your credentials
+        os.system(f'ksi sign -i json.txt -o json.txt.ksig -S http://5.53.108.232:8080 --aggr-user {self.API_user} --aggr-key {self.API_pass}')
+        
+        # get the signature
+        with open("json.txt.ksig", "rb") as f:
+            encodedZip = base64.b64encode(f.read())
+            if debug:
+                print(encodedZip.decode())
+
+        # Checking if the signature is correct
+        verification = subprocess.check_output(f'ksi verify -i json.txt.ksig -f json.txt -d --dump G -X http://5.53.108.232:8081 --ext-user {self.API_user} --ext-key {self.API_pass} -P http://verify.guardtime.com/ksi-publications.bin --cnstr E=publications@guardtime.com | grep -xq "    OK: No verification errors." ; echo $?', shell=True)
+        
+        if(int(verification)==0):
+            if debug:
+                print('Correct signature')
+            # Añadimos la firma al datamodel
+            verificado = True
+        else:
+            if debug:
+                print('Incorrect signature')
+            verificado = False
+
+        return encodedZip
