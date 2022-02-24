@@ -429,7 +429,6 @@ class SendData():
         if(int(verification)==0):
             if debug:
                 print('Correct signature')
-            # Añadimos la firma al datamodel
             verificado = True
         else:
             if debug:
