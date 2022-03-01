@@ -2,6 +2,8 @@
     "config": {
         "type":{
             "name": "anomaly",
+            "api_user": "",
+            "api_pass": "",
             "time_name": "timestamp",
             "time_format": "ms",
             "data_name": ["value"],

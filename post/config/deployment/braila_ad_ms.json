@@ -1,0 +1,36 @@
+{
+    "config": {
+        "type":{
+            "name": "meta_signal",
+            "api_user": "",
+            "api_pass": "",
+            "time_name": "timestamp",
+            "time_format": "ms"
+        },
+        "kafka":{
+            "topics": [
+                "anomalies_braila_flow211106H360_meta_signal",
+                "anomalies_braila_flow211206H360_meta_signal",
+                "anomalies_braila_flow211306H360_meta_signal",
+                "anomalies_braila_flow318505H498_meta_signal"
+            ],
+            "bootstrap_servers": "localhost:9092",
+            "offset":"latest"
+        },
+        "fiware":{
+            "headers": {
+                "Fiware-Service": "braila",
+                "Content-Type": "application/json"
+            },
+            "update": true,
+            "url": "http://5.53.108.182:1026/v2/entities/",
+            "id": "urn:ngsi-ld:MEASUREMENT:RO-",
+            "sensor_name_re": "anomalies_braila_flow(.+)_meta_signal"
+        }
+    },    
+    "influx_config": {
+        "token" : "AOAm_a0wPNlX3u10m0Fl7gBLeKZwjV67tYPvpU4FRLxNZPmRLS-BDV81jtUKzC_siO1VPqCkTfzo8H9OVEv5eQ==",
+        "org" : "naiades",
+        "url" : "http://localhost:8086/"
+    }
+}

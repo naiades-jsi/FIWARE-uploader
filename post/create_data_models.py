@@ -134,7 +134,65 @@ leakage_model_template = {
     "type": "Device",
     "isMovedToNewLocation":  {
         "type": "Boolean",
+        "value": False
+    }
+}
+
+meta_signal_template = {
+    "areaServed": {
+        "type": "Text",
+        "value": ""
+    },
+    "controlledProperty": {
+        "type": "Text",
+        "value": "flow"
+    },
+    "dateObserved": {
+        "type": "datetime"
+        # Value will be added
+    },
+    "description": {
+        "type": "Text",
+        "value": ""
+    },
+    "deviceType": {
+        "type": "Text",
+        "value": "sensor"
+    },
+    "location": {
+        "type": "Point",
+        "coordinates": [
+            None,
+            None
+        ]
+    },
+    "measurementType": {
+        "type": "Text",
+        "value": None
+    },
+    "name": {
+        "type": "Text",
+        "value": ""
+    },
+    "numValue": {
+        "type": "Number"
+        # Value will be added
+    },
+    "outlier":  {
+        "type": "Boolean",
         "value": False,
         "metadata": {}
-    }
+    },
+    "owner": [],
+    "refDevice": {
+        "type": "Text",
+        "value": None
+    },
+    "seeAlso": [],   
+    "textValue": {
+        "type": "Text",
+        "value": ""
+    },
+    "type": "DeviceMeasurement",    
+    "unit": None
 }

@@ -21,7 +21,6 @@ class SendData():
     type: str
     time_name: str
     time_format: str
-    data_name: str
     locations: List[str]
     
     topics: List[str]
@@ -36,12 +35,13 @@ class SendData():
     influx: Any
     config_influx: Dict[str, str]
 
+    API_user: str
+    API_pass: str
 
     def __init__(self, config, config_influx = None):
         self.type = config["type"]["name"]
         self.time_name = config["type"]["time_name"]
         self.time_format = config["type"]["time_format"]
-        self.data_name = config["type"]["data_name"]
 
         if("locations" in config["type"]):
             self.locations = config["type"]["locations"]
@@ -62,6 +62,10 @@ class SendData():
         self.id = config["fiware"]["id"]
         self.sensor_name_re = config["fiware"]["sensor_name_re"]
         self.update = config["fiware"]["update"]
+
+        # KSI signature
+        self.API_user = config["api_user"]
+        self.API_pass = config["api_pass"]
 
         # for influx
         if config_influx != None:
@@ -85,6 +89,8 @@ class SendData():
                     self.flower_bed(msg)
                 elif self.type == "anomaly":
                     self.anomaly(msg)
+                elif self.type == "meta_signal":
+                    self.meta_signal(msg)
                 else :
                     print("Wrong type name.", flush=True)
             except Exception as e:
@@ -171,9 +177,6 @@ class SendData():
             city = "Carouge"
         else:
             city = "unknown"
-        # NOTE: we assume the timestamp is in ms
-        
-        #timestamp = int(int(rec[self.time_name]) / 1000) # timestamp in seconds
         
         # Change timestamp to ns
         if(self.time_format == "s"):
@@ -215,6 +218,57 @@ class SendData():
         data_model["location"]["value"]["coordinates"] = self.locations[index]
 
         #print("{} => sending to fiware".format(datetime.now()), flush=True)
+
+        self.postToFiware(data_model, entity_id)
+
+        #influx
+        if self.config_influx != None:
+            measurement = sensor_name
+
+            output_dict = { "value": float(rec["value"][0]),
+                            "status_code": rec["status_code"],
+                            "algorithm": rec["algorithm"],
+                            "status": rec["status"]}
+            
+            if("suggested_value" in rec):
+                output_dict["suggested_value"] = rec["suggested_value"]
+            
+            # Select bucket
+            if "alicante" in topic:
+                bucket = "alicante_anomaly" 
+            elif "braila" in topic:
+                bucket = "braila_anomaly"
+            #print(timestamp_in_ns, flush=True)
+            self.influx.write_data(measurement=measurement,
+                                             timestamp=timestamp_in_ns,
+                                             tags= {},
+                                             to_write= output_dict,
+                                             bucket=bucket)
+
+    def meta_signal(self, msg):        
+        # Change timestamp to ns
+        if(self.time_format == "s"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000000)
+        elif(self.time_format == "ms"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000)
+        elif(self.time_format == "us"):
+            timestamp_in_ns = int(rec[self.time_name]*1000)
+
+        # time to datetime
+        time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000)
+        
+        sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
+        
+        # Entity ID based on alert notification
+        entity_id = self.id + sensor_name + "-MetaSignal"
+        print(entity_id)
+
+        #print("{} => creating model".format(datetime.now()), flush=True)
+
+        # CREATE DATA MODEL TO POST
+        data_model = copy.deepcopy(meta_signal_template) # create data_model      
+
+        #TODO set values of the data model
 
         self.postToFiware(data_model, entity_id)
 
