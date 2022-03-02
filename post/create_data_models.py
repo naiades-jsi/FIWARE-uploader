@@ -195,4 +195,9 @@ meta_signal_template = {
     },
     "type": "DeviceMeasurement",    
     "unit": None
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "dateObserved,ksiSignature,numValue,textValue"
+    } 
 }

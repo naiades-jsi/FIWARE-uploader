@@ -269,6 +269,30 @@ class SendData():
         data_model = copy.deepcopy(meta_signal_template) # create data_model      
 
         #TODO set values of the data model
+        # dateObserved
+        data_model["dateObserved"]["value"] = (time_stamp).isoformat() + ".00Z+02"
+
+        # numValue
+        data_model["numValue"]["value"] = msg["status_code"]
+
+        # textValue (contains the actual sample value/array of values on 
+        # which anomaly detection was executed)
+        data_model["textValue"]["value"] = str(msg["value"])
+
+        # Try signing the message with KSI tool (requires execution in
+        # the dedicated container)
+        try:
+            signature = self.encode(output_dict)
+        except(Exception e):
+            print(f"Signing failed: {e}", flush=True)
+            signature = "null"
+        
+        # Add signature to the message
+        data_model["ksiSignature"] = {
+            "metadata": {},
+            "type": "Text",
+            "value": signature
+        }
 
         self.postToFiware(data_model, entity_id)
 
@@ -462,9 +486,9 @@ class SendData():
         #print(response.status_code, response.content)
 
     def encode(self, output_dict):
+        # Less prints
         debug = False
 
-        #TODO assign api pass and user
         # Transforms the JSON string ('dataJSON') to file (json.txt)
         os.system('echo %s > json.txt' %dataJSON)
 
@@ -480,13 +504,7 @@ class SendData():
         # Checking if the signature is correct
         verification = subprocess.check_output(f'ksi verify -i json.txt.ksig -f json.txt -d --dump G -X http://5.53.108.232:8081 --ext-user {self.API_user} --ext-key {self.API_pass} -P http://verify.guardtime.com/ksi-publications.bin --cnstr E=publications@guardtime.com | grep -xq "    OK: No verification errors." ; echo $?', shell=True)
         
-        if(int(verification)==0):
-            if debug:
-                print('Correct signature')
-            verificado = True
-        else:
-            if debug:
-                print('Incorrect signature')
-            verificado = False
+        # Raise error if it is not correctly signed 
+        assert int(verification) == True
 
         return encodedZip
