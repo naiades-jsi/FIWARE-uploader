@@ -112,7 +112,8 @@ class SendData():
             timestamp_in_ns = int(rec[self.time_name]*1000)
 
         # extract value from record
-        value = eval(rec["value"])[0]
+        # value = eval(rec["value"])[0]
+        value = rec["value"][0]
         horizon = str(int(int(rec["horizon"]) / 24)) + "d" # Horizon is expected in hours
         prediction_time = int(rec["prediction_time"]/1000) # Must be in miliseconds
         from_time = timestamp_in_ns/1000000000
@@ -126,7 +127,7 @@ class SendData():
 
         # data model
         data_model = copy.deepcopy(consumption_template) # create data_model
-        entity_id = self.id + sensor_name + "_" + horizon # + time_stamp.strftime("%Y%m%d")
+        entity_id = self.id + sensor_name + "_" + str(horizon) # + time_stamp.strftime("%Y%m%d")
         print(entity_id)
         # TODO during winter time it needs to be +1
         data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02" # +2 ali +1
