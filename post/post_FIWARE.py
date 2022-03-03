@@ -86,26 +86,27 @@ class SendData():
         print("{} => started listening".format(datetime.now()), flush=True)
         for msg in self.consumer:
             print("{} => message recieved".format(datetime.now()), flush=True)
-            #try:
-            if self.type == "consumption":
-                self.consumption(msg)
-            elif self.type == "leakage_group":
-                self.leakage_group(msg)
-            elif self.type == "leakage_position":
-                self.leakage_position(msg)
-            elif self.type == "flower_bed":
-                self.flower_bed(msg)
-            elif self.type == "anomaly":
-                self.anomaly(msg)
-            elif self.type == "meta_signal":
-                self.meta_signal(msg)
-            else :
-                print("Wrong type name.", flush=True)
-            #except Exception as e:
-            #    print(e, flush=True)
-            #    print("Did not send successfully.", flush=True)
+            try:
+                if self.type == "consumption":
+                    self.consumption(msg)
+                elif self.type == "leakage_group":
+                    self.leakage_group(msg)
+                elif self.type == "leakage_position":
+                    self.leakage_position(msg)
+                elif self.type == "flower_bed":
+                    self.flower_bed(msg)
+                elif self.type == "anomaly":
+                    self.anomaly(msg)
+                elif self.type == "meta_signal":
+                    self.meta_signal(msg)
+                else :
+                    print("Wrong type name.", flush=True)
+            except Exception as e:
+                print(e, flush=True)
+                print("Did not send successfully.", flush=True)
 
     def consumption(self, msg):
+        # TODO: add signature
         # sample output: {"timestamp": "2021-10-11 11:38:47.374354", "value": "[0.36906925]", "horizon": "24"}
         rec = eval(msg.value)
 
@@ -226,7 +227,8 @@ class SendData():
         index = self.topics.index(topic)
         data_model["location"]["value"]["coordinates"] = self.locations[index]
 
-        #print("{} => sending to fiware".format(datetime.now()), flush=True)
+        # Sign and append signature
+        data_model = self.sign(data_model)
 
         self.postToFiware(data_model, entity_id)
 
@@ -273,7 +275,7 @@ class SendData():
         
         # Entity ID based on alert notification
         entity_id = self.id + sensor_name + "-MetaSignal"
-        print(entity_id)
+        #print(entity_id)
 
         #print("{} => creating model".format(datetime.now()), flush=True)
 
@@ -291,20 +293,8 @@ class SendData():
         # which anomaly detection was executed)
         data_model["textValue"]["value"] = str(rec["value"])
 
-        # Try signing the message with KSI tool (requires execution in
-        # the dedicated container)
-        try:
-            signature = self.encode(data_model)
-        except Exception as e:
-            print(f"Signing failed", flush=True)
-            signature = "null"
-        
-        # Add signature to the message
-        data_model["ksiSignature"] = {
-            "metadata": {},
-            "type": "Text",
-            "value": signature
-        }
+        # Sign and append signature
+        data_model = self.sign(data_model)
 
         self.postToFiware(data_model, entity_id)
 
@@ -333,6 +323,7 @@ class SendData():
                                              bucket=bucket)
 
     def leakage_group(self, msg):
+        # TODO: test signature
         # Leakage group (Zan) => uploads to alert
         rec = eval(msg.value) # kafka record
         
@@ -361,11 +352,15 @@ class SendData():
 
         data_model["data"]["value"]["affectedGroup"]["value"] = rec
 
+        # Sign and append signature
+        data_model = self.sign(data_model)
+
         self.postToFiware(data_model, entity_id)
 
         #TODO add influx do we need it?
 
     def leakage_position(self, msg):
+        # TODO: test signature
         # jaka's component
         # sample data : { "timestamp": 12912903193912, "position": [ LAT, LNG ], "final_location": boolean }
         rec = eval(msg.value) # kafka record
@@ -404,10 +399,14 @@ class SendData():
         
         entity_id = "urn:ngsi-ld:Device:Device-" + sensor_name
 
+        # Sign and append signature
+        data_model = self.sign(data_model)
+
         self.postToFiware(data_model, entity_id)
         #TODO influx?
     
     def flower_bed(self, msg):
+        # TODO: test signature
         rec = eval(msg.value) # kafka record
         topic = msg.topic # topic name
 
@@ -450,6 +449,9 @@ class SendData():
             "1f08": "urn:ngsi-ld:FlowerBed:FlowerBed-2"
         }
         entity_id = entity_mapper[sensor_name]
+
+        # Sign and append signature
+        data_model = self.sign(data_model)
 
         self.postToFiware(data_model, entity_id)
 
@@ -495,7 +497,26 @@ class SendData():
             data_model["id"] = entity_id
             response = requests.post(self.url , headers=self.headers, params=params, data=json.dumps(data_model) )
 
-        #print(response.status_code, response.content)
+        if (response.status_code > 300):
+            raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
+
+    def sign(self, data_model):
+        # Try signing the message with KSI tool (requires execution in
+        # the dedicated container)
+        try:
+            signature = self.encode(data_model)
+        except Exception as e:
+            print(f"Signing failed", flush=True)
+            signature = "null"
+        
+        # Add signature to the message
+        data_model["ksiSignature"] = {
+            "metadata": {},
+            "type": "Text",
+            "value": signature
+        }
+
+        return data_model
 
     def encode(self, output_dict):
         # Less prints
@@ -519,3 +540,6 @@ class SendData():
         assert int(verification) == True
 
         return encodedZip
+
+
+# TODO test fail request
