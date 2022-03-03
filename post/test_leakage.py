@@ -21,4 +21,4 @@ message = {
 for i in range(100):
     print(i)
     producer.send(topic, value=message)
-    sleep(30)
+    sleep(10)

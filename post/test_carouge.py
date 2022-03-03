@@ -6,7 +6,7 @@ producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
                          value_serializer=lambda x: 
                          dumps(x).encode('utf-8'))
 
-topic = "device_1efd_pred_output"
+topic = "device_1efe_pred_output"
 
 message = {
     "timestamp": 1635228000.6277666,
@@ -41,5 +41,6 @@ for i in range(10):
     message["timestamp"] = message["timestamp"] + 60000
     message["WA"] = i
     message["T"] = array[i]
+    print(topic)
     producer.send(topic, value=message)
-    sleep(20)
+    sleep(10)

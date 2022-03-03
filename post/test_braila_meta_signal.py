@@ -6,7 +6,7 @@ producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
                          value_serializer=lambda x: 
                          dumps(x).encode('utf-8'))
 
-topic = "anomalies_braila_flow211106H360_meta_signal"
+topic = "Device_1efe_pred_output"
 
 message = {
     "algorithm": "Combination",
