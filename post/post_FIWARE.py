@@ -4,16 +4,22 @@ from datetime import datetime
 from datetime import timedelta
 import random
 import pandas as pd
+import os
 import copy
 import re
 import time
+import base64
+import subprocess
 
 import json
 
 from kafka import KafkaConsumer
 from kafka import KafkaProducer
 
-from create_data_models import consumption_template, alert_template, flower_bed_template, leakage_model_template, leakage_group_model_template
+from create_data_models import meta_signal_template, consumption_template,\
+    alert_template, flower_bed_template, leakage_model_template,\
+    leakage_group_model_template
+from custom_error import Custom_error    
 
 from pushToInflux import PushToDB
 
@@ -39,12 +45,12 @@ class SendData():
     API_pass: str
 
     def __init__(self, config, config_influx = None):
-        self.type = config["type"]["name"]
-        self.time_name = config["type"]["time_name"]
-        self.time_format = config["type"]["time_format"]
+        self.type = config["name"]
+        self.time_name = config["time_name"]
+        self.time_format = config["time_format"]
 
-        if("locations" in config["type"]):
-            self.locations = config["type"]["locations"]
+        if("locations" in config):
+            self.locations = config["locations"]
 
         # Check if format is is acceptable
         if(self.time_format != "s" and self.time_format != "ms" and
@@ -71,6 +77,8 @@ class SendData():
         if config_influx != None:
             self.influx  = PushToDB(url=config_influx["url"], token=config_influx["token"], org=config_influx["org"] )
             self.config_influx = config_influx
+        else:
+            self.config_influx = None
 
         print("{} => configuration finished".format(datetime.now()), flush=True)
 
@@ -78,24 +86,24 @@ class SendData():
         print("{} => started listening".format(datetime.now()), flush=True)
         for msg in self.consumer:
             print("{} => message recieved".format(datetime.now()), flush=True)
-            try:
-                if self.type == "consumption":
-                    self.consumption(msg)
-                elif self.type == "leakage_group":
-                    self.leakage_group(msg)
-                elif self.type == "leakage_position":
-                    self.leakage_position(msg)
-                elif self.type == "flower_bed":
-                    self.flower_bed(msg)
-                elif self.type == "anomaly":
-                    self.anomaly(msg)
-                elif self.type == "meta_signal":
-                    self.meta_signal(msg)
-                else :
-                    print("Wrong type name.", flush=True)
-            except Exception as e:
-                print(e, flush=True)
-                print("Did not send successfully.", flush=True)
+            #try:
+            if self.type == "consumption":
+                self.consumption(msg)
+            elif self.type == "leakage_group":
+                self.leakage_group(msg)
+            elif self.type == "leakage_position":
+                self.leakage_position(msg)
+            elif self.type == "flower_bed":
+                self.flower_bed(msg)
+            elif self.type == "anomaly":
+                self.anomaly(msg)
+            elif self.type == "meta_signal":
+                self.meta_signal(msg)
+            else :
+                print("Wrong type name.", flush=True)
+            #except Exception as e:
+            #    print(e, flush=True)
+            #    print("Did not send successfully.", flush=True)
 
     def consumption(self, msg):
         # sample output: {"timestamp": "2021-10-11 11:38:47.374354", "value": "[0.36906925]", "horizon": "24"}
@@ -246,7 +254,10 @@ class SendData():
                                              to_write= output_dict,
                                              bucket=bucket)
 
-    def meta_signal(self, msg):        
+    def meta_signal(self, msg):
+        topic = msg.topic # topic name
+        rec = eval(msg.value) # kafka record       
+        
         # Change timestamp to ns
         if(self.time_format == "s"):
             timestamp_in_ns = int(rec[self.time_name]*1000000000)
@@ -274,18 +285,18 @@ class SendData():
         data_model["dateObserved"]["value"] = (time_stamp).isoformat() + ".00Z+02"
 
         # numValue
-        data_model["numValue"]["value"] = msg["status_code"]
+        data_model["numValue"]["value"] = rec["status_code"]
 
         # textValue (contains the actual sample value/array of values on 
         # which anomaly detection was executed)
-        data_model["textValue"]["value"] = str(msg["value"])
+        data_model["textValue"]["value"] = str(rec["value"])
 
         # Try signing the message with KSI tool (requires execution in
         # the dedicated container)
         try:
-            signature = self.encode(output_dict)
-        except(Exception e):
-            print(f"Signing failed: {e}", flush=True)
+            signature = self.encode(data_model)
+        except Exception as e:
+            print(f"Signing failed", flush=True)
             signature = "null"
         
         # Add signature to the message
@@ -491,10 +502,9 @@ class SendData():
         debug = False
 
         # Transforms the JSON string ('dataJSON') to file (json.txt)
-        os.system('echo %s > json.txt' %dataJSON)
-
+        os.system('echo %s > json.txt' %output_dict)
         #Sign the file using your credentials
-        os.system(f'ksi sign -i json.txt -o json.txt.ksig -S http://5.53.108.232:8080 --aggr-user {self.API_user} --aggr-key {self.API_pass}')
+        os.system(f'ksi sign -i json.txt -o json.txt.ksig -S http://5.53.108.232:8080 --aggr-user {self.API_user} --aggr-key {self.API_pass}') 
         
         # get the signature
         with open("json.txt.ksig", "rb") as f:

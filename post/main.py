@@ -1,3 +1,4 @@
+from cmath import inf
 from post_FIWARE import SendData
 
 import argparse
@@ -28,7 +29,10 @@ def main():
     
     config = conf["config"]
 
-    influx_config = conf["influx_config"]
+    if("influx_config" in conf):
+        influx_config = conf["influx_config"]
+    else:
+        influx_config = None
 
     braila_anomaly = SendData(config, config_influx=influx_config)
 

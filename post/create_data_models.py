@@ -194,7 +194,7 @@ meta_signal_template = {
         "value": ""
     },
     "type": "DeviceMeasurement",    
-    "unit": None
+    "unit": None,
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Text", 

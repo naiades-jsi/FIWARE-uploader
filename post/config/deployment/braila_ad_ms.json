@@ -1,12 +1,10 @@
 {
     "config": {
-        "type":{
-            "name": "meta_signal",
-            "api_user": "",
-            "api_pass": "",
-            "time_name": "timestamp",
-            "time_format": "ms"
-        },
+        "name": "meta_signal",
+        "api_user": "jsibraano",
+        "api_pass": "cat63htn73",
+        "time_name": "timestamp",
+        "time_format": "ms",
         "kafka":{
             "topics": [
                 "anomalies_braila_flow211106H360_meta_signal",
@@ -27,10 +25,5 @@
             "id": "urn:ngsi-ld:MEASUREMENT:RO-",
             "sensor_name_re": "anomalies_braila_flow(.+)_meta_signal"
         }
-    },    
-    "influx_config": {
-        "token" : "AOAm_a0wPNlX3u10m0Fl7gBLeKZwjV67tYPvpU4FRLxNZPmRLS-BDV81jtUKzC_siO1VPqCkTfzo8H9OVEv5eQ==",
-        "org" : "naiades",
-        "url" : "http://localhost:8086/"
     }
 }
