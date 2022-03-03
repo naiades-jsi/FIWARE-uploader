@@ -1,21 +1,21 @@
 {
     "config": {
-        "type":{
-            "name": "anomaly",
-            "time_name": "timestamp",
-            "time_format": "ms",
-            "data_name": ["value"],
-            "locations": [
-                null,
-                null,
-                null,
-                null,
-                [45.27161, 27.97429],
-                [45.27161, 27.97429],
-                [45.27161, 27.97429],
-                [45.27161, 27.97429]
-            ]
-        },
+        "name": "anomaly",
+        "api_user": "jsibraano",
+        "api_pass": "cat63htn73",
+        "time_name": "timestamp",
+        "time_format": "ms",
+        "data_name": ["value"],
+        "locations": [
+            null,
+            null,
+            null,
+            null,
+            [45.27161, 27.97429],
+            [45.27161, 27.97429],
+            [45.27161, 27.97429],
+            [45.27161, 27.97429]
+        ],
         "kafka":{
             "topics": [
                 "anomalies_braila_flow_211106H360",

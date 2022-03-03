@@ -1,11 +1,11 @@
 {
     "config": {
-        "type":{
-            "name": "flower_bed",
-            "time_format": "ms",
-            "time_name": "timestamp",
-            "data_name": ["WA"]
-        },
+        "name": "flower_bed",
+        "api_user": "jsicarwat",
+        "api_pass": "gkw72nbf52",
+        "time_format": "ms",
+        "time_name": "timestamp",
+        "data_name": ["WA"],
         "kafka":{
             "topics": [
                 "Device_1efd_pred_output", 

@@ -1,11 +1,11 @@
 {
     "config": {
-        "type":{
-            "name": "leakage_position",
-            "time_name": "timestamp",
-            "time_format": "s",
-            "data_name": ["value"]
-        },
+        "name": "leakage_position",
+        "api_user": "jsileakage",
+        "api_pass": "kea73ged85",
+        "time_name": "timestamp",
+        "time_format": "s",
+        "data_name": ["value"],
         "kafka":{
             "topics": [
                 "braila_leakage_position2182",

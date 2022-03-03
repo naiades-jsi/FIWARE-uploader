@@ -1,11 +1,11 @@
 {
     "config": {
-        "type":{
-            "name": "consumption",
-            "time_name": "timestamp",
-            "time_format": "ms",
-            "data_name": ["value"]
-        },
+        "name": "consumption",
+        "api_user": "jsialicon",
+        "api_pass": "dra57fke31",
+        "time_name": "timestamp",
+        "time_format": "ms",
+        "data_name": ["value"],
         "kafka":{
             "topics": [
                 "predictions_alicante_alipark_flow",

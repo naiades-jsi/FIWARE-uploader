@@ -1,20 +1,18 @@
 {
     "config": {
-        "type":{
-            "name": "anomaly",
-            "api_user": "",
-            "api_pass": "",
-            "time_name": "timestamp",
-            "time_format": "ms",
-            "data_name": ["value"],
-            "locations": [
-                null,
-                null,
-                null,
-                null,
-                null
-            ]
-        },
+        "name": "anomaly",
+        "api_user": "jsialiano",
+        "api_pass": "zew73jfb69",
+        "time_name": "timestamp",
+        "time_format": "ms",
+        "data_name": ["value"],
+        "locations": [
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
         "kafka":{
             "topics": [
                 "anomalies_alicante_salinity_EA001_36_level",

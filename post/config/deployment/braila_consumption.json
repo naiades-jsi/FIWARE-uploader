@@ -1,11 +1,11 @@
 {
     "config": {
-        "type":{
-            "name": "consumption",
-            "time_name": "timestamp",
-            "time_format": "ms",
-            "data_name": ["value"]
-        },
+        "name": "consumption",
+        "api_user": "jsibracon",
+        "api_pass": "ekf93pwe92",
+        "time_name": "timestamp",
+        "time_format": "ms",
+        "data_name": ["value"],
         "kafka":{
             "topics": [ 
                 "predictions_braila_flow318505H498_prediction",

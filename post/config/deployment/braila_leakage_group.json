@@ -1,11 +1,11 @@
 {
     "config": {
-        "type":{
-            "name": "leakage_group",
-            "time_name": "timestamp",
-            "time_format": "s",
-            "data_name": ["value"]
-        },
+        "name": "leakage_group",
+        "api_user": "jsileakgr",
+        "api_pass": "rgk82hfs58",
+        "time_name": "timestamp",
+        "time_format": "s",
+        "data_name": ["value"],
         "kafka":{
             "topics": [
                 "braila_leakage_groups"
