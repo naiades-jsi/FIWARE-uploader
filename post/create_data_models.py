@@ -1,26 +1,22 @@
 import json
 
+# Attirbutes in templates are alphabetically ordered
+
 alert_template = {
-    #"id": "",
-    "type": "Alert",
+    "alertSource":{
+        "type": "Text",
+        # Value will be added
+    },
     "category": {
         "type": "Text",
         "value": "anomaly"
-    },
-    "subCategory": {
-        "type": "Text",
-        "value": "longTerm"
-    },
-    "description": {
-        "type": "Text"
-        # Value will be added
     },
     "dateIssued": {
         "type": "DateTime",
         # eg. "value": "2017-01-02T09:25:55.00Z"
     },
-    "alertSource":{
-        "type": "Text",
+    "description": {
+        "type": "Text"
         # Value will be added
     },
     "location": {
@@ -30,31 +26,34 @@ alert_template = {
             "coordinates": [ # to be inserted
             ]
         }
-    }
-}
-
-consumption_template = {
-    #"id": None,
-    "type": "Consumption",
-    "category": {
-        "type": "Text",
-        "value": "water",
-        "metadata": {}
     },
     "subCategory": {
         "type": "Text",
-        "value": "water-consumptiopn-prediction",
-        "metadata": {}
+        "value": "longTerm"
     },
-    "dateCreated": {
-        "type": "DateTime",
-        "value": "",
+    "type": "Alert",
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "dateIssued,description,ksiSignature"
+    } 
+}
+
+consumption_template = {
+    "category": {
+        "type": "Text",
+        "value": "water",
         "metadata": {}
     },
     "consumption": {
         "type": "Number",
         "value": None,
         "metadata": {},
+    },
+    "consumptionFrom": {
+        "type": "DateTime",
+        "dateFrom": "",
+        "metadata": {}
     },
     "consumptionMax": {
         "type": "Number",
@@ -66,50 +65,49 @@ consumption_template = {
         "value": None,
         "metadata": {},
     },
+    "consumptionTo": {
+        "type": "DateTime",
+        "dateTo": "",
+        "metadata": {}
+    },
     "consumptionUnit": {
         "type": "Text",
         "value": "m3/s",
         "metadata": {}
     },
-    "consumptionFrom": {
+    "dateCreated": {
         "type": "DateTime",
-        "dateFrom": "",
+        "value": "",
         "metadata": {}
     },
-    "consumptionTo": {
-        "type": "DateTime",
-        "dateTo": "",
+    "subCategory": {
+        "type": "Text",
+        "value": "water-consumptiopn-prediction",
         "metadata": {}
-    }
+    },
+    "type": "Consumption"
 }
 
 flower_bed_template = {
-    #"id": "",
-    "type": "FlowerBed",
-    "nextWateringDeadline": {
-        "type": "DateTime",
-        "value": "2017-03-31T08:00"
+    "feedback": {
+        "type": "Text",
+        "value": ""
     },
     "nextWateringAmountRecommendation": {
         "type": "Number",
         "value": 0.5
     },
-    "feedback": {
-        "type": "Text",
-        "value": ""
-    }
+    "nextWateringDeadline": {
+        "type": "DateTime",
+        "value": "2017-03-31T08:00"
+    },
+    "type": "FlowerBed"
 }
 
 leakage_group_model_template = {
-    #"id": "",
-    "type": "Alert",
     "category": {
         "type" : "enum",
         "value": "water"
-    },
-    "subCategory": {
-        "type" : "enum",
-        "value": "leakage"
     },
     "data": {
         "type" : "structuredvalue",
@@ -122,20 +120,24 @@ leakage_group_model_template = {
                 }
             }
         }
-        
     },
     "dateIssued": {
         "type": "datetime",
         "value": "2017-01-02T09:25:55.00Z"
-    }
+    },
+    "subCategory": {
+        "type" : "enum",
+        "value": "leakage"
+    },
+    "type": "Alert"
 }
 
 leakage_model_template = {
-    "type": "Device",
     "isMovedToNewLocation":  {
         "type": "Boolean",
         "value": False
-    }
+    },
+    "type": "Device"
 }
 
 meta_signal_template = {
