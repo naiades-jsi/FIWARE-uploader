@@ -9,7 +9,7 @@ producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
 topic = "device_1efe_pred_output"
 
 message = {
-    "timestamp": 1635228000.6277666,
+    "timestamp": 1646411654,
     "T": "2021-9-30 00:00:00",
     "WA": 5,
     "predicted_profile": [

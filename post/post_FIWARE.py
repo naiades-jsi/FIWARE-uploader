@@ -419,7 +419,7 @@ class SendData():
             timestamp_in_ns = int(rec[self.time_name]*1000)
 
         # time to datetime
-        time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000)
+        time_stamp = datetime.utcfromtimestamp(int(timestamp_in_ns/1000000000))
 
         sensor_name = re.findall(self.sensor_name_re, topic)[0]
         
