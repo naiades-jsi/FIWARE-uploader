@@ -3,7 +3,7 @@
         "name": "flower_bed",
         "api_user": "jsicarwat",
         "api_pass": "gkw72nbf52",
-        "time_format": "ms",
+        "time_format": "s",
         "time_name": "timestamp",
         "data_name": ["WA"],
         "kafka":{
