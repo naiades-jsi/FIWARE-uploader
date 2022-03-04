@@ -85,11 +85,20 @@ consumption_template = {
         "value": "water-consumptiopn-prediction",
         "metadata": {}
     },
-    "type": "Consumption"
+    "type": "Consumption",
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "consumption,ksiSignature"
+    } 
 }
 
 flower_bed_template = {
-    "feedback": {
+    "feedbackDate": {
+        "type": "DateTime",
+        "value": ""
+    },
+    "feedbackDescription": {
         "type": "Text",
         "value": ""
     },
@@ -101,7 +110,12 @@ flower_bed_template = {
         "type": "DateTime",
         "value": "2017-03-31T08:00"
     },
-    "type": "FlowerBed"
+    "type": "FlowerBed",
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "feedbackDate,feedbackDescription,nextWateringAmountRecommendation,nextWateringDeadline,ksiSignature"
+    } 
 }
 
 leakage_group_model_template = {
@@ -129,7 +143,12 @@ leakage_group_model_template = {
         "type" : "enum",
         "value": "leakage"
     },
-    "type": "Alert"
+    "type": "Alert",
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Text",
+        "value": "data,dateIssued,ksiSignature"
+    } 
 }
 
 leakage_model_template = {
@@ -137,7 +156,12 @@ leakage_model_template = {
         "type": "Boolean",
         "value": False
     },
-    "type": "Device"
+    "type": "Device",
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "isMovedToNewLocation,ksiSignature"
+    } 
 }
 
 meta_signal_template = {

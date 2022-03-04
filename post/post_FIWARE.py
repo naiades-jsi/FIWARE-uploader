@@ -418,13 +418,17 @@ class SendData():
         elif(self.time_format == "us"):
             timestamp_in_ns = int(rec[self.time_name]*1000)
 
+        # time to datetime
+        time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000)
+
         sensor_name = re.findall(self.sensor_name_re, topic)[0]
         
         # Construct data model
         data_model = copy.deepcopy(flower_bed_template) # create data_model  
 
         data_model["nextWateringAmountRecommendation"]["value"] = rec["WA"]
-        data_model["feedback"]["value"] = str(rec["predicted_profile"])
+        data_model["feedbackDescription"]["value"] = str(rec["predicted_profile"])
+        data_model["feedbackDate"]["value"] = (time_stamp).isoformat() + ".00Z+02"
 
         time_string = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z+02"
         data_model["nextWateringDeadline"]["value"] = time_string
