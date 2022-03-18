@@ -375,9 +375,12 @@ class SendData():
         
         topic = msg.topic # topic name
 
+        # time to datetime
+        time_stamp = datetime.utcfromtimestamp(int(timestamp_in_ns/1000000000))
+
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
         position = rec["position"]
-        final_location = rec["is_final"]
+        final_location = bool(rec["is_final"])
         
         data_model = copy.deepcopy(leakage_model_template) # create data_model
         if(final_location):
@@ -388,6 +391,15 @@ class SendData():
                     "coordinates": position
                 }
             }
+
+            # TODO add alert
+            alert = copy.deepcopy(leakage_alert_template)
+            alert_id = "urn:ngsi-ld:Alert:ES-Braila-Radunegru-FinaLekageLocation"
+
+            alert["dateIssued"]["value"] = to_time_timestamp
+
+            self.postToFiware(alert, alert_id)            
+
         else:
             data_model["newLocation"] = {
                 "type": "geo:json",
@@ -426,12 +438,16 @@ class SendData():
         # Construct data model
         data_model = copy.deepcopy(flower_bed_template) # create data_model  
 
-        data_model["nextWateringAmountRecommendation"]["value"] = rec["WA"]
+        data_model["nextWateringAmountRecommendation"]["value"] = float(rec["WA"])
         data_model["feedbackDescription"]["value"] = str(rec["predicted_profile"])
-        data_model["feedbackDate"]["value"] = (time_stamp).isoformat() + ".00Z+02"
+        #data_model["feedbackDate"]["value"] = (time_stamp).isoformat() + ".00Z+02"
+        
+        # The date will be read from metadata instead
+        #data_model["feedbackDate"]["value"] = time_stamp
+        #
 
         time_string = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z+02"
-        data_model["nextWateringDeadline"]["value"] = time_string
+        #data_model["nextWateringDeadline"]["value"] = datetime.strptime(rec["T"], "%Y-%m-%d %H:%M:%S")
 
         # Find the correct entity
         entity_mapper = {
@@ -465,8 +481,9 @@ class SendData():
 
             output_dict = {"watering_amount": rec["WA"]}
             
-            timestamp_of_watering = int(time.mktime(datetime.strptime(rec["T"], "%Y-%m-%d %H:%M:%S").timetuple()))*1000000000
-            
+            # timestamp_of_watering = int(time.mktime(datetime.strptime(rec["T"], "%Y-%m-%d %H:%M:%S").timetuple()))*1000000000
+            timestamp_of_watering = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z+02"
+
             if("suggested_value" in rec):
                 output_dict["suggested_value"] = rec["suggested_value"]
             

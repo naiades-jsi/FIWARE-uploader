@@ -16,6 +16,43 @@ alert_template = {
         # eg. "value": "2017-01-02T09:25:55.00Z"
     },
     "description": {
+        "type": "Text",
+        "value": "Final leakage position detected"
+    },
+    "location": {
+        "type": "geo:json",
+        "value": {
+            "type": "Point",
+            "coordinates": [ # to be inserted
+            ]
+        }
+    },
+    "subCategory": {
+        "type": "Text",
+        "value": "longTerm"
+    },
+    "type": "Alert",
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "dateIssued,ksiSignature"
+    } 
+}
+
+leakage_alert_template = {
+    "alertSource":{
+        "type": "Text",
+        # Value will be added
+    },
+    "category": {
+        "type": "Text",
+        "value": "anomaly"
+    },
+    "dateIssued": {
+        "type": "DateTime",
+        # eg. "value": "2017-01-02T09:25:55.00Z"
+    },
+    "description": {
         "type": "Text"
         # Value will be added
     },
@@ -94,10 +131,10 @@ consumption_template = {
 }
 
 flower_bed_template = {
-    "feedbackDate": {
-        "type": "DateTime",
-        "value": ""
-    },
+#    "feedbackDate": {
+#        "type": "DateTime",
+#        "value": ""
+#    },
     "feedbackDescription": {
         "type": "Text",
         "value": ""
