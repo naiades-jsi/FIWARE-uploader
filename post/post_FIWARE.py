@@ -18,7 +18,7 @@ from kafka import KafkaProducer
 
 from create_data_models import meta_signal_template, consumption_template,\
     alert_template, flower_bed_template, leakage_model_template,\
-    leakage_group_model_template
+    leakage_group_model_template, leakage_alert_template
 from custom_error import Custom_error    
 
 from pushToInflux import PushToDB
@@ -380,10 +380,11 @@ class SendData():
 
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
         position = rec["position"]
-        final_location = bool(rec["is_final"])
+        final_location = rec["is_final"] == "true"
         
         data_model = copy.deepcopy(leakage_model_template) # create data_model
         if(final_location):
+            #print("final", flush=True)
             data_model["finalLeackageLocation"] = {
                 "type": "geo:json",
                 "value": {
@@ -392,11 +393,10 @@ class SendData():
                 }
             }
 
-            # TODO add alert
             alert = copy.deepcopy(leakage_alert_template)
             alert_id = "urn:ngsi-ld:Alert:ES-Braila-Radunegru-FinaLekageLocation"
 
-            alert["dateIssued"]["value"] = to_time_timestamp
+            alert["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z+02"
 
             self.postToFiware(alert, alert_id)            
 
