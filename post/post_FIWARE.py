@@ -382,25 +382,27 @@ class SendData():
         position = rec["position"]
         final_location = rec["is_final"] == "true"
         
-        data_model = copy.deepcopy(leakage_model_template) # create data_model
         if(final_location):
             #print("final", flush=True)
-            data_model["finalLeackageLocation"] = {
+            """data_model["finalLeackageLocation"] = {
                 "type": "geo:json",
                 "value": {
                     "type": "Point",
                     "coordinates": position
                 }
-            }
+            }"""
 
             alert = copy.deepcopy(leakage_alert_template)
             alert_id = "urn:ngsi-ld:Alert:ES-Braila-Radunegru-FinaLekageLocation"
 
-            alert["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z+02"
+            alert["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z"
+            #print(str(position).replace("'", ""), flush=True)
+            alert["description"]["value"] = str(position).replace("'", "")
 
             self.postToFiware(alert, alert_id)            
 
         else:
+            data_model = copy.deepcopy(leakage_model_template) # create data_model
             data_model["newLocation"] = {
                 "type": "geo:json",
                     "value": {
@@ -409,12 +411,12 @@ class SendData():
                 }
             }
         
-        entity_id = "urn:ngsi-ld:Device:Device-" + sensor_name
+            entity_id = "urn:ngsi-ld:Device:Device-" + sensor_name
 
-        # Sign and append signature
-        data_model = self.sign(data_model)
+            # Sign and append signature
+            data_model = self.sign(data_model)
 
-        self.postToFiware(data_model, entity_id)
+            self.postToFiware(data_model, entity_id)
         #TODO influx?
     
     def flower_bed(self, msg):

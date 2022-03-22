@@ -64,10 +64,6 @@ leakage_alert_template = {
             ]
         }
     },
-    "subCategory": {
-        "type": "Text",
-        "value": "longTerm"
-    },
     "type": "Alert",
     # Attributes that get updated 
     "updatedAttributes": {
