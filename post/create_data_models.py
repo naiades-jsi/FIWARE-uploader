@@ -127,10 +127,6 @@ consumption_template = {
 }
 
 flower_bed_template = {
-#    "feedbackDate": {
-#        "type": "DateTime",
-#        "value": ""
-#    },
     "feedbackDescription": {
         "type": "Text",
         "value": ""

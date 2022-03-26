@@ -1,0 +1,32 @@
+{
+    "config": {
+        "name": "meta_signal",
+        "api_user": "jsialiano",
+        "api_pass": "zew73jfb69",
+        "time_name": "timestamp",
+        "time_format": "ms",
+        "kafka":{
+            "topics": [
+                "anomalies_alicante_salinity_EA001_36_level_meta_signal",
+                "anomalies_alicante_salinity_EA003_36_conductivity_meta_signal"
+            ],
+            "bootstrap_servers": "localhost:9092",
+            "offset":"latest"
+        },
+        "fiware":{
+            "headers": {
+                "Fiware-Service": "alicante",
+                "Content-Type": "application/json"
+            },
+            "update": true,
+            "url": "http://5.53.108.182:1026/v2/entities/",
+            "id": "urn:ngsi-ld:MEASUREMENT:RO-",
+            "sensor_name_re": "alicante_salinity_(.+)_meta_signal"
+        }
+    },    
+    "influx_config": {
+        "token" : "AOAm_a0wPNlX3u10m0Fl7gBLeKZwjV67tYPvpU4FRLxNZPmRLS-BDV81jtUKzC_siO1VPqCkTfzo8H9OVEv5eQ==",
+        "org" : "naiades",
+        "url" : "http://localhost:8086/"
+    }
+}
