@@ -24,7 +24,7 @@ from custom_error import Custom_error
 from pushToInflux import PushToDB
 
 class SendData():
-    type: str
+    name: str
     time_name: str
     time_format: str
     locations: List[str]
@@ -45,9 +45,13 @@ class SendData():
     API_pass: str
 
     def __init__(self, config, config_influx = None):
-        self.type = config["name"]
+        self.name = config["name"]
         self.time_name = config["time_name"]
         self.time_format = config["time_format"]
+
+        # Consumption has a mask for different horizons
+        if(self.name == "consumption"):
+            self.mask = config["mask"]
 
         if("locations" in config):
             self.locations = config["locations"]
@@ -87,17 +91,17 @@ class SendData():
         for msg in self.consumer:
             print("{} => message recieved".format(datetime.now()), flush=True)
             try:
-                if self.type == "consumption":
+                if self.name == "consumption":
                     self.consumption(msg)
-                elif self.type == "leakage_group":
+                elif self.name == "leakage_group":
                     self.leakage_group(msg)
-                elif self.type == "leakage_position":
+                elif self.name == "leakage_position":
                     self.leakage_position(msg)
-                elif self.type == "flower_bed":
+                elif self.name == "flower_bed":
                     self.flower_bed(msg)
-                elif self.type == "anomaly":
+                elif self.name == "anomaly":
                     self.anomaly(msg)
-                elif self.type == "meta_signal":
+                elif self.name == "meta_signal":
                     self.meta_signal(msg)
                 else :
                     print("Wrong type name.", flush=True)
@@ -122,39 +126,52 @@ class SendData():
 
         # extract value from record
         # value = eval(rec["value"])[0]
-        value = rec["value"][0]
-        horizon = str(int(int(rec["horizon"]) / 24)) + "d" # Horizon is expected in hours
-        prediction_time = int(rec["prediction_time"]/1000) # Must be in miliseconds
-        from_time = timestamp_in_ns/1000000000
-        to_time = from_time + int(rec["horizon"]) * 3600
-        sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
+        for i in self.mask:
+            # Extract the corret value
+            value = rec["value"][i]
 
-        # time
-        prediction_time_timestamp = datetime.utcfromtimestamp(prediction_time)
-        from_time_timestamp = datetime.utcfromtimestamp(from_time)
-        to_time_timestamp = datetime.utcfromtimestamp(to_time)
+            # Calculate horizon
+            horizon_in_h = (i+1)/2
+            if(horizon_in_h>=24):
+                horizon_str = str(int(horizon_in_h/24)) + "d"
+            else:
+                horizon_str = str(int(horizon_in_h)) + "h"
 
-        # data model
-        data_model = copy.deepcopy(consumption_template) # create data_model
-        entity_id = self.id + sensor_name + "_" + str(horizon) # + time_stamp.strftime("%Y%m%d")
-        print(entity_id)
-        # TODO during winter time it needs to be +1
-        data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02" # +2 ali +1
-        data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02"
-        data_model["consumptionTo"]["value"] = (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z+02"
+            sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
 
-        data_model["consumption"]["value"] = value
-        #data_model["consumptionMax"] = None
-        #data_model["consumptionMin"] = None
+            # Time
+            prediction_time = int(rec["prediction_time"]/1000) # Must be in miliseconds
+            from_time = timestamp_in_ns/1000000000
+            to_time = from_time + horizon_in_h * 3600
+            prediction_time_timestamp = datetime.utcfromtimestamp(prediction_time)
+            from_time_timestamp = datetime.utcfromtimestamp(from_time)
+            to_time_timestamp = datetime.utcfromtimestamp(to_time)
 
-        self.postToFiware(data_model, entity_id)
+            # copy predefined data model
+            data_model = copy.deepcopy(consumption_template) # create data_model
+            
+            # Construct the name of the entity
+            entity_id = self.id + sensor_name + "_" + horizon_str # + time_stamp.strftime("%Y%m%d")
+            print(entity_id)
+            
+            # TODO during winter time it needs to be +1
+            data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z" # +2 ali +1
+            data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z"
+            data_model["consumptionTo"]["value"] = (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z"
+
+            data_model["consumption"]["value"] = value
+            #data_model["consumptionMax"] = None
+            #data_model["consumptionMin"] = None
+
+            self.postToFiware(data_model, entity_id)
 
         #influx
         if self.config_influx != None:
             measurement = sensor_name
             prediction_time_in_ns = prediction_time * 1000000000
 
-            output_dict = { "value": value }
+            # TODO influx should also recieve data for every horizon
+            output_dict = { "value": rec["value"][0] }
             
             # Select bucket
             if "alicante" in topic:
@@ -284,7 +301,7 @@ class SendData():
 
         #TODO set values of the data model
         # dateObserved
-        data_model["dateObserved"]["value"] = (time_stamp).isoformat() + ".00Z+02"
+        data_model["dateObserved"]["value"] = (time_stamp).isoformat() + ".00Z"
 
         # numValue
         data_model["numValue"]["value"] = rec["status_code"]
@@ -448,7 +465,7 @@ class SendData():
         #data_model["feedbackDate"]["value"] = time_stamp
         #
 
-        time_string = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z+02"
+        time_string = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z"
         #data_model["nextWateringDeadline"]["value"] = datetime.strptime(rec["T"], "%Y-%m-%d %H:%M:%S")
 
         # Find the correct entity
@@ -563,6 +580,3 @@ class SendData():
         assert int(verification) == True
 
         return encodedZip
-
-
-# TODO test fail request
