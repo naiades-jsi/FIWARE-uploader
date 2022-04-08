@@ -7,8 +7,15 @@
         "time_format": "ms",
         "kafka":{
             "topics": [
-                "anomalies_alicante_salinity_EA001_36_level_meta_signal",
-                "anomalies_alicante_salinity_EA003_36_conductivity_meta_signal"
+                "anomalies_alicante_salinity_EA002_26_conductivity_meta_signal",
+                "anomalies_alicante_salinity_EA002_26_conductivity_meta_signal_up",
+                "anomalies_alicante_salinity_EA003_36_conductivity_meta_signal",
+                "anomalies_alicante_salinity_EA003_36_conductivity_meta_signal_up",
+                "anomalies_alicante_salinity_EA007_36_conductivity_meta_signal",
+                "anomalies_alicante_salinity_EA007_36_conductivity_meta_signal_up",
+                "anomalies_alicante_salinity_EA008_36_conductivity_meta_signal",
+                "anomalies_alicante_salinity_EA008_36_conductivity_meta_signal_up",
+                "anomalies_alicante_salinity_EA001_36_level"
             ],
             "bootstrap_servers": "localhost:9092",
             "offset":"latest"
