@@ -122,7 +122,7 @@ consumption_template = {
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Text", 
-        "value": "consumption,ksiSignature"
+        "value": "consumption,dateCreated,consumptionFrom,consumptionTo,ksiSignature"
     } 
 }
 
