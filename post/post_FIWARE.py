@@ -457,7 +457,11 @@ class SendData():
         # Construct data model
         data_model = copy.deepcopy(flower_bed_template) # create data_model  
 
-        data_model["nextWateringAmountRecommendation"]["value"] = float(rec["WA"])
+        # If WA=-1 ignore fields WA and T
+        if(float(rec["WA"])!=-1):
+            data_model["nextWateringAmountRecommendation"]["value"] = float(rec["WA"])
+            time_string = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z"
+        
         data_model["feedbackDescription"]["value"] = str(rec["predicted_profile"])
         #data_model["feedbackDate"]["value"] = (time_stamp).isoformat() + ".00Z+02"
         
@@ -465,7 +469,7 @@ class SendData():
         #data_model["feedbackDate"]["value"] = time_stamp
         #
 
-        time_string = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z"
+        #time_string = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z"
         #data_model["nextWateringDeadline"]["value"] = datetime.strptime(rec["T"], "%Y-%m-%d %H:%M:%S")
 
         # Find the correct entity
@@ -494,8 +498,8 @@ class SendData():
 
         self.postToFiware(data_model, entity_id)
 
-        #influx
-        if self.config_influx != None:
+        #influx (if WA!=-1 - no prediction)
+        if self.config_influx != None and float(rec["WA"])!=-1:
             measurement = sensor_name + "_watering"
 
             output_dict = {"watering_amount": rec["WA"]}
