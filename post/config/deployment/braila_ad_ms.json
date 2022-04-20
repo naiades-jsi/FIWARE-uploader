@@ -10,7 +10,11 @@
                 "anomalies_braila_flow211106H360_meta_signal",
                 "anomalies_braila_flow211206H360_meta_signal",
                 "anomalies_braila_flow211306H360_meta_signal",
-                "anomalies_braila_flow318505H498_meta_signal"
+                "anomalies_braila_flow318505H498_meta_signal",
+                "anomalies_braila_pressure5770_meta_signal",
+                "anomalies_braila_pressure5771_meta_signal",
+                "anomalies_braila_pressure5772_meta_signal",
+                "anomalies_braila_pressure5773_meta_signal"
             ],
             "bootstrap_servers": "localhost:9092",
             "offset":"latest"
