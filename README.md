@@ -86,4 +86,5 @@ We suggest running the tests within production docker environment (see below).
 # Building the service/production image
 The service should be run within Docker, enabling KSI signature of the data (provided by NAIADES; more data [here](https://gitlab.distantaccess.com/naiades/naiades-platform-poc/-/wikis/home)).
 
-Dockerfile is provided in the home directory. Build the image with __TODO__ (Mark).
+Dockerfile is provided in the home directory. Build the image with the following command:
+`docker build -t <image_name> .` from home directory. You also need permissions for e3ailab docker hub repository, to be able to pull base image with KSI.
