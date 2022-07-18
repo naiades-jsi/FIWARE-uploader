@@ -23,11 +23,10 @@
         "fiware":{
             "headers": {
                 "Fiware-Service": "alicante",
-                "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Content-Type": "application/json"
             },
             "update": true,
-            "url": "http://naiades.simavi.ro:5002/historic/validation/v2/notify",
+            "url": "http://5.53.108.182:1026/v2/entities/",
             "id": "urn:ngsi-ld:MEASUREMENT:RO-",
             "sensor_name_re": "alicante_salinity_(.+)_meta_signal"
         }

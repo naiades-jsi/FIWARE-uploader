@@ -22,11 +22,10 @@
         "fiware":{
             "headers": {
                 "Fiware-Service": "braila",
-                "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Content-Type": "application/json"
             },
             "update": true,
-            "url": "http://naiades.simavi.ro:5002/historic/validation/v2/notify",
+            "url": "http://5.53.108.182:1026/v2/entities/",
             "id": "urn:ngsi-ld:MEASUREMENT:RO-",
             "sensor_name_re": "anomalies_braila_flow(.+)_meta_signal"
         }

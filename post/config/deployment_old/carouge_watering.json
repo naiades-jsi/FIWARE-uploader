@@ -24,11 +24,10 @@
         "fiware":{
             "headers": {
                 "Fiware-Service": "carouge",
-                "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Content-Type": "application/json"
             },
             "update": true,
-            "url": "http://naiades.simavi.ro:5002/historic/validation/v2/notify",
+            "url": "http://5.53.108.182:1026/v2/entities/",
             "id": "",
             "sensor_name_re": "device_(.+)_pred_output"
         }

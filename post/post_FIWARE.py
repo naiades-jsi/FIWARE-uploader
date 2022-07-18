@@ -24,6 +24,8 @@ from custom_error import Custom_error
 from pushToInflux import PushToDB
 
 class SendData():
+    debug: bool
+
     name: str
     time_name: str
     time_format: str
@@ -37,6 +39,7 @@ class SendData():
     id: str
     sensor_name_re: str
     update: bool
+    subscriptionId: str
 
     influx: Any
     config_influx: Dict[str, str]
@@ -45,6 +48,11 @@ class SendData():
     API_pass: str
 
     def __init__(self, config, config_influx = None):
+        if("debug" in config):
+            self.debug = config["debug"] == "True"
+        else:
+            self.debug = False
+
         self.name = config["name"]
         self.time_name = config["time_name"]
         self.time_format = config["time_format"]
@@ -53,9 +61,6 @@ class SendData():
         if(self.name == "consumption"):
             self.mask = config["mask"]
 
-        if("locations" in config):
-            self.locations = config["locations"]
-
         # Check if format is is acceptable
         if(self.time_format != "s" and self.time_format != "ms" and
            self.time_format != "ns" and self.time_format != "us"):
@@ -63,15 +68,28 @@ class SendData():
                  flush=True)
            exit(1)
 
+        # Kafka configuration
         self.topics = config["kafka"]["topics"]
         self.consumer = KafkaConsumer(bootstrap_servers=config["kafka"]["bootstrap_servers"], auto_offset_reset=config["kafka"]["offset"])
         self.consumer.subscribe(self.topics)
 
+        # Locations configuration
+        if("locations" in config):
+            self.locations = config["locations"]
+        else:
+            self.locations = [[0,0]]*len(self.topics)
+
+        # Fiware configuration
         self.headers = config["fiware"]["headers"]
         self.url = config["fiware"]["url"]
         self.id = config["fiware"]["id"]
         self.sensor_name_re = config["fiware"]["sensor_name_re"]
         self.update = config["fiware"]["update"]
+        # SubscriptionId (if it exists) - only needed for DMV
+        if("subscriptionId" in config["fiware"]):
+            self.subscriptionId = config["fiware"]["subscriptionId"]
+        else:
+            self.subscribtionId = None
 
         # KSI signature
         self.API_user = config["api_user"]
@@ -90,7 +108,7 @@ class SendData():
         print("{} => started listening".format(datetime.now()), flush=True)
         for msg in self.consumer:
             print("{} => message recieved".format(datetime.now()), flush=True)
-            try:
+            if(self.debug):                
                 if self.name == "consumption":
                     self.consumption(msg)
                 elif self.name == "leakage_group":
@@ -105,12 +123,27 @@ class SendData():
                     self.meta_signal(msg)
                 else :
                     print("Wrong type name.", flush=True)
-            except Exception as e:
-                print(e, flush=True)
-                print("Did not send successfully.", flush=True)
+            else:    
+                try:
+                    if self.name == "consumption":
+                        self.consumption(msg)
+                    elif self.name == "leakage_group":
+                        self.leakage_group(msg)
+                    elif self.name == "leakage_position":
+                        self.leakage_position(msg)
+                    elif self.name == "flower_bed":
+                        self.flower_bed(msg)
+                    elif self.name == "anomaly":
+                        self.anomaly(msg)
+                    elif self.name == "meta_signal":
+                        self.meta_signal(msg)
+                    else :
+                        print("Wrong type name.", flush=True)
+                except Exception as e:
+                    print(e, flush=True)
+                    print("Did not send successfully.", flush=True)
 
     def consumption(self, msg):
-        # TODO: add signature
         # sample output: {"timestamp": "2021-10-11 11:38:47.374354", "value": "[0.36906925]", "horizon": "24"}
         rec = eval(msg.value)
 
@@ -162,8 +195,11 @@ class SendData():
             data_model["consumption"]["value"] = value
             #data_model["consumptionMax"] = None
             #data_model["consumptionMin"] = None
+        
+            # Sign and append signature
+            data_model = self.sign(data_model)
 
-            self.postToFiware(data_model, entity_id)
+            self.postToFiware_newv2(data_model, entity_id)
 
         #influx
         if self.config_influx != None:
@@ -236,7 +272,7 @@ class SendData():
         data_model["description"]["value"] = rec["status"]
         data_model["alertSource"]["value"] = sensor_name
         # TODO during winter time it needs to be +1
-        data_model["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z+02"
+        data_model["dateIssued"]["value"] = (time_stamp).isoformat("T", "seconds") + ".00Z"
         # optional and unnecessary since it is the same as above
         # data_model["validFrom"]["value"] = (time_stamp).isoformat() + ".00Z+02"
 
@@ -247,7 +283,7 @@ class SendData():
         # Sign and append signature
         data_model = self.sign(data_model)
 
-        self.postToFiware(data_model, entity_id)
+        self.postToFiware_newv2(data_model, entity_id)
 
         #influx
         if self.config_influx != None:
@@ -313,7 +349,7 @@ class SendData():
         # Sign and append signature
         data_model = self.sign(data_model)
 
-        self.postToFiware(data_model, entity_id)
+        self.postToFiware_newv2(data_model, entity_id)
 
         #influx
         if self.config_influx != None:
@@ -338,6 +374,63 @@ class SendData():
                                              tags= {},
                                              to_write= output_dict,
                                              bucket=bucket)
+
+    def frequency(self, msg):
+        rec = eval(msg.value)
+
+        topic = msg.topic # topic name
+
+        # Change timestamp to ns
+        if(self.time_format == "s"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000000)
+        elif(self.time_format == "ms"):
+            timestamp_in_ns = int(rec[self.time_name]*1000000)
+        elif(self.time_format == "us"):
+            timestamp_in_ns = int(rec[self.time_name]*1000)
+
+        # extract value from record
+        # value = eval(rec["value"])[0]
+        for i in self.mask:
+            # Extract the corret value
+            value = rec["value"][i]
+
+            # Calculate horizon
+            horizon_in_h = (i+1)/2
+            if(horizon_in_h>=24):
+                horizon_str = str(int(horizon_in_h/24)) + "d"
+            else:
+                horizon_str = str(int(horizon_in_h)) + "h"
+
+            sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
+
+            # Time
+            prediction_time = int(rec["prediction_time"]/1000) # Must be in miliseconds
+            from_time = timestamp_in_ns/1000000000
+            to_time = from_time + horizon_in_h * 3600
+            prediction_time_timestamp = datetime.utcfromtimestamp(prediction_time)
+            from_time_timestamp = datetime.utcfromtimestamp(from_time)
+            to_time_timestamp = datetime.utcfromtimestamp(to_time)
+
+            # copy predefined data model
+            data_model = copy.deepcopy(consumption_template) # create data_model
+            
+            # Construct the name of the entity
+            entity_id = self.id + sensor_name + "_" + horizon_str # + time_stamp.strftime("%Y%m%d")
+            print(entity_id)
+            
+            # TODO during winter time it needs to be +1
+            data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z" # +2 ali +1
+            data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z"
+            data_model["consumptionTo"]["value"] = (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z"
+
+            data_model["consumption"]["value"] = value
+            #data_model["consumptionMax"] = None
+            #data_model["consumptionMin"] = None
+        
+            # Sign and append signature
+            data_model = self.sign(data_model)
+
+            self.postToFiware_newv2(data_model, entity_id)
 
     def leakage_group(self, msg):
         # TODO: test signature
@@ -372,7 +465,7 @@ class SendData():
         # Sign and append signature
         data_model = self.sign(data_model)
 
-        self.postToFiware(data_model, entity_id)
+        self.postToFiware_newv2(data_model, entity_id)
 
         #TODO add influx do we need it?
 
@@ -433,7 +526,7 @@ class SendData():
             # Sign and append signature
             data_model = self.sign(data_model)
 
-            self.postToFiware(data_model, entity_id)
+            self.postToFiware_newv2(data_model, entity_id)
         #TODO influx?
     
     def flower_bed(self, msg):
@@ -496,7 +589,7 @@ class SendData():
         # Sign and append signature
         data_model = self.sign(data_model)
 
-        self.postToFiware(data_model, entity_id)
+        self.postToFiware_newv2(data_model, entity_id)
 
         #influx (if WA!=-1 - no prediction)
         if self.config_influx != None and float(rec["WA"])!=-1:
@@ -544,6 +637,33 @@ class SendData():
         if (response.status_code > 300):
             raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
 
+    def postToFiware_newv2(self, data_model, entity_id):
+        signature = data_model["ksiSignature"]
+        del data_model["ksiSignature"]
+        data_model["id"] = entity_id
+        
+        body = {
+            "subscriptionId": self.subscriptionId,
+            "data": [data_model],
+            "ksiSignature": signature
+        }
+        
+        # print(print(json.dumps(body, indent=4, sort_keys=True)))
+
+        response = requests.post(self.url, headers=self.headers, data=json.dumps(body) )
+        
+        if (response.status_code > 300):
+            print(f"Error sending to the API. Response status conde {response.status_code}", flush=True)
+        
+        if(type(eval(response.content.decode("utf-8"))) is not str):
+            status_code = eval(response.content.decode("utf-8")).get("status_code")
+            # Test for errors and log them
+            if (status_code > 300):
+                message = eval(response.content.decode("utf-8")).get("message")
+                print(f"Error sending to the API. Response status conde {status_code}", flush=True)
+                print(f"Response body content: {message}")
+                # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
+
     def sign(self, data_model):
         # Try signing the message with KSI tool (requires execution in
         # the dedicated container)
@@ -554,11 +674,8 @@ class SendData():
             signature = "null"
         
         # Add signature to the message
-        data_model["ksiSignature"] = {
-            "metadata": {},
-            "type": "Text",
-            "value": signature
-        }
+        data_model["ksiSignature"] = signature
+
 
         return data_model
 
