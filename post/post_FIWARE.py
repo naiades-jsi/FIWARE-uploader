@@ -186,7 +186,7 @@ class SendData():
             
             # Construct the name of the entity
             entity_id = self.id + sensor_name + "_" + horizon_str # + time_stamp.strftime("%Y%m%d")
-            print(entity_id)
+            # print(entity_id)
             
             # TODO during winter time it needs to be +1
             data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + ".00Z" # +2 ali +1
@@ -650,7 +650,7 @@ class SendData():
         # Sign message body
         body = self.sign(body)
         
-        print(print(json.dumps(body, indent=4, sort_keys=True)))
+        # print(print(json.dumps(body, indent=4, sort_keys=True)))
 
         response = requests.post(self.url, headers=self.headers, data=json.dumps(body) )
         
