@@ -19,6 +19,7 @@ from kafka import KafkaProducer
 from create_data_models import meta_signal_template, consumption_template,\
     alert_template, flower_bed_template, leakage_model_template,\
     leakage_group_model_template, leakage_alert_template
+from entity_mapper import entity_mapper_carouge
 from custom_error import Custom_error    
 
 from pushToInflux import PushToDB
@@ -188,16 +189,16 @@ class SendData():
             print(entity_id)
             
             # TODO during winter time it needs to be +1
-            data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z" # +2 ali +1
-            data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z"
-            data_model["consumptionTo"]["value"] = (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z"
+            data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + ".00Z" # +2 ali +1
+            data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + ".00Z"
+            data_model["consumptionTo"]["value"] = (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + ".00Z"
 
             data_model["consumption"]["value"] = value
             #data_model["consumptionMax"] = None
             #data_model["consumptionMin"] = None
         
             # Sign and append signature
-            data_model = self.sign(data_model)
+            #data_model = self.sign(data_model)
 
             self.postToFiware_newv2(data_model, entity_id)
 
@@ -337,17 +338,17 @@ class SendData():
 
         #TODO set values of the data model
         # dateObserved
-        data_model["dateObserved"]["value"] = (time_stamp).isoformat() + ".00Z"
+        data_model["dateObserved"]["value"] = (time_stamp).isoformat("T", "seconds") + ".00Z"
 
         # numValue
-        data_model["numValue"]["value"] = rec["status_code"]
+        data_model["value"]["value"] = rec["status_code"]
 
         # textValue (contains the actual sample value/array of values on 
         # which anomaly detection was executed)
-        data_model["textValue"]["value"] = str(rec["value"])
+        data_model["description"]["value"] = str(rec["value"])
 
         # Sign and append signature
-        data_model = self.sign(data_model)
+        #data_model = self.sign(data_model)
 
         self.postToFiware_newv2(data_model, entity_id)
 
@@ -503,13 +504,19 @@ class SendData():
             }"""
 
             alert = copy.deepcopy(leakage_alert_template)
-            alert_id = "urn:ngsi-ld:Alert:ES-Braila-Radunegru-FinaLekageLocation"
+            alert_id = self.id
 
-            alert["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z"
+            alert["dateIssued"]["value"] = (time_stamp).isoformat("T", "seconds") + ".00Z"
             #print(str(position).replace("'", ""), flush=True)
             alert["description"]["value"] = str(position).replace("'", "")
 
-            self.postToFiware(alert, alert_id)            
+            # Needs to be none empty
+            alert["location"]["value"]["coordinates"] = [0,0]
+            
+            # Sign and append signature
+            alert = self.sign(alert)
+
+            self.postToFiware_newv2(alert, alert_id)            
 
         else:
             data_model = copy.deepcopy(leakage_model_template) # create data_model
@@ -518,7 +525,8 @@ class SendData():
                     "value": {
                     "type": "Point",
                     "coordinates": position
-                }
+                },
+                "metadata": {}
             }
         
             entity_id = "urn:ngsi-ld:Device:Device-" + sensor_name
@@ -553,9 +561,21 @@ class SendData():
         # If WA=-1 ignore fields WA and T
         if(float(rec["WA"])!=-1):
             data_model["nextWateringAmountRecommendation"]["value"] = float(rec["WA"])
-            time_string = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z"
-        
+            
+            # formati time
+            day_year_month = rec["T"].split()[0]
+            year, month, day = day_year_month.split("-")
+            month = month.zfill(2)
+            day = day.zfill(2)
+            time_string =  year + "-" + month + "-" + day + "T" + rec["T"].split()[1] + ".00Z"
+            data_model["nextWateringDeadline"]["value"] = time_string
+        # Else remove fields next watering deadline and nextWateringAmountRecommendation
+        else:
+            del data_model["nextWateringDeadline"]
+            del data_model["nextWateringAmountRecommendation"]
+
         data_model["feedbackDescription"]["value"] = str(rec["predicted_profile"])
+        #data_model["feedbackDescription"]["value"] = "test"
         #data_model["feedbackDate"]["value"] = (time_stamp).isoformat() + ".00Z+02"
         
         # The date will be read from metadata instead
@@ -563,31 +583,13 @@ class SendData():
         #
 
         #time_string = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z"
-        #data_model["nextWateringDeadline"]["value"] = datetime.strptime(rec["T"], "%Y-%m-%d %H:%M:%S")
+        # data_model["nextWateringDeadline"]["value"] = datetime.strptime(rec["T"], "%Y-%m-%d %H:%M:%S")
 
         # Find the correct entity
-        entity_mapper = {
-            "0a7d": "urn:ngsi-ld:FlowerBed:FlowerBed-3",
-            "1f10": "urn:ngsi-ld:FlowerBed:FlowerBed-3",
-            "0a80": "urn:ngsi-ld:FlowerBed:FlowerBed-4",
-            "1f06": "urn:ngsi-ld:FlowerBed:FlowerBed-4",
-            "0a6a": "urn:ngsi-ld:FlowerBed:FlowerBed-5",
-            "1efd": "urn:ngsi-ld:FlowerBed:FlowerBed-5",
-            "0a83": "urn:ngsi-ld:FlowerBed:FlowerBed-6",
-            "1eff": "urn:ngsi-ld:FlowerBed:FlowerBed-6",
-            "0972": "urn:ngsi-ld:FlowerBed:FlowerBed-7",
-            "1f02": "urn:ngsi-ld:FlowerBed:FlowerBed-7",
-            "0a81": "urn:ngsi-ld:FlowerBed:FlowerBed-8",
-            "1efe": "urn:ngsi-ld:FlowerBed:FlowerBed-8",
-            "0a7c": "urn:ngsi-ld:FlowerBed:FlowerBed-1",
-            "1f0d": "urn:ngsi-ld:FlowerBed:FlowerBed-1",
-            "0a35": "urn:ngsi-ld:FlowerBed:FlowerBed-2",
-            "1f08": "urn:ngsi-ld:FlowerBed:FlowerBed-2"
-        }
-        entity_id = entity_mapper[sensor_name]
+        entity_id = entity_mapper_carouge[sensor_name]
 
         # Sign and append signature
-        data_model = self.sign(data_model)
+        #data_model = self.sign(data_model)
 
         self.postToFiware_newv2(data_model, entity_id)
 
@@ -638,31 +640,34 @@ class SendData():
             raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
 
     def postToFiware_newv2(self, data_model, entity_id):
-        signature = data_model["ksiSignature"]
-        del data_model["ksiSignature"]
         data_model["id"] = entity_id
         
         body = {
             "subscriptionId": self.subscriptionId,
-            "data": [data_model],
-            "ksiSignature": signature
+            "data": [data_model]
         }
+
+        # Sign message body
+        body = self.sign(body)
         
-        # print(print(json.dumps(body, indent=4, sort_keys=True)))
+        print(print(json.dumps(body, indent=4, sort_keys=True)))
 
         response = requests.post(self.url, headers=self.headers, data=json.dumps(body) )
         
+        
         if (response.status_code > 300):
             print(f"Error sending to the API. Response status conde {response.status_code}", flush=True)
-        
-        if(type(eval(response.content.decode("utf-8"))) is not str):
-            status_code = eval(response.content.decode("utf-8")).get("status_code")
-            # Test for errors and log them
-            if (status_code > 300):
-                message = eval(response.content.decode("utf-8")).get("message")
-                print(f"Error sending to the API. Response status conde {status_code}", flush=True)
-                print(f"Response body content: {message}")
-                # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
+        try:
+            if(type(eval(response.content.decode("utf-8"))) is not str):
+                status_code = eval(response.content.decode("utf-8")).get("status_code")
+                # Test for errors and log them
+                if (status_code > 300):
+                    message = eval(response.content.decode("utf-8")).get("message")
+                    print(f"Error sending to the API. Response status conde {status_code}", flush=True)
+                    print(f"Response body content: {message}")
+                    # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
+        except:
+            print(response.content)
 
     def sign(self, data_model):
         # Try signing the message with KSI tool (requires execution in
