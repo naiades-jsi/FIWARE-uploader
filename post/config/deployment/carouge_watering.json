@@ -1,5 +1,6 @@
 {
     "config": {
+        "debug": "False",
         "name": "flower_bed",
         "api_user": "jsicarwat",
         "api_pass": "gkw72nbf52",
@@ -24,11 +25,13 @@
         "fiware":{
             "headers": {
                 "Fiware-Service": "carouge",
+                "Fiware-Servicepath": "/",
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             },
             "update": true,
-            "url": "http://naiades.simavi.ro:5002/historic/validation/v2/notify",
+            "url": "http://5.53.108.182:5002/historic/validation/v2/notify",
+            "subscriptionId": "62d2f45aca373db3f5f18bef",
             "id": "",
             "sensor_name_re": "device_(.+)_pred_output"
         }

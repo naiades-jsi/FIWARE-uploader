@@ -18,7 +18,9 @@ from kafka import KafkaProducer
 
 from create_data_models import meta_signal_template, consumption_template,\
     alert_template, flower_bed_template, leakage_model_template,\
-    leakage_group_model_template, leakage_alert_template
+    leakage_group_model_template, leakage_alert_template, alert_template_ld,\
+    leakage_alert_template_ld, consumption_template_ld, leakage_group_model_template_ld,\
+    leakage_model_template_ld, meta_signal_template_ld
 from entity_mapper import entity_mapper_carouge
 from custom_error import Custom_error    
 
@@ -35,6 +37,8 @@ class SendData():
     topics: List[str]
     consumer: Any
 
+    format: str
+    context: str
     headers: Dict[str, str]
     url: str
     id: str
@@ -81,6 +85,11 @@ class SendData():
             self.locations = [[0,0]]*len(self.topics)
 
         # Fiware configuration
+        if("format" in config["fiware"]):
+            self.format = config["fiware"]["format"]
+            self.context = config["fiware"]["context"]
+        else:
+            self.format = "v2"
         self.headers = config["fiware"]["headers"]
         self.url = config["fiware"]["url"]
         self.id = config["fiware"]["id"]
@@ -181,9 +190,13 @@ class SendData():
             from_time_timestamp = datetime.utcfromtimestamp(from_time)
             to_time_timestamp = datetime.utcfromtimestamp(to_time)
 
-            # copy predefined data model
-            data_model = copy.deepcopy(consumption_template) # create data_model
-            
+            # copy predefined data model 
+            # Select the correct format
+            if(self.format == "ld"):
+                data_model = copy.deepcopy(consumption_template_ld) # create data_model
+            else:
+                data_model = data_model = copy.deepcopy(consumption_template)
+
             # Construct the name of the entity
             entity_id = self.id + sensor_name + "_" + horizon_str # + time_stamp.strftime("%Y%m%d")
             # print(entity_id)
@@ -200,8 +213,13 @@ class SendData():
             # Sign and append signature
             #data_model = self.sign(data_model)
 
-            self.postToFiware_newv2(data_model, entity_id)
-
+            if(self.format == "ld"):
+                self.postToFiware_ld(data_model, entity_id)
+            elif(self.format == "v2"):
+                self.postToFiware_newv2(data_model, entity_id)
+            else:
+                print(f"Could not send because of unsuported format {self.format}.")
+                
         #influx
         if self.config_influx != None:
             measurement = sensor_name
@@ -262,7 +280,12 @@ class SendData():
         #print("{} => creating model".format(datetime.now()), flush=True)
 
         # CREATE DATA MODEL TO POST
-        data_model = copy.deepcopy(alert_template) # create data_model      
+        # Select the correct format
+        if(self.format == "ld"):
+            data_model = copy.deepcopy(alert_template_ld) # create data_model 
+        else:
+            data_model = copy.deepcopy(alert_template) # create data_model 
+             
 
         
         """if "pressure" in topic:
@@ -284,7 +307,12 @@ class SendData():
         # Sign and append signature
         data_model = self.sign(data_model)
 
-        self.postToFiware_newv2(data_model, entity_id)
+        if(self.format == "ld"):
+            self.postToFiware_ld(data_model, entity_id)
+        elif(self.format == "v2"):
+            self.postToFiware_newv2(data_model, entity_id)
+        else:
+            print(f"Could not send because of unsuported format {self.format}.")
 
         #influx
         if self.config_influx != None:
@@ -334,7 +362,11 @@ class SendData():
         #print("{} => creating model".format(datetime.now()), flush=True)
 
         # CREATE DATA MODEL TO POST
-        data_model = copy.deepcopy(meta_signal_template) # create data_model      
+        # Select the correct format
+        if(self.format == "ld"):
+            data_model = copy.deepcopy(meta_signal_template_ld) # create data_model     
+        else:
+            data_model = copy.deepcopy(meta_signal_template) # create data_model     
 
         #TODO set values of the data model
         # dateObserved
@@ -350,7 +382,12 @@ class SendData():
         # Sign and append signature
         #data_model = self.sign(data_model)
 
-        self.postToFiware_newv2(data_model, entity_id)
+        if(self.format == "ld"):
+            self.postToFiware_ld(data_model, entity_id)
+        elif(self.format == "v2"):
+            self.postToFiware_newv2(data_model, entity_id)
+        else:
+            print(f"Could not send because of unsuported format {self.format}.")
 
         #influx
         if self.config_influx != None:
@@ -450,7 +487,13 @@ class SendData():
         #topic = msg.topic # topic name
         #sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
         
-        data_model = copy.deepcopy(leakage_group_model_template) # create data_model
+        
+        # CREATE DATA MODEL TO POST
+        # Select the correct format
+        if(self.format == "ld"):
+            data_model = copy.deepcopy(leakage_group_model_template_ld) # create data_model   
+        else:
+            data_model = copy.deepcopy(leakage_group_model_template) # create data_model
 
         # time
         time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000) 
@@ -464,9 +507,14 @@ class SendData():
         data_model["data"]["value"]["affectedGroup"]["value"] = rec
 
         # Sign and append signature
-        data_model = self.sign(data_model)
+        # data_model = self.sign(data_model)
 
-        self.postToFiware_newv2(data_model, entity_id)
+        if(self.format == "ld"):
+            self.postToFiware_ld(data_model, entity_id)
+        elif(self.format == "v2"):
+            self.postToFiware_newv2(data_model, entity_id)
+        else:
+            print(f"Could not send because of unsuported format {self.format}.")
 
         #TODO add influx do we need it?
 
@@ -502,8 +550,14 @@ class SendData():
                     "coordinates": position
                 }
             }"""
-
-            alert = copy.deepcopy(leakage_alert_template)
+            
+                
+            # Select the correct format
+            if(self.format == "ld"):
+                alert = copy.deepcopy(leakage_alert_template_ld)   
+            else:
+                alert = copy.deepcopy(leakage_alert_template)
+            
             alert_id = self.id
 
             alert["dateIssued"]["value"] = (time_stamp).isoformat("T", "seconds") + ".00Z"
@@ -514,12 +568,22 @@ class SendData():
             alert["location"]["value"]["coordinates"] = [0,0]
             
             # Sign and append signature
-            alert = self.sign(alert)
+            #alert = self.sign(alert)
 
-            self.postToFiware_newv2(alert, alert_id)            
+            if(self.format == "ld"):
+                self.postToFiware_ld(data_model, entity_id)
+            elif(self.format == "v2"):
+                self.postToFiware_newv2(data_model, entity_id)
+            else:
+                print(f"Could not send because of unsuported format {self.format}.")        
 
         else:
-            data_model = copy.deepcopy(leakage_model_template) # create data_model
+            # Select the correct format
+            if(self.format == "ld"):
+                data_model = copy.deepcopy(leakage_model_template_ld) # create data_model
+            else:
+                data_model = copy.deepcopy(leakage_model_template) # create data_model
+
             data_model["newLocation"] = {
                 "type": "geo:json",
                     "value": {
@@ -532,9 +596,14 @@ class SendData():
             entity_id = "urn:ngsi-ld:Device:Device-" + sensor_name
 
             # Sign and append signature
-            data_model = self.sign(data_model)
+            #data_model = self.sign(data_model)
 
-            self.postToFiware_newv2(data_model, entity_id)
+            if(self.format == "ld"):
+                self.postToFiware_ld(data_model, entity_id)
+            elif(self.format == "v2"):
+                self.postToFiware_newv2(data_model, entity_id)
+            else:
+                print(f"Could not send because of unsuported format {self.format}.")
         #TODO influx?
     
     def flower_bed(self, msg):
@@ -556,7 +625,11 @@ class SendData():
         sensor_name = re.findall(self.sensor_name_re, topic)[0]
         
         # Construct data model
-        data_model = copy.deepcopy(flower_bed_template) # create data_model  
+        # Select the correct format
+        if(self.format == "ld"):
+            data_model = copy.deepcopy(flower_bed_template_ld) # create data_model       
+        else:
+            data_model = copy.deepcopy(flower_bed_template) # create data_model  
 
         # If WA=-1 ignore fields WA and T
         if(float(rec["WA"])!=-1):
@@ -574,7 +647,10 @@ class SendData():
             del data_model["nextWateringDeadline"]
             del data_model["nextWateringAmountRecommendation"]
 
-        data_model["feedbackDescription"]["value"] = str(rec["predicted_profile"])
+        data_model["feedbackDescription"]["value"] = {
+            "type": "Text",
+            "value": str(rec["predicted_profile"])
+        }
         #data_model["feedbackDescription"]["value"] = "test"
         #data_model["feedbackDate"]["value"] = (time_stamp).isoformat() + ".00Z+02"
         
@@ -591,7 +667,12 @@ class SendData():
         # Sign and append signature
         #data_model = self.sign(data_model)
 
-        self.postToFiware_newv2(data_model, entity_id)
+        if(self.format == "ld"):
+            self.postToFiware_ld(data_model, entity_id)
+        elif(self.format == "v2"):
+            self.postToFiware_newv2(data_model, entity_id)
+        else:
+            print(f"Could not send because of unsuported format {self.format}.")
 
         #influx (if WA!=-1 - no prediction)
         if self.config_influx != None and float(rec["WA"])!=-1:
@@ -650,9 +731,43 @@ class SendData():
         # Sign message body
         body = self.sign(body)
         
-        # print(print(json.dumps(body, indent=4, sort_keys=True)))
+        if(self.debug):
+            print(print(json.dumps(body, indent=4, sort_keys=True)))
 
         response = requests.post(self.url, headers=self.headers, data=json.dumps(body) )
+        
+        
+        if (response.status_code > 300):
+            print(f"Error sending to the API. Response status conde {response.status_code}", flush=True)
+        try:
+            if(type(eval(response.content.decode("utf-8"))) is not str):
+                status_code = eval(response.content.decode("utf-8")).get("status_code")
+                # Test for errors and log them
+                if (status_code > 300):
+                    message = eval(response.content.decode("utf-8")).get("message")
+                    print(f"Error sending to the API. Response status conde {status_code}", flush=True)
+                    print(f"Response body content: {message}")
+                    # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
+        except:
+            print(response.content)
+
+    def postToFiware_ld(self, data_model, entity_id):
+        # Body construction
+        data_model["id"] = entity_id
+        data_model["@context"] = [self.context]
+        
+        body = data_model
+
+        # Sign message body
+        body = self.sign(body)
+        
+        if(self.debug):
+            print(print(json.dumps(body, indent=4, sort_keys=True)))
+
+        # URL contstruction
+        url = self.url + entity_id + "/attrs"
+
+        response = requests.post(url, headers=self.headers, data=json.dumps(body) )
         
         
         if (response.status_code > 300):
@@ -676,7 +791,7 @@ class SendData():
             signature = self.encode(data_model)
         except Exception as e:
             print(f"Signing failed", flush=True)
-            signature = "null"
+            signature = "signatureFailed"
         
         # Add signature to the message
         data_model["ksiSignature"] = signature
