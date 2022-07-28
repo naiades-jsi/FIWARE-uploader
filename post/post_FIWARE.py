@@ -41,6 +41,7 @@ class SendData():
     context: str
     headers: Dict[str, str]
     url: str
+    create_url: str
     id: str
     sensor_name_re: str
     update: bool
@@ -87,7 +88,9 @@ class SendData():
         # Fiware configuration
         if("format" in config["fiware"]):
             self.format = config["fiware"]["format"]
-            self.context = config["fiware"]["context"]
+            if(self.format == "ld"):
+                self.context = config["fiware"]["context"]
+                self.create_url = config["fiware"]["create_url"]
         else:
             self.format = "v2"
         self.headers = config["fiware"]["headers"]
@@ -584,27 +587,18 @@ class SendData():
             else:
                 data_model = copy.deepcopy(leakage_model_template) # create data_model
 
-            data_model["newLocation"] = {
-                "type": "geo:json",
-                    "value": {
-                    "type": "Point",
-                    "coordinates": position
-                },
-                "metadata": {}
-            }
+            # Add the new location information
+            data_model["newLocation"]["value"]["coordinates"] = position
         
             entity_id = "urn:ngsi-ld:Device:Device-" + sensor_name
 
-            # Sign and append signature
-            #data_model = self.sign(data_model)
-
+            # Choose the correct upload function according to the format
             if(self.format == "ld"):
                 self.postToFiware_ld(data_model, entity_id)
             elif(self.format == "v2"):
                 self.postToFiware_newv2(data_model, entity_id)
             else:
                 print(f"Could not send because of unsuported format {self.format}.")
-        #TODO influx?
     
     def flower_bed(self, msg):
         # TODO: test signature
@@ -769,7 +763,17 @@ class SendData():
 
         response = requests.post(url, headers=self.headers, data=json.dumps(body) )
         
-        
+        # TODO test if it failed because the entity is not yet created
+        if(response.status_code == 301):
+            # Create entity
+            url = self.create_url
+            response = requests.post(url, headers=self.headers, data=json.dumps(body) )
+            
+            # Check if creatin was sucesfull
+            if (response.status_code > 300):
+                print(f"Error creating an entity", flush=True)
+
+        # Check if upload was successful
         if (response.status_code > 300):
             print(f"Error sending to the API. Response status conde {response.status_code}", flush=True)
         try:

@@ -224,24 +224,20 @@ meta_signal_template = {
 
 alert_template_ld = {
     "alertSource":{
-        "type": "Property",
-        "metadata": {}
+        "type": "Property"
         # Value will be added
     },
     "category": {
         "type": "Property",
-        "value": "water",
-        "metadata": {}
+        "value": "water"
     },
     "dateIssued": {
-        "type": "Property",
-        "metadata": {}
+        "type": "Property"
         # eg. "value": "2017-01-02T09:25:55.00Z"
     },
     "description": {
         "type": "Property",
-        "value": "Final leakage position detected",
-        "metadata": {}
+        "value": "Final leakage position detected"
     },
     "location": {
         "type": "GeoProperty",
@@ -249,20 +245,17 @@ alert_template_ld = {
             "type": "Point",
             "coordinates": [ # to be inserted
             ]
-        },
-        "metadata": {}
+        }
     },
     "subCategory": {
         "type": "Propety",
-        "value": "ice",
-        "metadata": {}
+        "value": "ice"
     },
     "type": "Alert",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
-        "value": "dateIssued,ksiSignature",
-        "metadata": {}
+        "value": "alertSource,dateIssued,description,ksiSignature"
     } 
 }
 leakage_alert_template_ld = {
@@ -273,17 +266,14 @@ leakage_alert_template_ld = {
     #},
     "category": {
         "type": "Property",
-        "value": "water",
-        "metadata": {}
+        "value": "water"
     },
     "dateIssued": {
-        "type": "Property",
-        "metadata": {}
+        "type": "Property"
         # eg. "value": "2017-01-02T09:25:55.00Z"
     },
     "description": {
-        "type": "Property",
-        "metadata": {}
+        "type": "Property"
         # Value will be added
     },
     "location": {
@@ -292,54 +282,45 @@ leakage_alert_template_ld = {
             "type": "Point",
             "coordinates": [ # to be inserted
             ]
-        },
-        "metadata": {}
+        }
     },
     "type": "Alert",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
-        "value": "dateIssued,description,ksiSignature",
-        "metadata": {}
+        "value": "dateIssued,description,ksiSignature"
     }
 }
 
 consumption_template_ld = {
     "category": {
         "type": "Property",
-        "value": "water",
-        "metadata": {}
+        "value": "water"
     },
     "consumption": {
-        "type": "Property",
-        "metadata": {},
+        "type": "Property"
     },
     "consumptionFrom": {
-        "type": "Property",
-        "metadata": {}
+        "type": "Property"
     },
     "consumptionTo": {
-        "type": "Property",
-        "metadata": {}
+        "type": "Property"
     },
     "dateCreated": {
-        "type": "Property",
-        "metadata": {}
+        "type": "Property"
     },
     "type": "WaterConsumption",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
-        "value": "consumption,dateCreated,consumptionFrom,consumptionTo,ksiSignature",
-        "metadata": {}
+        "value": "consumption,dateCreated,consumptionFrom,consumptionTo,ksiSignature"
     }
 }
 
 leakage_group_model_template_ld = {
     "category": {
         "type" : "Property",
-        "value": "water",
-        "metadata": {}
+        "value": "water"
     },
     "data": {
         "type" : "Property",
@@ -351,57 +332,55 @@ leakage_group_model_template_ld = {
                     "1": []
                 }
             }
-        },
-        "metadata": {}
+        }
     },
     "dateIssued": {
         "type": "Property",
-        "value": "2017-01-02T09:25:55.00Z",
-        "metadata": {}
+        "value": "2017-01-02T09:25:55.00Z"
     },
     "subCategory": {
         "type" : "Property",
-        "value": "ice",
-        "metadata": {}
+        "value": "ice"
     },
     "type": "Alert",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property",
-        "value": "data,dateIssued,ksiSignature",
-        "metadata": {}
+        "value": "data,dateIssued,ksiSignature"
     }
 }
 
 leakage_model_template_ld = {
     "isMovedToNewLocation":  {
         "type": "Property",
-        "value": "false",
-        "metadata": {}
+        "value": "false"
+    },
+    "newLocation": {
+        "type": "GeoProperty",
+        "value": {
+            "type": "Point",
+            "coordinates": []
+        }
     },
     "type": "Device",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
-        "value": "isMovedToNewLocation,ksiSignature",
-        "metadata": {}
+        "value": "isMovedToNewLocation,newLocation,ksiSignature"
     }
 }
 
 meta_signal_template_ld = {
     "dateObserved": {
-        "type": "Property",
-        "metadata": {}
+        "type": "Property"
         # Value will be added
     },
     "description": {
         "type": "Property",
-        "value": "",
-        "metadata": {}
+        "value": ""
     },
     "value": {
-        "type": "Property",
-        "metadata": {}
+        "type": "Property"
         # Value will be added
     },
     #"seeAlso": [],
@@ -409,7 +388,6 @@ meta_signal_template_ld = {
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
-        "value": "dateObserved,description,ksiSignature,value",
-        "metadata": {}
+        "value": "dateObserved,description,ksiSignature,value"
     }
 }

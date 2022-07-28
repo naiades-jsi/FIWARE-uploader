@@ -26,6 +26,7 @@
             },
             "update": true,
             "url": "http://naiades.simavi.ro:5002/validation/ld/entities/",
+            "create_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
             "subscriptionId": "62d15c6a5a63f9bfdd4c1489",
             "id": "urn:ngsi-ld:Alert:ES-Braila-Radunegru-FinaLekageLocation",
             "sensor_name_re": "braila_leakage_position(.+)"

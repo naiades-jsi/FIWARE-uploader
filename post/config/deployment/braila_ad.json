@@ -1,5 +1,6 @@
 {
     "config": {
+        "debug": "True",
         "name": "anomaly",
         "api_user": "jsibraano",
         "api_pass": "cat63htn73",
@@ -7,10 +8,10 @@
         "time_format": "ms",
         "data_name": ["value"],
         "locations": [
-            null,
-            null,
-            null,
-            null,
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [0, 0],
             [45.27161, 27.97429],
             [45.27161, 27.97429],
             [45.27161, 27.97429],
@@ -39,6 +40,7 @@
             },
             "update": true,
             "url": "http://naiades.simavi.ro:5002/validation/ld/entities/",
+            "create_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
             "subscriptionId": "62d159945a63f9bfdd4c1469",
             "id": "urn:ngsi-ld:Alert:RO-",
             "sensor_name_re": "anomalies_braila_(.+)"
