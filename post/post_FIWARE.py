@@ -79,6 +79,8 @@ class SendData():
         self.consumer = KafkaConsumer(bootstrap_servers=config["kafka"]["bootstrap_servers"], auto_offset_reset=config["kafka"]["offset"])
         self.consumer.subscribe(self.topics)
 
+        #print(self.topics)
+
         # Locations configuration
         if("locations" in config):
             self.locations = config["locations"]
@@ -298,10 +300,7 @@ class SendData():
 
         data_model["description"]["value"] = rec["status"]
         data_model["alertSource"]["value"] = sensor_name
-        # TODO during winter time it needs to be +1
         data_model["dateIssued"]["value"] = (time_stamp).isoformat("T", "seconds") + ".00Z"
-        # optional and unnecessary since it is the same as above
-        # data_model["validFrom"]["value"] = (time_stamp).isoformat() + ".00Z+02"
 
         # Add location
         index = self.topics.index(topic)
@@ -798,8 +797,13 @@ class SendData():
             signature = "signatureFailed"
         
         # Add signature to the message
-        data_model["ksiSignature"] = signature
-
+        if(self.format == "v2"):
+            data_model["ksiSignature"] = signature
+        else:
+            data_model["ksiSignature"] = {
+                "type": "Property",
+                "value": signature
+            }
 
         return data_model
 
