@@ -124,21 +124,20 @@ flower_bed_template = {
     },
     "nextWateringAmountRecommendation": {
         "type": "Number",
-        "value": 0.5,
+        "value": 0,
         "metadata": {}
     },
     "nextWateringDeadline": {
         "type": "DateTime",
-        "value": "2017-03-31T08:00:00.00Z",
+        "value": "",
         "metadata": {}
     },
-    "type": "FlowerBed"
-    # Attributes that get updated 
-    #"updatedAttributes": {
-    #    "type": "Text", 
-    #    "value": "feedbackDate,feedbackDescription,nextWateringAmountRecommendation,nextWateringDeadline,ksiSignature",
-    #    "metadata": {}
-    #} """
+    #Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "feedbackDescription,nextWateringAmountRecommendation,nextWateringDeadline,ksiSignature,updatedAttributes",
+        "metadata": {}
+    }
 }
 
 leakage_group_model_template = {

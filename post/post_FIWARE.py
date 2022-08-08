@@ -640,10 +640,8 @@ class SendData():
             del data_model["nextWateringDeadline"]
             del data_model["nextWateringAmountRecommendation"]
 
-        data_model["feedbackDescription"]["value"] = {
-            "type": "Text",
-            "value": str(rec["predicted_profile"])
-        }
+        data_model["feedbackDescription"]["value"] = str(rec["predicted_profile"])
+
         #data_model["feedbackDescription"]["value"] = "test"
         #data_model["feedbackDate"]["value"] = (time_stamp).isoformat() + ".00Z+02"
         
@@ -663,7 +661,7 @@ class SendData():
         if(self.format == "ld"):
             self.postToFiware_ld(data_model, entity_id)
         elif(self.format == "v2"):
-            self.postToFiware_newv2(data_model, entity_id)
+            self.postToFiware_context_v2(data_model, entity_id)
         else:
             print(f"Could not send because of unsuported format {self.format}.")
 
@@ -787,6 +785,79 @@ class SendData():
         except:
             print(response.content)
 
+    
+    def postToFiware_context_v2(self, data_model, entity_id):        
+        body = data_model
+
+        # Sign message body
+        body = self.sign(body)
+        
+        if(self.debug):
+            print(print(json.dumps(body, indent=4, sort_keys=True)))
+
+        # URL contstruction
+        url = self.url + entity_id + "/attrs"
+
+        response = requests.patch(url, headers=self.headers, data=json.dumps(body) )
+
+        # Check if upload was successful
+        if (response.status_code > 300):
+            print(f"Error sending to the API. Response status conde {response.status_code}", flush=True)
+        try:
+            if(type(eval(response.content.decode("utf-8"))) is not str):
+                status_code = eval(response.content.decode("utf-8")).get("status_code")
+                # Test for errors and log them
+                if (status_code > 300):
+                    message = eval(response.content.decode("utf-8")).get("message")
+                    print(f"Error sending to the API. Response status conde {status_code}", flush=True)
+                    print(f"Response body content: {message}")
+                    # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
+        except:
+            print(response.content)
+
+    def postToFiware_ld(self, data_model, entity_id):
+        # Body construction
+        data_model["id"] = entity_id
+        data_model["@context"] = [self.context]
+        
+        body = data_model
+
+        # Sign message body
+        body = self.sign(body)
+        
+        if(self.debug):
+            print(print(json.dumps(body, indent=4, sort_keys=True)))
+
+        # URL contstruction
+        url = self.url + entity_id + "/attrs"
+
+        response = requests.post(url, headers=self.headers, data=json.dumps(body) )
+        
+        # TODO test if it failed because the entity is not yet created
+        if(response.status_code == 301):
+            # Create entity
+            url = self.create_url
+            response = requests.post(url, headers=self.headers, data=json.dumps(body) )
+            
+            # Check if creatin was sucesfull
+            if (response.status_code > 300):
+                print(f"Error creating an entity", flush=True)
+
+        # Check if upload was successful
+        if (response.status_code > 300):
+            print(f"Error sending to the API. Response status conde {response.status_code}", flush=True)
+        try:
+            if(type(eval(response.content.decode("utf-8"))) is not str):
+                status_code = eval(response.content.decode("utf-8")).get("status_code")
+                # Test for errors and log them
+                if (status_code > 300):
+                    message = eval(response.content.decode("utf-8")).get("message")
+                    print(f"Error sending to the API. Response status conde {status_code}", flush=True)
+                    print(f"Response body content: {message}")
+                    # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
+        except:
+            print(response.content)
+
     def sign(self, data_model):
         # Try signing the message with KSI tool (requires execution in
         # the dedicated container)
@@ -798,7 +869,10 @@ class SendData():
         
         # Add signature to the message
         if(self.format == "v2"):
-            data_model["ksiSignature"] = signature
+            data_model["ksiSignature"] = {
+                "type": "Property",
+                "value": signature
+            }
         else:
             data_model["ksiSignature"] = {
                 "type": "Property",
