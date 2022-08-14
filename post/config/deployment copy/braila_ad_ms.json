@@ -28,7 +28,7 @@
                 "Content-Type": "application/ld+json"
             },
             "update": true,
-            "url": "http://naiades.simavi.ro:5002/validation/v2/entities/",
+            "url": "http://naiades.simavi.ro:5002/validation/ld/entities/",
             "create_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
             "subscriptionId": "62d157a15a63f9bfdd4c1458",
             "id": "urn:ngsi-ld:Device:RO-",

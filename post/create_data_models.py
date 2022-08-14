@@ -8,11 +8,6 @@ alert_template = {
         "metadata": {}
         # Value will be added
     },
-    "category": {
-        "type": "Enum",
-        "value": "water",
-        "metadata": {}
-    },
     "dateIssued": {
         "type": "DateTime",
         "metadata": {}
@@ -32,18 +27,12 @@ alert_template = {
         },
         "metadata": {}
     },
-    "subCategory": {
-        "type": "Enum",
-        "value": "ice",
-        "metadata": {}
-    },
-    "type": "Alert"
     # Attributes that get updated 
-    #updatedAttributes": {
-    #    "type": "Text", 
-    #    "value": "dateIssued,ksiSignature",
-    #    "metadata": {}
-    #} 
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "alertSource,dateIssued,description,ksiSignature,location,updatedAttributes",
+        "metadata": {}
+    } 
 }
 
 leakage_alert_template = {
@@ -52,11 +41,11 @@ leakage_alert_template = {
     #    "metadata": {}
     #    # Value will be added
     #},
-    "category": {
-        "type": "Enum",
-        "value": "water",
-        "metadata": {}
-    },
+    #"category": {
+    #    "type": "Enum",
+    #    "value": "water",
+    #    "metadata": {}
+    #},
     "dateIssued": {
         "type": "DateTime",
         "metadata": {}
@@ -76,21 +65,20 @@ leakage_alert_template = {
         },
         "metadata": {}
     },
-    "type": "Alert"
     # Attributes that get updated 
-    #"updatedAttributes": {
-    #    "type": "Text", 
-    #    "value": "dateIssued,description,ksiSignature",
-    #    "metadata": {}
-    #}
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "dateIssued,description,ksiSignature,location,updatedAttributes",
+        "metadata": {}
+    }
 }
 
 consumption_template = {
-    "category": {
-        "type": "Text",
-        "value": "water",
-        "metadata": {}
-    },
+    #"category": {
+    #   "type": "Text",
+    #    "value": "water",
+    #    "metadata": {}
+    #},
     "consumption": {
         "type": "Number",
         "metadata": {},
@@ -107,13 +95,12 @@ consumption_template = {
         "type": "DateTime",
         "metadata": {}
     },
-    "type": "WaterConsumption"
     # Attributes that get updated 
-    #"updatedAttributes": {
-    #    "type": "Property", 
-    #    "value": "consumption,dateCreated,consumptionFrom,consumptionTo,ksiSignature",
-    #    "metadata": {}
-    #}
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "consumption,dateCreated,consumptionFrom,consumptionTo,ksiSignature,updatedAttributes",
+        "metadata": {}
+    }
 }
 
 flower_bed_template = {
@@ -141,11 +128,11 @@ flower_bed_template = {
 }
 
 leakage_group_model_template = {
-    "category": {
-        "type" : "Enum",
-        "value": "water",
-        "metadata": {}
-    },
+    #"category": {
+    #    "type" : "Enum",
+    #    "value": "water",
+    #    "metadata": {}
+    #},
     "data": {
         "type" : "StructuredValue",
         "value": {
@@ -164,18 +151,17 @@ leakage_group_model_template = {
         "value": "2017-01-02T09:25:55.00Z",
         "metadata": {}
     },
-    "subCategory": {
-        "type" : "Enum",
-        "value": "ice",
-        "metadata": {}
-    },
-    "type": "Alert"
-    # Attributes that get updated 
-    #"updatedAttributes": {
-    #    "type": "Text",
-    #    "value": "data,dateIssued,ksiSignature",
+    #"subCategory": {
+    #    "type" : "Enum",
+    #    "value": "ice",
     #    "metadata": {}
-    #} """
+    #},
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Text",
+        "value": "data,dateIssued,ksiSignature,updatedAttributes",
+        "metadata": {}
+    }
 }
 
 leakage_model_template = {
@@ -184,13 +170,12 @@ leakage_model_template = {
         "value": "false",
         "metadata": {}
     },
-    "type": "Device",
     # Attributes that get updated 
-    #"updatedAttributes": {
-    ##    "type": "Text", 
-    #    "value": "isMovedToNewLocation,ksiSignature",
-    #    "metadata": {}
-    #}
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "isMovedToNewLocation,ksiSignature,updatedAttributes",
+        "metadata": {}
+    }
 }
 
 meta_signal_template = {
@@ -210,13 +195,12 @@ meta_signal_template = {
         # Value will be added
     },
     #"seeAlso": [],
-    "type": "Device"
     # Attributes that get updated 
-    #"updatedAttributes": {
-    #    "type": "Text", 
-    #    "value": "dateObserved,description,ksiSignature,value",
-    #    "metadata": {}
-    #}
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "dateObserved,description,ksiSignature,value,updatedAttributes",
+        "metadata": {}
+    }
 }
 
 # LD TEMPLATES
@@ -225,10 +209,6 @@ alert_template_ld = {
     "alertSource":{
         "type": "Property"
         # Value will be added
-    },
-    "category": {
-        "type": "Property",
-        "value": "water"
     },
     "dateIssued": {
         "type": "Property"
@@ -246,27 +226,14 @@ alert_template_ld = {
             ]
         }
     },
-    "subCategory": {
-        "type": "Propety",
-        "value": "ice"
-    },
     "type": "Alert",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
-        "value": "alertSource,dateIssued,description,ksiSignature"
+        "value": "alertSource,dateIssued,description,ksiSignature,location,updatedAttributes"
     } 
 }
 leakage_alert_template_ld = {
-    #"alertSource":{
-    #    "type": "Property",
-    #    "metadata": {}
-    #    # Value will be added
-    #},
-    "category": {
-        "type": "Property",
-        "value": "water"
-    },
     "dateIssued": {
         "type": "Property"
         # eg. "value": "2017-01-02T09:25:55.00Z"
@@ -287,15 +254,11 @@ leakage_alert_template_ld = {
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
-        "value": "dateIssued,description,ksiSignature"
+        "value": "dateIssued,description,ksiSignature,location,updatedAttributes"
     }
 }
 
 consumption_template_ld = {
-    "category": {
-        "type": "Property",
-        "value": "water"
-    },
     "consumption": {
         "type": "Property"
     },
@@ -312,15 +275,11 @@ consumption_template_ld = {
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
-        "value": "consumption,dateCreated,consumptionFrom,consumptionTo,ksiSignature"
+        "value": "consumption,dateCreated,consumptionFrom,consumptionTo,ksiSignature,updatedAttributes"
     }
 }
 
 leakage_group_model_template_ld = {
-    "category": {
-        "type" : "Property",
-        "value": "water"
-    },
     "data": {
         "type" : "Property",
         "value": {
@@ -337,15 +296,11 @@ leakage_group_model_template_ld = {
         "type": "Property",
         "value": "2017-01-02T09:25:55.00Z"
     },
-    "subCategory": {
-        "type" : "Property",
-        "value": "ice"
-    },
     "type": "Alert",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property",
-        "value": "data,dateIssued,ksiSignature"
+        "value": "data,dateIssued,ksiSignature,updatedAttributes"
     }
 }
 
@@ -365,7 +320,7 @@ leakage_model_template_ld = {
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
-        "value": "isMovedToNewLocation,newLocation,ksiSignature"
+        "value": "isMovedToNewLocation,newLocation,ksiSignature,updatedAttributes"
     }
 }
 
@@ -387,6 +342,6 @@ meta_signal_template_ld = {
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
-        "value": "dateObserved,description,ksiSignature,value"
+        "value": "dateObserved,description,ksiSignature,value,updatedAttributes"
     }
 }

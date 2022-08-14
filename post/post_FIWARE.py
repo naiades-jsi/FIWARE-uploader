@@ -28,6 +28,7 @@ from pushToInflux import PushToDB
 
 class SendData():
     debug: bool
+    already_sent: List[str]
 
     name: str
     time_name: str
@@ -40,12 +41,12 @@ class SendData():
     format: str
     context: str
     headers: Dict[str, str]
+    get_headers: Dict[str, str]
     url: str
     create_url: str
+    get_url: str
     id: str
     sensor_name_re: str
-    update: bool
-    subscriptionId: str
 
     influx: Any
     config_influx: Dict[str, str]
@@ -58,6 +59,9 @@ class SendData():
             self.debug = config["debug"] == "True"
         else:
             self.debug = False
+
+        # a list of entities that were already sent to (entity might need to be created)
+        self.already_sent =[]
 
         self.name = config["name"]
         self.time_name = config["time_name"]
@@ -92,19 +96,15 @@ class SendData():
             self.format = config["fiware"]["format"]
             if(self.format == "ld"):
                 self.context = config["fiware"]["context"]
-                self.create_url = config["fiware"]["create_url"]
         else:
             self.format = "v2"
         self.headers = config["fiware"]["headers"]
+        self.get_headers = config["fiware"]["get_headers"]
         self.url = config["fiware"]["url"]
+        self.create_url = config["fiware"]["create_url"]
+        self.get_url = config["fiware"]["get_url"]
         self.id = config["fiware"]["id"]
         self.sensor_name_re = config["fiware"]["sensor_name_re"]
-        self.update = config["fiware"]["update"]
-        # SubscriptionId (if it exists) - only needed for DMV
-        if("subscriptionId" in config["fiware"]):
-            self.subscriptionId = config["fiware"]["subscriptionId"]
-        else:
-            self.subscribtionId = None
 
         # KSI signature
         self.API_user = config["api_user"]
@@ -177,6 +177,7 @@ class SendData():
         for i in self.mask:
             # Extract the corret value
             value = rec["value"][i]
+            print(rec)
 
             # Calculate horizon
             horizon_in_h = (i+1)/2
@@ -207,9 +208,25 @@ class SendData():
             # print(entity_id)
             
             # TODO during winter time it needs to be +1
-            data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + ".00Z" # +2 ali +1
-            data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + ".00Z"
-            data_model["consumptionTo"]["value"] = (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + ".00Z"
+            if(self.format == "v2"):
+                data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z" # +2 ali +1
+                data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
+                data_model["consumptionTo"]["value"] = (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
+            elif(self.format == "ld"):
+                data_model["dateCreated"]["value"] = {
+                    "@type": "DateTime",
+                    "@value": (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
+                }
+                data_model["dateCreated"]["value"] = {
+                    "@type": "DateTime",
+                    "@value": (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
+                }
+                data_model["dateCreated"]["value"] = {
+                    "@type": "DateTime",
+                    "@value": (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
+                }
+            else:
+                print(f"Could not send because of unsuported format {self.format}.")
 
             data_model["consumption"]["value"] = value
             #data_model["consumptionMax"] = None
@@ -219,9 +236,9 @@ class SendData():
             #data_model = self.sign(data_model)
 
             if(self.format == "ld"):
-                self.postToFiware_ld(data_model, entity_id)
+                self.postToFiware_context_ld(data_model, entity_id)
             elif(self.format == "v2"):
-                self.postToFiware_newv2(data_model, entity_id)
+                self.postToFiware_context_v2(data_model, entity_id)
             else:
                 print(f"Could not send because of unsuported format {self.format}.")
                 
@@ -300,7 +317,15 @@ class SendData():
 
         data_model["description"]["value"] = rec["status"]
         data_model["alertSource"]["value"] = sensor_name
-        data_model["dateIssued"]["value"] = (time_stamp).isoformat("T", "seconds") + ".00Z"
+        if(self.format == "v2"):
+            data_model["dateIssued"]["value"] = (time_stamp).isoformat("T", "seconds") + "Z"
+        elif(self.format == "ld"):
+            data_model["dateIssued"]["value"] = {
+                "@type": "DateTime",
+                "@value": (time_stamp).isoformat("T", "seconds") + "Z"
+            }
+        else:
+            print(f"Could not send because of unsuported format {self.format}.")
 
         # Add location
         index = self.topics.index(topic)
@@ -310,9 +335,9 @@ class SendData():
         data_model = self.sign(data_model)
 
         if(self.format == "ld"):
-            self.postToFiware_ld(data_model, entity_id)
+            self.postToFiware_context_ld(data_model, entity_id)
         elif(self.format == "v2"):
-            self.postToFiware_newv2(data_model, entity_id)
+            self.postToFiware_context_v2(data_model, entity_id)
         else:
             print(f"Could not send because of unsuported format {self.format}.")
 
@@ -372,7 +397,15 @@ class SendData():
 
         #TODO set values of the data model
         # dateObserved
-        data_model["dateObserved"]["value"] = (time_stamp).isoformat("T", "seconds") + ".00Z"
+        if(self.format == "v2"):
+            data_model["dateObserved"]["value"] = (time_stamp).isoformat("T", "seconds") + "Z"
+        elif(self.format == "ld"):
+            data_model["dateObserved"]["value"] = {
+                "@type": "DateTime",
+                "@value": (time_stamp).isoformat("T", "seconds") + "Z"
+            }
+        else:
+            print(f"Could not send because of unsuported format {self.format}.")
 
         # numValue
         data_model["value"]["value"] = rec["status_code"]
@@ -385,9 +418,9 @@ class SendData():
         #data_model = self.sign(data_model)
 
         if(self.format == "ld"):
-            self.postToFiware_ld(data_model, entity_id)
+            self.postToFiware_context_ld(data_model, entity_id)
         elif(self.format == "v2"):
-            self.postToFiware_newv2(data_model, entity_id)
+            self.postToFiware_context_v2(data_model, entity_id)
         else:
             print(f"Could not send because of unsuported format {self.format}.")
 
@@ -470,7 +503,7 @@ class SendData():
             # Sign and append signature
             data_model = self.sign(data_model)
 
-            self.postToFiware_newv2(data_model, entity_id)
+            self.postToFiware_context_v2(data_model, entity_id)
 
     def leakage_group(self, msg):
         # TODO: test signature
@@ -504,7 +537,16 @@ class SendData():
         entity_id = "urn:ngsi-ld:Alert:RO-Braila-leakageGroup"
         #print(entity_id)
 
-        data_model["dateIssued"]["value"] = (time_stamp).isoformat() + ".00Z+02"
+        if(self.format == "v2"):
+            data_model["dateIssued"]["value"] = (time_stamp).isoformat() + "Z"
+        elif(self.format == "ld"):
+            data_model["dateObserved"]["value"] = {
+                "@type": "DateTime",
+                "@value": (time_stamp).isoformat() + "Z"
+            }
+        else:
+            print(f"Could not send because of unsuported format {self.format}.")
+
 
         data_model["data"]["value"]["affectedGroup"]["value"] = rec
 
@@ -512,9 +554,9 @@ class SendData():
         # data_model = self.sign(data_model)
 
         if(self.format == "ld"):
-            self.postToFiware_ld(data_model, entity_id)
+            self.postToFiware_context_ld(data_model, entity_id)
         elif(self.format == "v2"):
-            self.postToFiware_newv2(data_model, entity_id)
+            self.postToFiware_context_v2(data_model, entity_id)
         else:
             print(f"Could not send because of unsuported format {self.format}.")
 
@@ -562,7 +604,16 @@ class SendData():
             
             alert_id = self.id
 
-            alert["dateIssued"]["value"] = (time_stamp).isoformat("T", "seconds") + ".00Z"
+            if(self.format == "v2"):
+                alert["dateIssued"]["value"] = (time_stamp).isoformat("T", "seconds") + "Z"
+            elif(self.format == "ld"):
+                alert["dateIssued"]["value"] = {
+                    "@type": "DateTime",
+                    "@value": (time_stamp).isoformat("T", "seconds") + "Z"
+                }
+            else:
+                print(f"Could not send because of unsuported format {self.format}.")
+
             #print(str(position).replace("'", ""), flush=True)
             alert["description"]["value"] = str(position).replace("'", "")
 
@@ -573,9 +624,9 @@ class SendData():
             #alert = self.sign(alert)
 
             if(self.format == "ld"):
-                self.postToFiware_ld(data_model, entity_id)
+                self.postToFiware_context_ld(data_model, entity_id)
             elif(self.format == "v2"):
-                self.postToFiware_newv2(data_model, entity_id)
+                self.postToFiware_context_v2(data_model, entity_id)
             else:
                 print(f"Could not send because of unsuported format {self.format}.")        
 
@@ -593,9 +644,9 @@ class SendData():
 
             # Choose the correct upload function according to the format
             if(self.format == "ld"):
-                self.postToFiware_ld(data_model, entity_id)
+                self.postToFiware_context_ld(data_model, entity_id)
             elif(self.format == "v2"):
-                self.postToFiware_newv2(data_model, entity_id)
+                self.postToFiware_context_v2(data_model, entity_id)
             else:
                 print(f"Could not send because of unsuported format {self.format}.")
     
@@ -634,7 +685,16 @@ class SendData():
             month = month.zfill(2)
             day = day.zfill(2)
             time_string =  year + "-" + month + "-" + day + "T" + rec["T"].split()[1] + ".00Z"
-            data_model["nextWateringDeadline"]["value"] = time_string
+            
+            if(self.format == "v2"):
+                data_model["nextWateringDeadline"]["value"] = time_string
+            elif(self.format == "ld"):
+                data_model["dateIssued"]["value"] = {
+                    "@type": "DateTime",
+                    "@value": time_string
+                }
+            else:
+                print(f"Could not send because of unsuported format {self.format}.")
         # Else remove fields next watering deadline and nextWateringAmountRecommendation
         else:
             del data_model["nextWateringDeadline"]
@@ -785,20 +845,101 @@ class SendData():
         except:
             print(response.content)
 
-    
     def postToFiware_context_v2(self, data_model, entity_id):        
         body = data_model
 
         # Sign message body
         body = self.sign(body)
-        
-        if(self.debug):
-            print(print(json.dumps(body, indent=4, sort_keys=True)))
 
         # URL contstruction
         url = self.url + entity_id + "/attrs"
 
-        response = requests.patch(url, headers=self.headers, data=json.dumps(body) )
+        if(self.debug):
+            print(f"URL: {url}")
+            print(print(json.dumps(body, indent=4, sort_keys=True)))
+
+        # If this is the first upload since the rerun the entity might need to be created
+        if(entity_id not in self.already_sent):
+            complete_get_url = self.get_url + entity_id
+            # Do a get to check if entity exists
+            #print(complete_get_url)
+            response = requests.get(complete_get_url, headers=self.get_headers)
+
+            # If entity was not found do a post to create it.
+            if(response.status_code == 404):
+                # For entity creation fields id and type must be added
+                body["id"] = entity_id
+                body["type"] = self.get_type_from_id(entity_id)
+
+                print("{}: Entity {} missing. Creating with the following structure:".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), entity_id))
+                print(json.dumps(body, indent=4, sort_keys=True))
+                
+                # Risky operation therefore do not execute in debug mode
+                if(not self.debug):
+                    response = requests.post(self.create_url, headers=self.headers, data=json.dumps(body))
+            
+            else:
+                response = requests.patch(url, headers=self.headers, data=json.dumps(body) )
+            
+            self.already_sent.append(entity_id)
+        else:
+            response = requests.patch(url, headers=self.headers, data=json.dumps(body) )
+
+        # Check if upload was successful
+        if (response.status_code > 300):
+            print(f"Error sending to the API. Response status code {response.status_code}", flush=True)
+        try:
+            if(type(eval(response.content.decode("utf-8"))) is not str):
+                status_code = eval(response.content.decode("utf-8")).get("status_code")
+                # Test for errors and log them
+                if (status_code > 300):
+                    message = eval(response.content.decode("utf-8")).get("message")
+                    print(f"Error sending to the API. Response status conde {status_code}", flush=True)
+                    print(f"Response body content: {message}")
+                    # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
+        except:
+            print(response.content)
+
+    def postToFiware_context_ld(self, data_model, entity_id): 
+        # Add fields specific to LD format
+        data_model["id"] = entity_id
+        data_model["@context"] = [self.context]       
+        body = data_model
+
+        # Sign message body
+        body = self.sign(body)
+
+        # URL contstruction
+        url = self.url + entity_id + "/attrs"
+
+        if(self.debug):
+            print(f"URL: {url}")
+            print(json.dumps(body, indent=4, sort_keys=True))
+
+        if(entity_id not in self.already_sent):
+            complete_get_url = self.get_url + entity_id
+            # Do a get to check if entity exists
+            response = requests.get(self.get_url, headers=self.get_headers)
+
+            # If entity was not found do a post to create it.
+            if(response.status_code == 404):
+                # For entity creation fields id and type must be added
+                body["id"] = entity_id
+                body["type"] = self.get_type_from_id(entity_id)
+                
+                print("{}: Entity {} missing. Creating with the following structure:".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), entity_id))
+                print(json.dumps(body, indent=4, sort_keys=True))
+                
+                # Risky operation therefore do not execute in debug mode
+                if(not self.debug):
+                    response = requests.post(url, headers=self.headers, data=json.dumps(body))
+            
+            else:
+                response = requests.patch(url, headers=self.headers, data=json.dumps(body))
+            
+            self.already_sent.append(entity_id)
+        else:
+            response = requests.patch(url, headers=self.headers, data=json.dumps(body))
 
         # Check if upload was successful
         if (response.status_code > 300):
@@ -824,12 +965,14 @@ class SendData():
 
         # Sign message body
         body = self.sign(body)
-        
-        if(self.debug):
-            print(print(json.dumps(body, indent=4, sort_keys=True)))
 
         # URL contstruction
         url = self.url + entity_id + "/attrs"
+
+        
+        if(self.debug):
+            print(f"URL: {url}")
+            print(json.dumps(body, indent=4, sort_keys=True))
 
         response = requests.post(url, headers=self.headers, data=json.dumps(body) )
         
@@ -870,7 +1013,8 @@ class SendData():
         # Add signature to the message
         if(self.format == "v2"):
             data_model["ksiSignature"] = {
-                "type": "Property",
+                "type": "Text",
+                "metadata": {},
                 "value": signature
             }
         else:
@@ -903,3 +1047,11 @@ class SendData():
         assert int(verification) == True
 
         return encodedZip
+
+    def get_type_from_id(self, entity_id: str) -> str:
+        """
+        A function that extracts the entity type from it's id
+        given that the format of is is urn:ngsi-ld:{entity_id}:...
+        """
+
+        return entity_id.split(":")[2]
