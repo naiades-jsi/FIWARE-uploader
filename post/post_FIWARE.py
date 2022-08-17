@@ -61,6 +61,8 @@ class SendData():
             self.debug = False
 
         # a list of entities that were already sent to (entity might need to be created)
+        # On first run of the entity upload do a GET to see if the entity exists - if not
+        # create and then add it to the list
         self.already_sent =[]
 
         self.name = config["name"]
@@ -106,7 +108,7 @@ class SendData():
         self.id = config["fiware"]["id"]
         self.sensor_name_re = config["fiware"]["sensor_name_re"]
 
-        # KSI signature
+        # KSI signature (username and pass required in encode function)
         self.API_user = config["api_user"]
         self.API_pass = config["api_pass"]
 
@@ -123,7 +125,8 @@ class SendData():
         print("{} => started listening".format(datetime.now()), flush=True)
         for msg in self.consumer:
             print("{} => message recieved".format(datetime.now()), flush=True)
-            if(self.debug):                
+            if(self.debug):
+                # In debug mode no try (for more info on crashe)             
                 if self.name == "consumption":
                     self.consumption(msg)
                 elif self.name == "leakage_group":
@@ -1002,6 +1005,10 @@ class SendData():
             print(response.content)
 
     def sign(self, data_model):
+        """
+        A Wraper that first obtains the KSI signature and then adds it
+        to the message in the correct format 
+        """
         # Try signing the message with KSI tool (requires execution in
         # the dedicated container)
         try:
@@ -1026,7 +1033,13 @@ class SendData():
         return data_model
 
     def encode(self, output_dict):
-        # Less prints
+        """
+        Code provided by the partners to first obtain the KSI signature
+        (with the api_username and api_password from configuration) and
+        then validate it
+        """
+
+        # Less prints (not to be mistaken for self.debug)
         debug = False
 
         # Transforms the JSON string ('dataJSON') to file (json.txt)
