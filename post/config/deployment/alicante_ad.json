@@ -19,6 +19,7 @@
             "offset":"latest"
         },
         "fiware":{
+            "format": "v2",
             "headers": {
                 "Fiware-Service": "alicante",
                 "Content-Type": "application/json"
