@@ -675,7 +675,7 @@ class SendData():
         else:
             data_model = copy.deepcopy(flower_bed_template) # create data_model  
 
-        # If WA=-1 ignore fields WA and T
+        # If WA=-1 ignore fields WA and T (no need for watering) - upload only predictions
         if(float(rec["WA"])!=-1):
             data_model["nextWateringAmountRecommendation"]["value"] = float(rec["WA"])
             
@@ -684,7 +684,7 @@ class SendData():
             year, month, day = day_year_month.split("-")
             month = month.zfill(2)
             day = day.zfill(2)
-            time_string =  year + "-" + month + "-" + day + "T" + rec["T"].split()[1] + ".00Z"
+            time_string =  year + "-" + month + "-" + day + "T" + rec["T"].split()[1] + "Z"
             
             if(self.format == "v2"):
                 data_model["nextWateringDeadline"]["value"] = time_string
