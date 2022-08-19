@@ -38,10 +38,12 @@
                 "Fiware-Service": "braila",
                 "Content-Type": "application/ld+json"
             },
-            "update": true,
-            "url": "http://naiades.simavi.ro:5002/validation/v2/entities/",
+            "get_headers": {
+                "Fiware-Service": "braila"
+            },
+            "url": "http://naiades.simavi.ro:5002/validation/ld/entities/",
             "create_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
-            "subscriptionId": "62d159945a63f9bfdd4c1469",
+            "get_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
             "id": "urn:ngsi-ld:Alert:RO-",
             "sensor_name_re": "anomalies_braila_(.+)"
         }

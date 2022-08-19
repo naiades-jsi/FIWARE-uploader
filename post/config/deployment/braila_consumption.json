@@ -25,10 +25,12 @@
                 "Fiware-Service": "braila",
                 "Content-Type": "application/ld+json"
             },
-            "update": true,
-            "url": "http://naiades.simavi.ro:5002/validation/v2/entities/",
+            "get_headers": {
+                "Fiware-Service": "braila"
+            },
+            "url": "http://naiades.simavi.ro:5002/validation/ld/entities/",
             "create_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
-            "subscriptionId": "62d15a535a63f9bfdd4c146c",
+            "get_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
             "id": "urn:ngsi-ld:Consumption-Romania:Romania-Braila-",
             "sensor_name_re": "predictions_braila_(flow.+)_prediction"
         }

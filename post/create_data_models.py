@@ -226,7 +226,6 @@ alert_template_ld = {
             ]
         }
     },
-    "type": "Alert",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
@@ -250,7 +249,6 @@ leakage_alert_template_ld = {
             ]
         }
     },
-    "type": "Alert",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
@@ -271,7 +269,6 @@ consumption_template_ld = {
     "dateCreated": {
         "type": "Property"
     },
-    "type": "WaterConsumption",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
@@ -296,7 +293,6 @@ leakage_group_model_template_ld = {
         "type": "Property",
         "value": "2017-01-02T09:25:55.00Z"
     },
-    "type": "Alert",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property",
@@ -316,7 +312,6 @@ leakage_model_template_ld = {
             "coordinates": []
         }
     },
-    "type": "Device",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 
@@ -338,7 +333,6 @@ meta_signal_template_ld = {
         # Value will be added
     },
     #"seeAlso": [],
-    "type": "Device",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Property", 

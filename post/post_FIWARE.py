@@ -124,7 +124,7 @@ class SendData():
     def send(self):
         print("{} => started listening".format(datetime.now()), flush=True)
         for msg in self.consumer:
-            print("{} => message recieved".format(datetime.now()), flush=True)
+            print("{} => message recieved from {}".format(datetime.now(), msg.topic), flush=True)
             if(self.debug):
                 # In debug mode no try (for more info on crashe)             
                 if self.name == "consumption":
@@ -192,7 +192,7 @@ class SendData():
             sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
 
             # Time
-            prediction_time = int(rec["prediction_time"]/1000) # Must be in miliseconds
+            prediction_time = int(rec["prediction_time"]) # Must be in miliseconds
             from_time = timestamp_in_ns/1000000000
             to_time = from_time + horizon_in_h * 3600
             prediction_time_timestamp = datetime.utcfromtimestamp(prediction_time)
@@ -543,7 +543,7 @@ class SendData():
         if(self.format == "v2"):
             data_model["dateIssued"]["value"] = (time_stamp).isoformat() + "Z"
         elif(self.format == "ld"):
-            data_model["dateObserved"]["value"] = {
+            data_model["dateIssued"]["value"] = {
                 "@type": "DateTime",
                 "@value": (time_stamp).isoformat() + "Z"
             }
@@ -627,9 +627,9 @@ class SendData():
             #alert = self.sign(alert)
 
             if(self.format == "ld"):
-                self.postToFiware_context_ld(data_model, entity_id)
+                self.postToFiware_context_ld(alert, alert_id)
             elif(self.format == "v2"):
-                self.postToFiware_context_v2(data_model, entity_id)
+                self.postToFiware_context_v2(alert, alert_id)
             else:
                 print(f"Could not send because of unsuported format {self.format}.")        
 
@@ -643,7 +643,7 @@ class SendData():
             # Add the new location information
             data_model["newLocation"]["value"]["coordinates"] = position
         
-            entity_id = "urn:ngsi-ld:Device:Device-" + sensor_name
+            entity_id = "urn:ngsi-ld:Noise:Noise-" + sensor_name
 
             # Choose the correct upload function according to the format
             if(self.format == "ld"):
@@ -905,7 +905,6 @@ class SendData():
 
     def postToFiware_context_ld(self, data_model, entity_id): 
         # Add fields specific to LD format
-        data_model["id"] = entity_id
         data_model["@context"] = [self.context]       
         body = data_model
 
@@ -916,13 +915,15 @@ class SendData():
         url = self.url + entity_id + "/attrs"
 
         if(self.debug):
-            print(f"URL: {url}")
+            print(f"URL ld: {url}")
             print(json.dumps(body, indent=4, sort_keys=True))
 
         if(entity_id not in self.already_sent):
             complete_get_url = self.get_url + entity_id
             # Do a get to check if entity exists
-            response = requests.get(self.get_url, headers=self.get_headers)
+            response = requests.get(complete_get_url, headers=self.get_headers)
+
+            #print("Request to {} returned {}".format(self.get_url, response.status_code))
 
             # If entity was not found do a post to create it.
             if(response.status_code == 404):
@@ -938,11 +939,14 @@ class SendData():
                     response = requests.post(url, headers=self.headers, data=json.dumps(body))
             
             else:
+                print("present")
                 response = requests.patch(url, headers=self.headers, data=json.dumps(body))
             
             self.already_sent.append(entity_id)
         else:
             response = requests.patch(url, headers=self.headers, data=json.dumps(body))
+        
+        print(response.content)
 
         # Check if upload was successful
         if (response.status_code > 300):
