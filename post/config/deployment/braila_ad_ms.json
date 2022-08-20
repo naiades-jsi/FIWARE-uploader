@@ -1,6 +1,6 @@
 {
     "config": {
-        "debug": "True",
+        "debug": "False",
         "name": "meta_signal",
         "api_user": "jsibraano",
         "api_pass": "cat63htn73",

@@ -1,6 +1,6 @@
 {
     "config": {
-        "debug": "True",
+        "debug": "False",
         "name": "leakage_group",
         "api_user": "jsileakgr",
         "api_pass": "rgk82hfs58",

@@ -1,6 +1,6 @@
 {
     "config": {
-        "debug": "True",
+        "debug": "False",
         "name": "leakage_position",
         "api_user": "jsileakage",
         "api_pass": "kea73ged85",
@@ -24,10 +24,12 @@
                 "Fiware-Service": "braila",
                 "Content-Type": "application/ld+json"
             },
-            "update": true,
-            "url": "http://naiades.simavi.ro:5002/validation/v2/entities/",
+            "get_headers": {
+                "Fiware-Service": "braila"
+            },
+            "url": "http://naiades.simavi.ro:5002/validation/ld/entities/",
             "create_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
-            "subscriptionId": "62d15c6a5a63f9bfdd4c1489",
+            "get_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
             "id": "urn:ngsi-ld:Alert:ES-Braila-Radunegru-FinaLekageLocation",
             "sensor_name_re": "braila_leakage_position(.+)"
         }

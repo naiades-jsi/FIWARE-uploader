@@ -1,6 +1,6 @@
 {
     "config": {
-        "debug": "True",
+        "debug": "False",
         "name": "consumption",
         "api_user": "jsibracon",
         "api_pass": "ekf93pwe92",
