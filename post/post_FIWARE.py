@@ -178,6 +178,7 @@ class SendData():
         # extract value from record
         # value = eval(rec["value"])[0]
         for i in self.mask:
+            #print(f"i: {i}")
             # Extract the corret value
             value = rec["value"][i]
             print(rec)
@@ -239,12 +240,16 @@ class SendData():
             # Sign and append signature
             #data_model = self.sign(data_model)
 
-            if(self.format == "ld"):
-                self.postToFiware_context_ld(data_model, entity_id)
-            elif(self.format == "v2"):
-                self.postToFiware_context_v2(data_model, entity_id)
-            else:
-                print(f"Could not send because of unsuported format {self.format}.")
+            try:
+                if(self.format == "ld"):
+                    self.postToFiware_context_ld(data_model, entity_id)
+                elif(self.format == "v2"):
+                    self.postToFiware_context_v2(data_model, entity_id)
+                else:
+                    print(f"Could not send because of unsuported format {self.format}.")
+            except:
+                pass
+                #print("{} => Failed sent".format(datetime.now()), flush=True)
 
             time.sleep(10)
                 
@@ -261,13 +266,14 @@ class SendData():
                 bucket = "alicante_forecasting" 
             elif "braila" in topic:
                 bucket = "braila_forecasting"
-
-            self.influx.write_data(measurement=measurement,
-                                   timestamp=prediction_time_in_ns,
-                                   tags= {},
-                                   to_write= output_dict,
-                                   bucket=bucket)
-
+            try:
+                self.influx.write_data(measurement=measurement,
+                                       timestamp=prediction_time_in_ns,
+                                       tags= {},
+                                       to_write= output_dict,
+                                       bucket=bucket)
+            except:
+                pass
     def anomaly(self, msg):
         # Translate codes to string
         dic = {
