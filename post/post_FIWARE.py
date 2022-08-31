@@ -195,7 +195,8 @@ class SendData():
             prediction_time = int(rec["prediction_time"]) # Must be in miliseconds
             from_time = timestamp_in_ns/1000000000
             to_time = from_time + horizon_in_h * 3600
-            prediction_time_timestamp = datetime.utcfromtimestamp(prediction_time)
+            # Cast time in seconds
+            prediction_time_timestamp = datetime.utcfromtimestamp(int(prediction_time/1000))
             from_time_timestamp = datetime.utcfromtimestamp(from_time)
             to_time_timestamp = datetime.utcfromtimestamp(to_time)
 
@@ -244,6 +245,8 @@ class SendData():
                 self.postToFiware_context_v2(data_model, entity_id)
             else:
                 print(f"Could not send because of unsuported format {self.format}.")
+
+            time.sleep(10)
                 
         #influx
         if self.config_influx != None:
@@ -939,7 +942,10 @@ class SendData():
                     response = requests.post(url, headers=self.headers, data=json.dumps(body))
             
             else:
-                print("present")
+                #print("present")
+                print(f"headers: {self.headers}")
+                print(f"URL: {url}")
+                print(f"body: {json.dumps(body, indent=4, sort_keys=True)}")
                 response = requests.patch(url, headers=self.headers, data=json.dumps(body))
             
             self.already_sent.append(entity_id)
