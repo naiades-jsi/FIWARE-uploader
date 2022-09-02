@@ -274,6 +274,7 @@ class SendData():
                                        bucket=bucket)
             except:
                 pass
+
     def anomaly(self, msg):
         # Translate codes to string
         dic = {
@@ -454,11 +455,14 @@ class SendData():
             elif "braila" in topic:
                 bucket = "braila_anomaly"
             #print(timestamp_in_ns, flush=True)
-            self.influx.write_data(measurement=measurement,
-                                             timestamp=timestamp_in_ns,
-                                             tags= {},
-                                             to_write= output_dict,
-                                             bucket=bucket)
+            try:
+                self.influx.write_data(measurement=measurement,
+                                                timestamp=timestamp_in_ns,
+                                                tags= {},
+                                                to_write= output_dict,
+                                                bucket=bucket)
+            except:
+                print("{} => Influx upload failed".format(datetime.now()), flush=True)
 
     def frequency(self, msg):
         rec = eval(msg.value)
@@ -751,13 +755,15 @@ class SendData():
             
             # Select bucket
             bucket = "carouge_watering"
-
-            self.influx.write_data(measurement=measurement,
-                                             timestamp=timestamp_of_watering,
-                                             tags= {},
-                                             to_write= output_dict,
-                                             bucket=bucket)
-
+            try:
+                self.influx.write_data(measurement=measurement,
+                                                timestamp=timestamp_of_watering,
+                                                tags= {},
+                                                to_write= output_dict,
+                                                bucket=bucket)
+            except:
+                print("{} => Influx upload failed".format(datetime.now()), flush=True)
+    
     def postToFiware(self, data_model, entity_id):
         params = (
             ("options", "keyValues"),
@@ -1075,7 +1081,8 @@ class SendData():
         # Raise error if it is not correctly signed 
         assert int(verification) == 0
 
-        return encodedZip
+        # Must return a decoded string
+        return encodedZip.decode()
 
     def get_type_from_id(self, entity_id: str) -> str:
         """
