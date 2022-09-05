@@ -1079,7 +1079,7 @@ class SendData():
         verification = subprocess.check_output(f'ksi verify -i json.txt.ksig -f json.txt -d --dump G -X http://5.53.108.232:8081 --ext-user {self.API_user} --ext-key {self.API_pass} -P http://verify.guardtime.com/ksi-publications.bin --cnstr E=publications@guardtime.com | grep -xq "    OK: No verification errors." ; echo $?', shell=True)
         
         # Raise error if it is not correctly signed 
-        assert int(verification) == 0
+        assert int(verification) == 1
 
         # Must return a decoded string
         return encodedZip.decode()
