@@ -56,7 +56,7 @@ class SendData():
 
     def __init__(self, config, config_influx = None):
         if("debug" in config):
-            self.debug = config["debug"] == "True"
+            self.debug = config["debug"] # == "True"
         else:
             self.debug = False
 
