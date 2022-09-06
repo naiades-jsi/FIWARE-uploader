@@ -1,6 +1,5 @@
 {
     "config": {
-        "debug": "False",
         "name": "consumption",
         "api_user": "jsibracon",
         "api_pass": "ekf93pwe92",
@@ -19,18 +18,12 @@
             "offset":"latest"
         },
         "fiware":{
-            "format": "ld",
-            "context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
             "headers": {
                 "Fiware-Service": "braila",
-                "Content-Type": "application/ld+json"
+                "Content-Type": "application/json"
             },
-            "get_headers": {
-                "Fiware-Service": "braila"
-            },
-            "url": "http://naiades.simavi.ro:5002/validation/ld/entities/",
-            "create_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
-            "get_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
+            "update": true,
+            "url": "http://5.53.108.182:1026/v2/entities/",
             "id": "urn:ngsi-ld:Consumption-Romania:Romania-Braila-",
             "sensor_name_re": "predictions_braila_(flow.+)_prediction"
         }

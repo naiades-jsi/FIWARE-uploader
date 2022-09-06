@@ -1,6 +1,5 @@
 {
     "config": {
-        "debug": "False",
         "name": "consumption",
         "api_user": "jsialicon",
         "api_pass": "dra57fke31",
@@ -19,21 +18,16 @@
                 "predictions_alicante_rambla_flow"
             ],
             "bootstrap_servers": "localhost:9092",
-            "offset":"latest"  
+            "offset":"earliest"  
         },
         "fiware":{
-            "format": "v2",
             "headers": {
                 "Fiware-Service": "alicante",
                 "Content-Type": "application/json"
             },
-            "get_headers": {
-                "Fiware-Service": "alicante"
-            },
-            "url": "http://naiades.simavi.ro:5002/validation/v2/entities/",
-            "create_url": "http://naiades.simavi.ro:1026/v2/entities/",
-            "get_url": "http://naiades.simavi.ro:1026/v2/entities/",
-            "id": "urn:ngsi-ld:WaterConsumption:Spain-Alicante-",
+            "update": true,
+            "url": "http://5.53.108.182:1026/v2/entities/",
+            "id": "urn:ngsi-ld:Consumption:Spain-Alicante-",
             "sensor_name_re": "predictions_alicante_(.+)_flow"
         }
     },    

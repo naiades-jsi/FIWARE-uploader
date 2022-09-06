@@ -1,6 +1,5 @@
 {
     "config": {
-        "debug": "False",
         "name": "meta_signal",
         "api_user": "jsialiano",
         "api_pass": "zew73jfb69",
@@ -22,18 +21,13 @@
             "offset":"latest"
         },
         "fiware":{
-            "format": "v2",
             "headers": {
                 "Fiware-Service": "alicante",
                 "Content-Type": "application/json"
             },
-            "get_headers": {
-                "Fiware-Service": "alicante"
-            },
-            "url": "http://naiades.simavi.ro:5002/validation/v2/entities/",
-            "create_url": "http://naiades.simavi.ro:1026/v2/entities/",
-            "get_url": "http://naiades.simavi.ro:1026/v2/entities/",
-            "id": "urn:ngsi-ld:Device:RO-",
+            "update": true,
+            "url": "http://5.53.108.182:1026/v2/entities/",
+            "id": "urn:ngsi-ld:MEASUREMENT:RO-",
             "sensor_name_re": "alicante_salinity_(.+)_meta_signal"
         }
     },    

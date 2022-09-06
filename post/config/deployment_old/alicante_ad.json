@@ -1,12 +1,18 @@
 {
     "config": {
-        "debug": "False",
         "name": "anomaly",
         "api_user": "jsialiano",
         "api_pass": "zew73jfb69",
         "time_name": "timestamp",
         "time_format": "ms",
         "data_name": ["value"],
+        "locations": [
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
         "kafka":{
             "topics": [
                 "anomalies_alicante_salinity_EA001_36_level",
@@ -19,17 +25,12 @@
             "offset":"latest"
         },
         "fiware":{
-            "format": "v2",
             "headers": {
                 "Fiware-Service": "alicante",
                 "Content-Type": "application/json"
             },
-            "get_headers": {
-                "Fiware-Service": "alicante"
-            },
-            "url": "http://naiades.simavi.ro:5002/validation/v2/entities/",
-            "create_url": "http://naiades.simavi.ro:1026/v2/entities/",
-            "get_url": "http://naiades.simavi.ro:1026/v2/entities/",
+            "update": true,
+            "url": "http://5.53.108.182:1026/v2/entities/",
             "id": "urn:ngsi-ld:Alert:ES-Alert-",
             "sensor_name_re": "anomalies_alicante_(.+)"
         }

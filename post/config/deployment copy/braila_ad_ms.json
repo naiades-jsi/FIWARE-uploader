@@ -1,6 +1,6 @@
 {
     "config": {
-        "debug": "False",
+        "debug": "True",
         "name": "meta_signal",
         "api_user": "jsibraano",
         "api_pass": "cat63htn73",
@@ -27,12 +27,10 @@
                 "Fiware-Service": "braila",
                 "Content-Type": "application/ld+json"
             },
-            "get_headers": {
-                "Fiware-Service": "braila"
-            },
+            "update": true,
             "url": "http://naiades.simavi.ro:5002/validation/ld/entities/",
             "create_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
-            "get_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
+            "subscriptionId": "62d157a15a63f9bfdd4c1458",
             "id": "urn:ngsi-ld:Device:RO-",
             "sensor_name_re": "anomalies_braila_flow(.+)_meta_signal"
         }

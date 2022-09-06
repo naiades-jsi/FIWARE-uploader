@@ -5,19 +5,18 @@ import json
 alert_template = {
     "alertSource":{
         "type": "Text",
+        "metadata": {}
         # Value will be added
-    },
-    "category": {
-        "type": "Text",
-        "value": "anomaly"
     },
     "dateIssued": {
         "type": "DateTime",
+        "metadata": {}
         # eg. "value": "2017-01-02T09:25:55.00Z"
     },
     "description": {
         "type": "Text",
-        "value": "Final leakage position detected"
+        "value": "Final leakage position detected",
+        "metadata": {}
     },
     "location": {
         "type": "geo:json",
@@ -25,35 +24,36 @@ alert_template = {
             "type": "Point",
             "coordinates": [ # to be inserted
             ]
-        }
+        },
+        "metadata": {}
     },
-    "subCategory": {
-        "type": "Text",
-        "value": "longTerm"
-    },
-    "type": "Alert",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Text", 
-        "value": "dateIssued,ksiSignature"
+        "value": "alertSource,dateIssued,description,ksiSignature,location,updatedAttributes",
+        "metadata": {}
     } 
 }
 
 leakage_alert_template = {
-    "alertSource":{
-        "type": "Text",
-        # Value will be added
-    },
-    "category": {
-        "type": "Text",
-        "value": "anomaly"
-    },
+    #"alertSource":{
+    #    "type": "Text",
+    #    "metadata": {}
+    #    # Value will be added
+    #},
+    #"category": {
+    #    "type": "Enum",
+    #    "value": "water",
+    #    "metadata": {}
+    #},
     "dateIssued": {
         "type": "DateTime",
+        "metadata": {}
         # eg. "value": "2017-01-02T09:25:55.00Z"
     },
     "description": {
-        "type": "Text"
+        "type": "Text",
+        "metadata": {}
         # Value will be added
     },
     "location": {
@@ -62,98 +62,223 @@ leakage_alert_template = {
             "type": "Point",
             "coordinates": [ # to be inserted
             ]
-        }
+        },
+        "metadata": {}
     },
-    "type": "Alert",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Text", 
-        "value": "dateIssued,description,ksiSignature"
-    } 
+        "value": "dateIssued,description,ksiSignature,location,updatedAttributes",
+        "metadata": {}
+    }
 }
 
 consumption_template = {
-    "category": {
-        "type": "Text",
-        "value": "water",
-        "metadata": {}
-    },
+    #"category": {
+    #   "type": "Text",
+    #    "value": "water",
+    #    "metadata": {}
+    #},
     "consumption": {
         "type": "Number",
-        "value": None,
         "metadata": {},
     },
     "consumptionFrom": {
         "type": "DateTime",
-        "dateFrom": "",
         "metadata": {}
-    },
-    "consumptionMax": {
-        "type": "Number",
-        "value": None,
-        "metadata": {},
-    },
-    "consumptionMin": {
-        "type": "Number",
-        "value": None,
-        "metadata": {},
     },
     "consumptionTo": {
         "type": "DateTime",
-        "dateTo": "",
-        "metadata": {}
-    },
-    "consumptionUnit": {
-        "type": "Text",
-        "value": "m3/s",
         "metadata": {}
     },
     "dateCreated": {
         "type": "DateTime",
-        "value": "",
         "metadata": {}
     },
-    "subCategory": {
-        "type": "Text",
-        "value": "water-consumptiopn-prediction",
-        "metadata": {}
-    },
-    "type": "Consumption",
     # Attributes that get updated 
     "updatedAttributes": {
         "type": "Text", 
-        "value": "consumption,dateCreated,consumptionFrom,consumptionTo,ksiSignature"
-    } 
+        "value": "consumption,dateCreated,consumptionFrom,consumptionTo,ksiSignature,updatedAttributes",
+        "metadata": {}
+    }
 }
 
 flower_bed_template = {
     "feedbackDescription": {
         "type": "Text",
-        "value": ""
+        "value": "",
+        "metadata": {}
     },
     "nextWateringAmountRecommendation": {
         "type": "Number",
-        "value": 0.5
+        "value": 0,
+        "metadata": {}
     },
     "nextWateringDeadline": {
         "type": "DateTime",
-        "value": "2017-03-31T08:00"
+        "value": "",
+        "metadata": {}
     },
-    "type": "FlowerBed",
-    # Attributes that get updated 
+    #Attributes that get updated 
     "updatedAttributes": {
         "type": "Text", 
-        "value": "feedbackDate,feedbackDescription,nextWateringAmountRecommendation,nextWateringDeadline,ksiSignature"
-    } 
+        "value": "feedbackDescription,nextWateringAmountRecommendation,nextWateringDeadline,ksiSignature,updatedAttributes",
+        "metadata": {}
+    }
 }
 
 leakage_group_model_template = {
-    "category": {
-        "type" : "enum",
-        "value": "water"
-    },
+    #"category": {
+    #    "type" : "Enum",
+    #    "value": "water",
+    #    "metadata": {}
+    #},
     "data": {
-        "type" : "structuredvalue",
+        "type" : "StructuredValue",
+        "value": {
+            "affectedGroup": {
+                "Type": "Array",
+                "value": {
+                    "0": [],
+                    "1": []
+                }
+            }
+        },
+        "metadata": {}
+    },
+    "dateIssued": {
+        "type": "Datetime",
+        "value": "2017-01-02T09:25:55.00Z",
+        "metadata": {}
+    },
+    #"subCategory": {
+    #    "type" : "Enum",
+    #    "value": "ice",
+    #    "metadata": {}
+    #},
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Text",
+        "value": "data,dateIssued,ksiSignature,updatedAttributes",
+        "metadata": {}
+    }
+}
+
+leakage_model_template = {
+    "isMovedToNewLocation":  {
+        "type": "Boolean",
+        "value": "false",
+        "metadata": {}
+    },
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "isMovedToNewLocation,ksiSignature,updatedAttributes",
+        "metadata": {}
+    }
+}
+
+meta_signal_template = {
+    "dateObserved": {
+        "type": "DateTime",
+        "metadata": {}
+        # Value will be added
+    },
+    "description": {
+        "type": "Text",
+        "value": "",
+        "metadata": {}
+    },
+    "value": {
+        "type": "Number",
+        "metadata": {}
+        # Value will be added
+    },
+    #"seeAlso": [],
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Text", 
+        "value": "dateObserved,description,ksiSignature,value,updatedAttributes",
+        "metadata": {}
+    }
+}
+
+# LD TEMPLATES
+
+alert_template_ld = {
+    "alertSource":{
+        "type": "Property"
+        # Value will be added
+    },
+    "dateIssued": {
+        "type": "Property"
+        # eg. "value": "2017-01-02T09:25:55.00Z"
+    },
+    "description": {
+        "type": "Property",
+        "value": "Final leakage position detected"
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+            "type": "Point",
+            "coordinates": [ # to be inserted
+            ]
+        }
+    },
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Property", 
+        "value": "alertSource,dateIssued,description,ksiSignature,location,updatedAttributes"
+    } 
+}
+leakage_alert_template_ld = {
+    "dateIssued": {
+        "type": "Property"
+        # eg. "value": "2017-01-02T09:25:55.00Z"
+    },
+    "description": {
+        "type": "Property"
+        # Value will be added
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+            "type": "Point",
+            "coordinates": [ # to be inserted
+            ]
+        }
+    },
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Property", 
+        "value": "dateIssued,description,ksiSignature,location,updatedAttributes"
+    }
+}
+
+consumption_template_ld = {
+    "consumption": {
+        "type": "Property"
+    },
+    "consumptionFrom": {
+        "type": "Property"
+    },
+    "consumptionTo": {
+        "type": "Property"
+    },
+    "dateCreated": {
+        "type": "Property"
+    },
+    # Attributes that get updated 
+    "updatedAttributes": {
+        "type": "Property", 
+        "value": "consumption,dateCreated,consumptionFrom,consumptionTo,ksiSignature,updatedAttributes"
+    }
+}
+
+leakage_group_model_template_ld = {
+    "data": {
+        "type" : "Property",
         "value": {
             "affectedGroup": {
                 "Type": "Array",
@@ -165,94 +290,52 @@ leakage_group_model_template = {
         }
     },
     "dateIssued": {
-        "type": "datetime",
+        "type": "Property",
         "value": "2017-01-02T09:25:55.00Z"
     },
-    "subCategory": {
-        "type" : "enum",
-        "value": "leakage"
-    },
-    "type": "Alert",
     # Attributes that get updated 
     "updatedAttributes": {
-        "type": "Text",
-        "value": "data,dateIssued,ksiSignature"
-    } 
+        "type": "Property",
+        "value": "data,dateIssued,ksiSignature,updatedAttributes"
+    }
 }
 
-leakage_model_template = {
+leakage_model_template_ld = {
     "isMovedToNewLocation":  {
-        "type": "Boolean",
-        "value": False
+        "type": "Property",
+        "value": "false"
     },
-    "type": "Device",
+    "newLocation": {
+        "type": "GeoProperty",
+        "value": {
+            "type": "Point",
+            "coordinates": []
+        }
+    },
     # Attributes that get updated 
     "updatedAttributes": {
-        "type": "Text", 
-        "value": "isMovedToNewLocation,ksiSignature"
-    } 
+        "type": "Property", 
+        "value": "isMovedToNewLocation,newLocation,ksiSignature,updatedAttributes"
+    }
 }
 
-meta_signal_template = {
-    "areaServed": {
-        "type": "Text",
-        "value": ""
-    },
-    "controlledProperty": {
-        "type": "Text",
-        "value": "flow"
-    },
+meta_signal_template_ld = {
     "dateObserved": {
-        "type": "datetime"
+        "type": "Property"
         # Value will be added
     },
     "description": {
-        "type": "Text",
+        "type": "Property",
         "value": ""
     },
-    "deviceType": {
-        "type": "Text",
-        "value": "sensor"
-    },
-    "location": {
-        "type": "Point",
-        "coordinates": [
-            None,
-            None
-        ]
-    },
-    "measurementType": {
-        "type": "Text",
-        "value": None
-    },
-    "name": {
-        "type": "Text",
-        "value": ""
-    },
-    "numValue": {
-        "type": "Number"
+    "value": {
+        "type": "Property"
         # Value will be added
     },
-    "outlier":  {
-        "type": "Boolean",
-        "value": False,
-        "metadata": {}
-    },
-    "owner": [],
-    "refDevice": {
-        "type": "Text",
-        "value": None
-    },
-    "seeAlso": [],   
-    "textValue": {
-        "type": "Text",
-        "value": ""
-    },
-    "type": "DeviceMeasurement",    
-    "unit": None,
+    #"seeAlso": [],
     # Attributes that get updated 
     "updatedAttributes": {
-        "type": "Text", 
-        "value": "dateObserved,ksiSignature,numValue,textValue"
-    } 
+        "type": "Property", 
+        "value": "dateObserved,description,ksiSignature,value,updatedAttributes"
+    }
 }

@@ -1,21 +1,32 @@
 {
     "config": {
-        "debug": "False",
-        "name": "meta_signal",
+        "debug": "True",
+        "name": "anomaly",
         "api_user": "jsibraano",
         "api_pass": "cat63htn73",
         "time_name": "timestamp",
         "time_format": "ms",
+        "data_name": ["value"],
+        "locations": [
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [45.27161, 27.97429],
+            [45.27161, 27.97429],
+            [45.27161, 27.97429],
+            [45.27161, 27.97429]
+        ],
         "kafka":{
             "topics": [
-                "anomalies_braila_flow211106H360_meta_signal",
-                "anomalies_braila_flow211206H360_meta_signal",
-                "anomalies_braila_flow211306H360_meta_signal",
-                "anomalies_braila_flow318505H498_meta_signal",
-                "anomalies_braila_pressure5770_meta_signal",
-                "anomalies_braila_pressure5771_meta_signal",
-                "anomalies_braila_pressure5772_meta_signal",
-                "anomalies_braila_pressure5773_meta_signal"
+                "anomalies_braila_flow_211106H360",
+                "anomalies_braila_flow_211206H360",
+                "anomalies_braila_flow_211306H360",
+                "anomalies_braila_flow_318505H498",
+                "anomalies_braila_pressure_5770",
+                "anomalies_braila_pressure_5771",
+                "anomalies_braila_pressure_5772",
+                "anomalies_braila_pressure_5773"
             ],
             "bootstrap_servers": "localhost:9092",
             "offset":"latest"
@@ -27,14 +38,12 @@
                 "Fiware-Service": "braila",
                 "Content-Type": "application/ld+json"
             },
-            "get_headers": {
-                "Fiware-Service": "braila"
-            },
+            "update": true,
             "url": "http://naiades.simavi.ro:5002/validation/ld/entities/",
             "create_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
-            "get_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
-            "id": "urn:ngsi-ld:Device:RO-",
-            "sensor_name_re": "anomalies_braila_flow(.+)_meta_signal"
+            "subscriptionId": "62d159945a63f9bfdd4c1469",
+            "id": "urn:ngsi-ld:Alert:RO-",
+            "sensor_name_re": "anomalies_braila_(.+)"
         }
     },    
     "influx_config": {

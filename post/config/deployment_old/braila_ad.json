@@ -1,6 +1,5 @@
 {
     "config": {
-        "debug": "False",
         "name": "anomaly",
         "api_user": "jsibraano",
         "api_pass": "cat63htn73",
@@ -8,10 +7,10 @@
         "time_format": "ms",
         "data_name": ["value"],
         "locations": [
-            [0, 0],
-            [0, 0],
-            [0, 0],
-            [0, 0],
+            null,
+            null,
+            null,
+            null,
             [45.27161, 27.97429],
             [45.27161, 27.97429],
             [45.27161, 27.97429],
@@ -32,18 +31,12 @@
             "offset":"latest"
         },
         "fiware":{
-            "format": "ld",
-            "context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
             "headers": {
                 "Fiware-Service": "braila",
-                "Content-Type": "application/ld+json"
+                "Content-Type": "application/json"
             },
-            "get_headers": {
-                "Fiware-Service": "braila"
-            },
-            "url": "http://naiades.simavi.ro:5002/validation/ld/entities/",
-            "create_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
-            "get_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
+            "update": true,
+            "url": "http://5.53.108.182:1026/v2/entities/",
             "id": "urn:ngsi-ld:Alert:RO-",
             "sensor_name_re": "anomalies_braila_(.+)"
         }

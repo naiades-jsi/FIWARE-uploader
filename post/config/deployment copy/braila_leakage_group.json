@@ -1,18 +1,15 @@
 {
     "config": {
-        "debug": "False",
-        "name": "leakage_position",
-        "api_user": "jsileakage",
-        "api_pass": "kea73ged85",
+        "debug": "True",
+        "name": "leakage_group",
+        "api_user": "jsileakgr",
+        "api_pass": "rgk82hfs58",
         "time_name": "timestamp",
         "time_format": "s",
         "data_name": ["value"],
         "kafka":{
             "topics": [
-                "braila_leakage_position2182",
-                "braila_leakage_position5980",
-                "braila_leakage_position5981",
-                "braila_leakage_position5982"
+                "braila_leakage_groups"
             ],
             "bootstrap_servers": "localhost:9092",
             "offset":"latest"
@@ -24,19 +21,17 @@
                 "Fiware-Service": "braila",
                 "Content-Type": "application/ld+json"
             },
-            "get_headers": {
-                "Fiware-Service": "braila"
-            },
+            "update": false,
             "url": "http://naiades.simavi.ro:5002/validation/ld/entities/",
             "create_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
-            "get_url": "http://naiades.simavi.ro:1026/ngsi-ld/v1/entities/",
-            "id": "urn:ngsi-ld:Alert:ES-Braila-Radunegru-FinaLekageLocation",
-            "sensor_name_re": "braila_leakage_position(.+)"
+            "subscriptionId": "62d15bb75a63f9bfdd4c1476",
+            "id": "urn:ngsi-ld:Alert:RO-Braila-leakageGroup",
+            "sensor_name_re": "anomalies_braila_(.+)"
         }
-    },
+    },    
     "influx_config": {
         "token" : "AOAm_a0wPNlX3u10m0Fl7gBLeKZwjV67tYPvpU4FRLxNZPmRLS-BDV81jtUKzC_siO1VPqCkTfzo8H9OVEv5eQ==",
-            "org" : "naiades",
-            "url" : "http://localhost:8086/"
-        }
+        "org" : "naiades",
+        "url" : "http://localhost:8086/"
+    }
 }

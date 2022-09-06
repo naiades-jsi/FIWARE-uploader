@@ -1,6 +1,6 @@
 {
     "config": {
-        "debug": "False",
+        "debug": "True",
         "name": "anomaly",
         "api_user": "jsialiano",
         "api_pass": "zew73jfb69",
@@ -19,17 +19,14 @@
             "offset":"latest"
         },
         "fiware":{
-            "format": "v2",
             "headers": {
                 "Fiware-Service": "alicante",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Accept": "application/json"
             },
-            "get_headers": {
-                "Fiware-Service": "alicante"
-            },
-            "url": "http://naiades.simavi.ro:5002/validation/v2/entities/",
-            "create_url": "http://naiades.simavi.ro:1026/v2/entities/",
-            "get_url": "http://naiades.simavi.ro:1026/v2/entities/",
+            "update": true,
+            "url": "http://naiades.simavi.ro:5002/historic/validation/v2/notify",
+            "subscriptionId": "62cffeffa88c1d8d50bb3359",
             "id": "urn:ngsi-ld:Alert:ES-Alert-",
             "sensor_name_re": "anomalies_alicante_(.+)"
         }
