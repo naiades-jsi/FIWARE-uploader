@@ -19,7 +19,7 @@ from kafka import KafkaProducer
 from create_data_models import meta_signal_template, consumption_template,\
     alert_template, flower_bed_template, leakage_model_template,\
     leakage_group_model_template, leakage_alert_template
-from custom_error import Custom_error    
+from custom_error import Custom_error
 
 from pushToInflux import PushToDB
 
@@ -28,7 +28,7 @@ class SendData():
     time_name: str
     time_format: str
     locations: List[str]
-    
+
     topics: List[str]
     consumer: Any
 
@@ -149,11 +149,11 @@ class SendData():
 
             # copy predefined data model
             data_model = copy.deepcopy(consumption_template) # create data_model
-            
+
             # Construct the name of the entity
             entity_id = self.id + sensor_name + "_" + horizon_str # + time_stamp.strftime("%Y%m%d")
             print(entity_id)
-            
+
             # TODO during winter time it needs to be +1
             data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z" # +2 ali +1
             data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z"
@@ -165,24 +165,24 @@ class SendData():
 
             self.postToFiware(data_model, entity_id)
 
-        #influx
+        # influx
         if self.config_influx != None:
             measurement = sensor_name
             prediction_time_in_ns = prediction_time * 1000000000
 
             # TODO influx should also recieve data for every horizon
             output_dict = { "value": rec["value"][0] }
-            
+
             # Select bucket
             if "alicante" in topic:
-                bucket = "alicante_forecasting" 
+                bucket = "alicante_forecasting"
             elif "braila" in topic:
                 bucket = "braila_forecasting"
 
             self.influx.write_data(measurement=measurement,
                                    timestamp=prediction_time_in_ns,
-                                   tags= {},
-                                   to_write= output_dict,
+                                   tags={},
+                                   to_write=output_dict,
                                    bucket=bucket)
 
     def anomaly(self, msg):
@@ -204,7 +204,7 @@ class SendData():
             city = "Carouge"
         else:
             city = "unknown"
-        
+
         # Change timestamp to ns
         if(self.time_format == "s"):
             timestamp_in_ns = int(rec[self.time_name]*1000000000)
@@ -215,7 +215,7 @@ class SendData():
 
         # time to datetime
         time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000)
-        
+
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
         # Entity ID based on alert notification
         entity_id = self.id + city + "-" + sensor_name
@@ -225,9 +225,9 @@ class SendData():
         #print("{} => creating model".format(datetime.now()), flush=True)
 
         # CREATE DATA MODEL TO POST
-        data_model = copy.deepcopy(alert_template) # create data_model      
+        data_model = copy.deepcopy(alert_template) # create data_model
 
-        
+
         """if "pressure" in topic:
             data_model["subCategory"]["value"] = "long_term"
         elif "flow" in topic:
@@ -257,13 +257,13 @@ class SendData():
                             "status_code": rec["status_code"],
                             "algorithm": rec["algorithm"],
                             "status": rec["status"]}
-            
+
             if("suggested_value" in rec):
                 output_dict["suggested_value"] = rec["suggested_value"]
-            
+
             # Select bucket
             if "alicante" in topic:
-                bucket = "alicante_anomaly" 
+                bucket = "alicante_anomaly"
             elif "braila" in topic:
                 bucket = "braila_anomaly"
             #print(timestamp_in_ns, flush=True)
@@ -275,8 +275,8 @@ class SendData():
 
     def meta_signal(self, msg):
         topic = msg.topic # topic name
-        rec = eval(msg.value) # kafka record       
-        
+        rec = eval(msg.value) # kafka record
+
         # Change timestamp to ns
         if(self.time_format == "s"):
             timestamp_in_ns = int(rec[self.time_name]*1000000000)
@@ -287,9 +287,9 @@ class SendData():
 
         # time to datetime
         time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000)
-        
+
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
-        
+
         # Entity ID based on alert notification
         entity_id = self.id + sensor_name + "-MetaSignal"
         #print(entity_id)
@@ -297,7 +297,7 @@ class SendData():
         #print("{} => creating model".format(datetime.now()), flush=True)
 
         # CREATE DATA MODEL TO POST
-        data_model = copy.deepcopy(meta_signal_template) # create data_model      
+        data_model = copy.deepcopy(meta_signal_template) # create data_model
 
         #TODO set values of the data model
         # dateObserved
@@ -306,7 +306,7 @@ class SendData():
         # numValue
         data_model["numValue"]["value"] = rec["status_code"]
 
-        # textValue (contains the actual sample value/array of values on 
+        # textValue (contains the actual sample value/array of values on
         # which anomaly detection was executed)
         data_model["textValue"]["value"] = str(rec["value"])
 
@@ -323,13 +323,13 @@ class SendData():
                             "status_code": rec["status_code"],
                             "algorithm": rec["algorithm"],
                             "status": rec["status"]}
-            
+
             if("suggested_value" in rec):
                 output_dict["suggested_value"] = rec["suggested_value"]
-            
+
             # Select bucket
             if "alicante" in topic:
-                bucket = "alicante_anomaly" 
+                bucket = "alicante_anomaly"
             elif "braila" in topic:
                 bucket = "braila_anomaly"
             #print(timestamp_in_ns, flush=True)
@@ -343,7 +343,7 @@ class SendData():
         # TODO: test signature
         # Leakage group (Zan) => uploads to alert
         rec = eval(msg.value) # kafka record
-        
+
         # Change timestamp to ns
         if(self.time_format == "s"):
             timestamp_in_ns = int(rec[self.time_name]*1000000000)
@@ -355,11 +355,11 @@ class SendData():
         # Only one topic (braila_leakage_groups)
         #topic = msg.topic # topic name
         #sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
-        
+
         data_model = copy.deepcopy(leakage_group_model_template) # create data_model
 
         # time
-        time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000) 
+        time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000)
 
         # We are exporting to only one entity
         entity_id = "urn:ngsi-ld:Alert:RO-Braila-leakageGroup"
@@ -381,7 +381,7 @@ class SendData():
         # jaka's component
         # sample data : { "timestamp": 12912903193912, "position": [ LAT, LNG ], "final_location": boolean }
         rec = eval(msg.value) # kafka record
-        
+
         # Change timestamp to ns
         if(self.time_format == "s"):
             timestamp_in_ns = int(rec[self.time_name]*1000000000)
@@ -389,7 +389,7 @@ class SendData():
             timestamp_in_ns = int(rec[self.time_name]*1000000)
         elif(self.time_format == "us"):
             timestamp_in_ns = int(rec[self.time_name]*1000)
-        
+
         topic = msg.topic # topic name
 
         # time to datetime
@@ -398,7 +398,7 @@ class SendData():
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
         position = rec["position"]
         final_location = rec["is_final"] == "true"
-        
+
         if(final_location):
             #print("final", flush=True)
             """data_model["finalLeackageLocation"] = {
@@ -416,7 +416,7 @@ class SendData():
             #print(str(position).replace("'", ""), flush=True)
             alert["description"]["value"] = str(position).replace("'", "")
 
-            self.postToFiware(alert, alert_id)            
+            self.postToFiware(alert, alert_id)
 
         else:
             data_model = copy.deepcopy(leakage_model_template) # create data_model
@@ -427,7 +427,7 @@ class SendData():
                     "coordinates": position
                 }
             }
-        
+
             entity_id = "urn:ngsi-ld:Device:Device-" + sensor_name
 
             # Sign and append signature
@@ -435,7 +435,7 @@ class SendData():
 
             self.postToFiware(data_model, entity_id)
         #TODO influx?
-    
+
     def flower_bed(self, msg):
         # TODO: test signature
         rec = eval(msg.value) # kafka record
@@ -453,18 +453,18 @@ class SendData():
         time_stamp = datetime.utcfromtimestamp(int(timestamp_in_ns/1000000000))
 
         sensor_name = re.findall(self.sensor_name_re, topic)[0]
-        
+
         # Construct data model
-        data_model = copy.deepcopy(flower_bed_template) # create data_model  
+        data_model = copy.deepcopy(flower_bed_template) # create data_model
 
         # If WA=-1 ignore fields WA and T
         if(float(rec["WA"])!=-1):
             data_model["nextWateringAmountRecommendation"]["value"] = float(rec["WA"])
             time_string = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z"
-        
+
         data_model["feedbackDescription"]["value"] = str(rec["predicted_profile"])
         #data_model["feedbackDate"]["value"] = (time_stamp).isoformat() + ".00Z+02"
-        
+
         # The date will be read from metadata instead
         #data_model["feedbackDate"]["value"] = time_stamp
         #
@@ -503,13 +503,13 @@ class SendData():
             measurement = sensor_name + "_watering"
 
             output_dict = {"watering_amount": rec["WA"]}
-            
+
             # timestamp_of_watering = int(time.mktime(datetime.strptime(rec["T"], "%Y-%m-%d %H:%M:%S").timetuple()))*1000000000
             timestamp_of_watering = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z+02"
 
             if("suggested_value" in rec):
                 output_dict["suggested_value"] = rec["suggested_value"]
-            
+
             # Select bucket
             bucket = "carouge_watering"
 
@@ -552,7 +552,7 @@ class SendData():
         except Exception as e:
             print(f"Signing failed", flush=True)
             signature = "null"
-        
+
         # Add signature to the message
         data_model["ksiSignature"] = {
             "metadata": {},
@@ -569,8 +569,8 @@ class SendData():
         # Transforms the JSON string ('dataJSON') to file (json.txt)
         os.system('echo %s > json.txt' %output_dict)
         #Sign the file using your credentials
-        os.system(f'ksi sign -i json.txt -o json.txt.ksig -S http://5.53.108.232:8080 --aggr-user {self.API_user} --aggr-key {self.API_pass}') 
-        
+        os.system(f'ksi sign -i json.txt -o json.txt.ksig -S http://5.53.108.232:8080 --aggr-user {self.API_user} --aggr-key {self.API_pass}')
+
         # get the signature
         with open("json.txt.ksig", "rb") as f:
             encodedZip = base64.b64encode(f.read())
@@ -579,8 +579,8 @@ class SendData():
 
         # Checking if the signature is correct
         verification = subprocess.check_output(f'ksi verify -i json.txt.ksig -f json.txt -d --dump G -X http://5.53.108.232:8081 --ext-user {self.API_user} --ext-key {self.API_pass} -P http://verify.guardtime.com/ksi-publications.bin --cnstr E=publications@guardtime.com | grep -xq "    OK: No verification errors." ; echo $?', shell=True)
-        
-        # Raise error if it is not correctly signed 
+
+        # Raise error if it is not correctly signed
         assert int(verification) == True
 
         return encodedZip
