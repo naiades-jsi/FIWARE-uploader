@@ -26,7 +26,7 @@ def main():
     #print("here", flush=True)
     with open("config/" + args.config) as configuration:
         conf = json.load(configuration)
-    
+
     config = conf["config"]
 
     if("influx_config" in conf):

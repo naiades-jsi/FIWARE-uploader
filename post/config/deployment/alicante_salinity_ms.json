@@ -1,6 +1,6 @@
 {
     "config": {
-        "debug": "False",
+        "debug": false,
         "name": "meta_signal",
         "api_user": "jsialiano",
         "api_pass": "zew73jfb69",
@@ -36,7 +36,7 @@
             "id": "urn:ngsi-ld:Device:RO-",
             "sensor_name_re": "alicante_salinity_(.+)_meta_signal"
         }
-    },    
+    },
     "influx_config": {
         "token" : "AOAm_a0wPNlX3u10m0Fl7gBLeKZwjV67tYPvpU4FRLxNZPmRLS-BDV81jtUKzC_siO1VPqCkTfzo8H9OVEv5eQ==",
         "org" : "naiades",

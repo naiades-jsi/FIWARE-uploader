@@ -1,6 +1,6 @@
 {
     "config": {
-        "debug": "False",
+        "debug": true,
         "name": "consumption",
         "api_user": "jsialicon",
         "api_pass": "dra57fke31",
@@ -19,7 +19,7 @@
                 "predictions_alicante_rambla_flow"
             ],
             "bootstrap_servers": "localhost:9092",
-            "offset":"latest"  
+            "offset":"latest"
         },
         "fiware":{
             "format": "v2",
@@ -36,7 +36,7 @@
             "id": "urn:ngsi-ld:WaterConsumption:Spain-Alicante-",
             "sensor_name_re": "predictions_alicante_(.+)_flow"
         }
-    },    
+    },
     "influx_config": {
             "token" : "-_XjqHeiMPPH-l7GvoS_UsXbS23yRKW5N1GS9dnCN9JnoglGhsnHY1GYBr3B--4s5tOJdlkNtossQGRiR4koDg==",
             "org" : "naiades",

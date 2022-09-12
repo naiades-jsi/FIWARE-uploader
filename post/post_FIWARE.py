@@ -22,7 +22,7 @@ from create_data_models import meta_signal_template, consumption_template,\
     leakage_alert_template_ld, consumption_template_ld, leakage_group_model_template_ld,\
     leakage_model_template_ld, meta_signal_template_ld
 from entity_mapper import entity_mapper_carouge
-from custom_error import Custom_error    
+from custom_error import Custom_error
 
 from pushToInflux import PushToDB
 
@@ -34,7 +34,7 @@ class SendData():
     time_name: str
     time_format: str
     locations: List[str]
-    
+
     topics: List[str]
     consumer: Any
 
@@ -56,7 +56,7 @@ class SendData():
 
     def __init__(self, config, config_influx = None):
         if("debug" in config):
-            self.debug = config["debug"] == "True"
+            self.debug = config["debug"] # == "True"
         else:
             self.debug = False
 
@@ -126,7 +126,7 @@ class SendData():
         for msg in self.consumer:
             print("{} => message recieved from {}".format(datetime.now(), msg.topic), flush=True)
             if(self.debug):
-                # In debug mode no try (for more info on crashe)             
+                # In debug mode no try (for more info on crashe)
                 if self.name == "consumption":
                     self.consumption(msg)
                 elif self.name == "leakage_group":
@@ -141,7 +141,7 @@ class SendData():
                     self.meta_signal(msg)
                 else :
                     print("Wrong type name.", flush=True)
-            else:    
+            else:
                 try:
                     if self.name == "consumption":
                         self.consumption(msg)
@@ -201,7 +201,7 @@ class SendData():
             from_time_timestamp = datetime.utcfromtimestamp(from_time)
             to_time_timestamp = datetime.utcfromtimestamp(to_time)
 
-            # copy predefined data model 
+            # copy predefined data model
             # Select the correct format
             if(self.format == "ld"):
                 data_model = copy.deepcopy(consumption_template_ld) # create data_model
@@ -211,7 +211,7 @@ class SendData():
             # Construct the name of the entity
             entity_id = self.id + sensor_name + "_" + horizon_str # + time_stamp.strftime("%Y%m%d")
             # print(entity_id)
-            
+
             # TODO during winter time it needs to be +1
             if(self.format == "v2"):
                 data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z" # +2 ali +1
@@ -236,7 +236,7 @@ class SendData():
             data_model["consumption"]["value"] = value
             #data_model["consumptionMax"] = None
             #data_model["consumptionMin"] = None
-        
+
             # Sign and append signature
             #data_model = self.sign(data_model)
 
@@ -252,7 +252,7 @@ class SendData():
                 #print("{} => Failed sent".format(datetime.now()), flush=True)
 
             time.sleep(10)
-                
+
         #influx
         if self.config_influx != None:
             measurement = sensor_name
@@ -260,10 +260,10 @@ class SendData():
 
             # TODO influx should also recieve data for every horizon
             output_dict = { "value": rec["value"][0] }
-            
+
             # Select bucket
             if "alicante" in topic:
-                bucket = "alicante_forecasting" 
+                bucket = "alicante_forecasting"
             elif "braila" in topic:
                 bucket = "braila_forecasting"
             try:
@@ -294,7 +294,7 @@ class SendData():
             city = "Carouge"
         else:
             city = "unknown"
-        
+
         # Change timestamp to ns
         if(self.time_format == "s"):
             timestamp_in_ns = int(rec[self.time_name]*1000000000)
@@ -305,7 +305,7 @@ class SendData():
 
         # time to datetime
         time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000)
-        
+
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
         # Entity ID based on alert notification
         entity_id = self.id + city + "-" + sensor_name
@@ -317,12 +317,11 @@ class SendData():
         # CREATE DATA MODEL TO POST
         # Select the correct format
         if(self.format == "ld"):
-            data_model = copy.deepcopy(alert_template_ld) # create data_model 
+            data_model = copy.deepcopy(alert_template_ld) # create data_model
         else:
-            data_model = copy.deepcopy(alert_template) # create data_model 
-             
+            data_model = copy.deepcopy(alert_template) # create data_model
 
-        
+
         """if "pressure" in topic:
             data_model["subCategory"]["value"] = "long_term"
         elif "flow" in topic:
@@ -362,13 +361,13 @@ class SendData():
                             "status_code": rec["status_code"],
                             "algorithm": rec["algorithm"],
                             "status": rec["status"]}
-            
+
             if("suggested_value" in rec):
                 output_dict["suggested_value"] = rec["suggested_value"]
-            
+
             # Select bucket
             if "alicante" in topic:
-                bucket = "alicante_anomaly" 
+                bucket = "alicante_anomaly"
             elif "braila" in topic:
                 bucket = "braila_anomaly"
             #print(timestamp_in_ns, flush=True)
@@ -380,8 +379,8 @@ class SendData():
 
     def meta_signal(self, msg):
         topic = msg.topic # topic name
-        rec = eval(msg.value) # kafka record       
-        
+        rec = eval(msg.value) # kafka record
+
         # Change timestamp to ns
         if(self.time_format == "s"):
             timestamp_in_ns = int(rec[self.time_name]*1000000000)
@@ -392,9 +391,9 @@ class SendData():
 
         # time to datetime
         time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000)
-        
+
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
-        
+
         # Entity ID based on alert notification
         entity_id = self.id + sensor_name + "-MetaSignal"
         #print(entity_id)
@@ -404,9 +403,9 @@ class SendData():
         # CREATE DATA MODEL TO POST
         # Select the correct format
         if(self.format == "ld"):
-            data_model = copy.deepcopy(meta_signal_template_ld) # create data_model     
+            data_model = copy.deepcopy(meta_signal_template_ld) # create data_model
         else:
-            data_model = copy.deepcopy(meta_signal_template) # create data_model     
+            data_model = copy.deepcopy(meta_signal_template) # create data_model
 
         #TODO set values of the data model
         # dateObserved
@@ -423,7 +422,7 @@ class SendData():
         # numValue
         data_model["value"]["value"] = rec["status_code"]
 
-        # textValue (contains the actual sample value/array of values on 
+        # textValue (contains the actual sample value/array of values on
         # which anomaly detection was executed)
         data_model["description"]["value"] = str(rec["value"])
 
@@ -445,13 +444,13 @@ class SendData():
                             "status_code": rec["status_code"],
                             "algorithm": rec["algorithm"],
                             "status": rec["status"]}
-            
+
             if("suggested_value" in rec):
                 output_dict["suggested_value"] = rec["suggested_value"]
-            
+
             # Select bucket
             if "alicante" in topic:
-                bucket = "alicante_anomaly" 
+                bucket = "alicante_anomaly"
             elif "braila" in topic:
                 bucket = "braila_anomaly"
             #print(timestamp_in_ns, flush=True)
@@ -502,11 +501,11 @@ class SendData():
 
             # copy predefined data model
             data_model = copy.deepcopy(consumption_template) # create data_model
-            
+
             # Construct the name of the entity
             entity_id = self.id + sensor_name + "_" + horizon_str # + time_stamp.strftime("%Y%m%d")
             print(entity_id)
-            
+
             # TODO during winter time it needs to be +1
             data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z" # +2 ali +1
             data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + ".00Z"
@@ -515,7 +514,7 @@ class SendData():
             data_model["consumption"]["value"] = value
             #data_model["consumptionMax"] = None
             #data_model["consumptionMin"] = None
-        
+
             # Sign and append signature
             data_model = self.sign(data_model)
 
@@ -525,7 +524,7 @@ class SendData():
         # TODO: test signature
         # Leakage group (Zan) => uploads to alert
         rec = eval(msg.value) # kafka record
-        
+
         # Change timestamp to ns
         if(self.time_format == "s"):
             timestamp_in_ns = int(rec[self.time_name]*1000000000)
@@ -537,17 +536,17 @@ class SendData():
         # Only one topic (braila_leakage_groups)
         #topic = msg.topic # topic name
         #sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
-        
-        
+
+
         # CREATE DATA MODEL TO POST
         # Select the correct format
         if(self.format == "ld"):
-            data_model = copy.deepcopy(leakage_group_model_template_ld) # create data_model   
+            data_model = copy.deepcopy(leakage_group_model_template_ld) # create data_model
         else:
             data_model = copy.deepcopy(leakage_group_model_template) # create data_model
 
         # time
-        time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000) 
+        time_stamp = datetime.utcfromtimestamp(timestamp_in_ns/1000000000)
 
         # We are exporting to only one entity
         entity_id = "urn:ngsi-ld:Alert:RO-Braila-leakageGroup"
@@ -583,7 +582,7 @@ class SendData():
         # jaka's component
         # sample data : { "timestamp": 12912903193912, "position": [ LAT, LNG ], "final_location": boolean }
         rec = eval(msg.value) # kafka record
-        
+
         # Change timestamp to ns
         if(self.time_format == "s"):
             timestamp_in_ns = int(rec[self.time_name]*1000000000)
@@ -591,7 +590,7 @@ class SendData():
             timestamp_in_ns = int(rec[self.time_name]*1000000)
         elif(self.time_format == "us"):
             timestamp_in_ns = int(rec[self.time_name]*1000)
-        
+
         topic = msg.topic # topic name
 
         # time to datetime
@@ -600,7 +599,7 @@ class SendData():
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
         position = rec["position"]
         final_location = rec["is_final"] == "true"
-        
+
         if(final_location):
             #print("final", flush=True)
             """data_model["finalLeackageLocation"] = {
@@ -610,14 +609,14 @@ class SendData():
                     "coordinates": position
                 }
             }"""
-            
-                
+
+
             # Select the correct format
             if(self.format == "ld"):
-                alert = copy.deepcopy(leakage_alert_template_ld)   
+                alert = copy.deepcopy(leakage_alert_template_ld)
             else:
                 alert = copy.deepcopy(leakage_alert_template)
-            
+
             alert_id = self.id
 
             if(self.format == "v2"):
@@ -635,7 +634,7 @@ class SendData():
 
             # Needs to be none empty
             alert["location"]["value"]["coordinates"] = [0,0]
-            
+
             # Sign and append signature
             #alert = self.sign(alert)
 
@@ -644,7 +643,7 @@ class SendData():
             elif(self.format == "v2"):
                 self.postToFiware_context_v2(alert, alert_id)
             else:
-                print(f"Could not send because of unsuported format {self.format}.")        
+                print(f"Could not send because of unsuported format {self.format}.")
 
         else:
             # Select the correct format
@@ -655,7 +654,7 @@ class SendData():
 
             # Add the new location information
             data_model["newLocation"]["value"]["coordinates"] = position
-        
+
             entity_id = "urn:ngsi-ld:Noise:Noise-" + sensor_name
 
             # Choose the correct upload function according to the format
@@ -665,7 +664,7 @@ class SendData():
                 self.postToFiware_context_v2(data_model, entity_id)
             else:
                 print(f"Could not send because of unsuported format {self.format}.")
-    
+
     def flower_bed(self, msg):
         # TODO: test signature
         rec = eval(msg.value) # kafka record
@@ -683,25 +682,25 @@ class SendData():
         time_stamp = datetime.utcfromtimestamp(int(timestamp_in_ns/1000000000))
 
         sensor_name = re.findall(self.sensor_name_re, topic)[0]
-        
+
         # Construct data model
         # Select the correct format
         if(self.format == "ld"):
-            data_model = copy.deepcopy(flower_bed_template_ld) # create data_model       
+            data_model = copy.deepcopy(flower_bed_template_ld) # create data_model
         else:
-            data_model = copy.deepcopy(flower_bed_template) # create data_model  
+            data_model = copy.deepcopy(flower_bed_template) # create data_model
 
         # If WA=-1 ignore fields WA and T (no need for watering) - upload only predictions
         if(float(rec["WA"])!=-1):
             data_model["nextWateringAmountRecommendation"]["value"] = float(rec["WA"])
-            
+
             # formati time
             day_year_month = rec["T"].split()[0]
             year, month, day = day_year_month.split("-")
             month = month.zfill(2)
             day = day.zfill(2)
             time_string =  year + "-" + month + "-" + day + "T" + rec["T"].split()[1] + "Z"
-            
+
             if(self.format == "v2"):
                 data_model["nextWateringDeadline"]["value"] = time_string
             elif(self.format == "ld"):
@@ -720,7 +719,7 @@ class SendData():
 
         #data_model["feedbackDescription"]["value"] = "test"
         #data_model["feedbackDate"]["value"] = (time_stamp).isoformat() + ".00Z+02"
-        
+
         # The date will be read from metadata instead
         #data_model["feedbackDate"]["value"] = time_stamp
         #
@@ -746,13 +745,13 @@ class SendData():
             measurement = sensor_name + "_watering"
 
             output_dict = {"watering_amount": rec["WA"]}
-            
+
             # timestamp_of_watering = int(time.mktime(datetime.strptime(rec["T"], "%Y-%m-%d %H:%M:%S").timetuple()))*1000000000
             timestamp_of_watering = rec["T"].split()[0] + "T" + rec["T"].split()[1] + ".00Z+02"
 
             if("suggested_value" in rec):
                 output_dict["suggested_value"] = rec["suggested_value"]
-            
+
             # Select bucket
             bucket = "carouge_watering"
             try:
@@ -763,7 +762,7 @@ class SendData():
                                                 bucket=bucket)
             except:
                 print("{} => Influx upload failed".format(datetime.now()), flush=True)
-    
+
     def postToFiware(self, data_model, entity_id):
         params = (
             ("options", "keyValues"),
@@ -791,7 +790,7 @@ class SendData():
 
     def postToFiware_newv2(self, data_model, entity_id):
         data_model["id"] = entity_id
-        
+
         body = {
             "subscriptionId": self.subscriptionId,
             "data": [data_model]
@@ -799,13 +798,13 @@ class SendData():
 
         # Sign message body
         body = self.sign(body)
-        
+
         if(self.debug):
             print(print(json.dumps(body, indent=4, sort_keys=True)))
 
         response = requests.post(self.url, headers=self.headers, data=json.dumps(body) )
-        
-        
+
+
         if (response.status_code > 300):
             print(f"Error sending to the API. Response status conde {response.status_code}", flush=True)
         try:
@@ -824,12 +823,12 @@ class SendData():
         # Body construction
         data_model["id"] = entity_id
         data_model["@context"] = [self.context]
-        
+
         body = data_model
 
         # Sign message body
         body = self.sign(body)
-        
+
         if(self.debug):
             print(print(json.dumps(body, indent=4, sort_keys=True)))
 
@@ -837,13 +836,13 @@ class SendData():
         url = self.url + entity_id + "/attrs"
 
         response = requests.post(url, headers=self.headers, data=json.dumps(body) )
-        
+
         # TODO test if it failed because the entity is not yet created
         if(response.status_code == 301):
             # Create entity
             url = self.create_url
             response = requests.post(url, headers=self.headers, data=json.dumps(body) )
-            
+
             # Check if creatin was sucesfull
             if (response.status_code > 300):
                 print(f"Error creating an entity", flush=True)
@@ -863,7 +862,7 @@ class SendData():
         except:
             print(response.content)
 
-    def postToFiware_context_v2(self, data_model, entity_id):        
+    def postToFiware_context_v2(self, data_model, entity_id):
         body = data_model
 
         # Sign message body
@@ -891,14 +890,14 @@ class SendData():
 
                 print("{}: Entity {} missing. Creating with the following structure:".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), entity_id))
                 print(json.dumps(body, indent=4, sort_keys=True))
-                
+
                 # Risky operation therefore do not execute in debug mode
                 if(not self.debug):
                     response = requests.post(self.create_url, headers=self.headers, data=json.dumps(body))
-            
+
             else:
                 response = requests.patch(url, headers=self.headers, data=json.dumps(body) )
-            
+
             self.already_sent.append(entity_id)
         else:
             response = requests.patch(url, headers=self.headers, data=json.dumps(body) )
@@ -918,9 +917,9 @@ class SendData():
         except:
             print(response.content)
 
-    def postToFiware_context_ld(self, data_model, entity_id): 
+    def postToFiware_context_ld(self, data_model, entity_id):
         # Add fields specific to LD format
-        data_model["@context"] = [self.context]       
+        data_model["@context"] = [self.context]
         body = data_model
 
         # Sign message body
@@ -945,25 +944,25 @@ class SendData():
                 # For entity creation fields id and type must be added
                 body["id"] = entity_id
                 body["type"] = self.get_type_from_id(entity_id)
-                
+
                 print("{}: Entity {} missing. Creating with the following structure:".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), entity_id))
                 print(json.dumps(body, indent=4, sort_keys=True))
-                
+
                 # Risky operation therefore do not execute in debug mode
                 if(not self.debug):
                     response = requests.post(url, headers=self.headers, data=json.dumps(body))
-            
+
             else:
                 #print("present")
                 print(f"headers: {self.headers}")
                 print(f"URL: {url}")
                 print(f"body: {json.dumps(body, indent=4, sort_keys=True)}")
                 response = requests.patch(url, headers=self.headers, data=json.dumps(body))
-            
+
             self.already_sent.append(entity_id)
         else:
             response = requests.patch(url, headers=self.headers, data=json.dumps(body))
-        
+
         print(response.content)
 
         # Check if upload was successful
@@ -985,7 +984,7 @@ class SendData():
         # Body construction
         data_model["id"] = entity_id
         data_model["@context"] = [self.context]
-        
+
         body = data_model
 
         # Sign message body
@@ -994,19 +993,19 @@ class SendData():
         # URL contstruction
         url = self.url + entity_id + "/attrs"
 
-        
+
         if(self.debug):
             print(f"URL: {url}")
             print(json.dumps(body, indent=4, sort_keys=True))
 
         response = requests.post(url, headers=self.headers, data=json.dumps(body) )
-        
+
         # TODO test if it failed because the entity is not yet created
         if(response.status_code == 301):
             # Create entity
             url = self.create_url
             response = requests.post(url, headers=self.headers, data=json.dumps(body) )
-            
+
             # Check if creatin was sucesfull
             if (response.status_code > 300):
                 print(f"Error creating an entity", flush=True)
@@ -1029,7 +1028,7 @@ class SendData():
     def sign(self, data_model):
         """
         A Wraper that first obtains the KSI signature and then adds it
-        to the message in the correct format 
+        to the message in the correct format
         """
         # Try signing the message with KSI tool (requires execution in
         # the dedicated container)
@@ -1038,7 +1037,7 @@ class SendData():
         except Exception as e:
             print(f"Signing failed", flush=True)
             signature = "signatureFailed"
-        
+
         # Add signature to the message
         if(self.format == "v2"):
             data_model["ksiSignature"] = {
@@ -1067,8 +1066,8 @@ class SendData():
         # Transforms the JSON string ('dataJSON') to file (json.txt)
         os.system('echo %s > json.txt' %output_dict)
         #Sign the file using your credentials
-        os.system(f'ksi sign -i json.txt -o json.txt.ksig -S http://5.53.108.232:8080 --aggr-user {self.API_user} --aggr-key {self.API_pass}') 
-        
+        os.system(f'ksi sign -i json.txt -o json.txt.ksig -S http://5.53.108.232:8080 --aggr-user {self.API_user} --aggr-key {self.API_pass}')
+
         # get the signature
         with open("json.txt.ksig", "rb") as f:
             encodedZip = base64.b64encode(f.read())
@@ -1077,8 +1076,8 @@ class SendData():
 
         # Checking if the signature is correct
         verification = subprocess.check_output(f'ksi verify -i json.txt.ksig -f json.txt -d --dump G -X http://5.53.108.232:8081 --ext-user {self.API_user} --ext-key {self.API_pass} -P http://verify.guardtime.com/ksi-publications.bin --cnstr E=publications@guardtime.com | grep -xq "    OK: No verification errors." ; echo $?', shell=True)
-        
-        # Raise error if it is not correctly signed 
+
+        # Raise error if it is not correctly signed
         # TODO once ksi is fixed change 1 to 0
         assert int(verification) == 1
 
