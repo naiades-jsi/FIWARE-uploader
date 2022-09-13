@@ -194,11 +194,11 @@ class SendData():
             sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
 
             # Time
-            prediction_time = int(rec["prediction_time"]) # Must be in miliseconds
+            prediction_time = int(rec["prediction_time"]) # Must be in seconds
             from_time = timestamp_in_ns/1000000000
             to_time = from_time + horizon_in_h * 3600
             # Cast time in seconds
-            prediction_time_timestamp = datetime.utcfromtimestamp(int(prediction_time/1000))
+            prediction_time_timestamp = datetime.utcfromtimestamp(int(prediction_time))
             from_time_timestamp = datetime.utcfromtimestamp(from_time)
             to_time_timestamp = datetime.utcfromtimestamp(to_time)
 
