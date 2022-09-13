@@ -84,6 +84,7 @@ class SendData():
         self.topics = config["kafka"]["topics"]
         self.consumer = KafkaConsumer(bootstrap_servers=config["kafka"]["bootstrap_servers"], auto_offset_reset=config["kafka"]["offset"])
         self.consumer.subscribe(self.topics)
+        print("Subscribed to the following topics: ", self.topics)
 
         #print(self.topics)
 
