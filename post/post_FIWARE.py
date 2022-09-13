@@ -898,11 +898,11 @@ class SendData():
                     response = requests.post(self.create_url, headers=self.headers, data=json.dumps(body))
 
             else:
-                response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10 )
+                response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10)
 
             self.already_sent.append(entity_id)
         else:
-            response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10 )
+            response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10)
 
         # Check if upload was successful
         if (response.status_code > 300):
