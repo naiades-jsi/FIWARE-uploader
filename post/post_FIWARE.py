@@ -199,7 +199,7 @@ class SendData():
             from_time = timestamp_in_ns/1000000000
             to_time = from_time + horizon_in_h * 3600
             # Cast time in seconds
-            prediction_time_timestamp = datetime.utcfromtimestamp(int(prediction_time) * 1000)
+            prediction_time_timestamp = datetime.utcfromtimestamp(int(prediction_time))
             from_time_timestamp = datetime.utcfromtimestamp(from_time)
             to_time_timestamp = datetime.utcfromtimestamp(to_time)
 
