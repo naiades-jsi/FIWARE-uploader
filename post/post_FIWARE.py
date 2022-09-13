@@ -178,6 +178,7 @@ class SendData():
 
         # extract value from record
         # value = eval(rec["value"])[0]
+        # iterate through all the horizons
         for i in self.mask:
             #print(f"i: {i}")
             # Extract the corret value
@@ -198,7 +199,7 @@ class SendData():
             from_time = timestamp_in_ns/1000000000
             to_time = from_time + horizon_in_h * 3600
             # Cast time in seconds
-            prediction_time_timestamp = datetime.utcfromtimestamp(int(prediction_time))
+            prediction_time_timestamp = datetime.utcfromtimestamp(int(prediction_time) * 1000)
             from_time_timestamp = datetime.utcfromtimestamp(from_time)
             to_time_timestamp = datetime.utcfromtimestamp(to_time)
 
@@ -252,7 +253,7 @@ class SendData():
                 pass
                 #print("{} => Failed sent".format(datetime.now()), flush=True)
 
-            time.sleep(10)
+            time.sleep(2)
 
         #influx
         if self.config_influx != None:
@@ -897,11 +898,11 @@ class SendData():
                     response = requests.post(self.create_url, headers=self.headers, data=json.dumps(body))
 
             else:
-                response = requests.patch(url, headers=self.headers, data=json.dumps(body) )
+                response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10 )
 
             self.already_sent.append(entity_id)
         else:
-            response = requests.patch(url, headers=self.headers, data=json.dumps(body) )
+            response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10 )
 
         # Check if upload was successful
         if (response.status_code > 300):
