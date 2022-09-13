@@ -10,6 +10,7 @@ import re
 import time
 import base64
 import subprocess
+import logging
 
 import json
 
@@ -25,6 +26,11 @@ from entity_mapper import entity_mapper_carouge
 from custom_error import Custom_error
 
 from pushToInflux import PushToDB
+
+# logging
+LOGGER = logging.getLogger(__name__)
+logging.basicConfig(
+    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.INFO)
 
 class SendData():
     debug: bool
@@ -165,8 +171,10 @@ class SendData():
     def consumption(self, msg):
         # sample output: {"timestamp": "2021-10-11 11:38:47.374354", "value": "[0.36906925]", "horizon": "24"}
         rec = eval(msg.value)
-
         topic = msg.topic # topic name
+
+        LOGGER.info("Received message: %s", topic)
+        LOGGER.info("Received data: %s", msg.value)
 
         # Change timestamp to ns
         if(self.time_format == "s"):
@@ -178,14 +186,13 @@ class SendData():
 
         # extract value from record
         # value = eval(rec["value"])[0]
-        # iterate through all the horizons
+        # iterate through all the horizons in the mask
         for i in self.mask:
             #print(f"i: {i}")
             # Extract the corret value
             value = rec["value"][i]
-            print(rec)
 
-            # Calculate horizon
+            # calculate horizon in hours and convert it to the readable form
             horizon_in_h = (i+1)/2
             if(horizon_in_h>=24):
                 horizon_str = str(int(horizon_in_h/24)) + "d"
@@ -233,7 +240,7 @@ class SendData():
                     "@value": (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
                 }
             else:
-                print(f"Could not send because of unsuported format {self.format}.")
+                LOGGER.error(f"Could not send because of unsuported format {self.format}.")
 
             data_model["consumption"]["value"] = value
             #data_model["consumptionMax"] = None
@@ -243,17 +250,18 @@ class SendData():
             #data_model = self.sign(data_model)
 
             try:
+                LOGGER.info("Posting to FIWARE: %s", entity_id)
                 if(self.format == "ld"):
                     self.postToFiware_context_ld(data_model, entity_id)
                 elif(self.format == "v2"):
                     self.postToFiware_context_v2(data_model, entity_id)
                 else:
-                    print(f"Could not send because of unsuported format {self.format}.")
+                    LOGGER.error(f"Could not send because of unsuported format {self.format}.")
             except:
                 pass
                 #print("{} => Failed sent".format(datetime.now()), flush=True)
 
-            time.sleep(2)
+            time.sleep(1)
 
         #influx
         if self.config_influx != None:
@@ -847,22 +855,22 @@ class SendData():
 
             # Check if creatin was sucesfull
             if (response.status_code > 300):
-                print(f"Error creating an entity", flush=True)
+                LOGGER.error("Error creating an entity")
 
         # Check if upload was successful
         if (response.status_code > 300):
-            print(f"Error sending to the API. Response status conde {response.status_code}", flush=True)
+            LOGGER.error(f"Error sending to the API. Response status conde {response.status_code}")
         try:
             if(type(eval(response.content.decode("utf-8"))) is not str):
                 status_code = eval(response.content.decode("utf-8")).get("status_code")
                 # Test for errors and log them
                 if (status_code > 300):
                     message = eval(response.content.decode("utf-8")).get("message")
-                    print(f"Error sending to the API. Response status conde {status_code}", flush=True)
-                    print(f"Response body content: {message}")
+                    LOGGER.error(f"Error sending to the API. Response status conde {status_code}")
+                    LOGGER.error(f"Response body content: {message}")
                     # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
         except:
-            print(response.content)
+            LOGGER.exception(response.content)
 
     def postToFiware_context_v2(self, data_model, entity_id):
         body = data_model

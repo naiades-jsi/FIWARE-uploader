@@ -4,6 +4,12 @@ from post_FIWARE import SendData
 import argparse
 import sys
 import json
+import logging
+
+# logging
+LOGGER = logging.getLogger(__name__)
+logging.basicConfig(
+    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.INFO)
 
 def main():
     parser = argparse.ArgumentParser(description="Modeling component")
@@ -23,7 +29,6 @@ def main():
 
     # Parse input arguments
     args = parser.parse_args()
-    #print("here", flush=True)
     with open("config/" + args.config) as configuration:
         conf = json.load(configuration)
 

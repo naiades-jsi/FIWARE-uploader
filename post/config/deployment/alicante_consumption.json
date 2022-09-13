@@ -1,6 +1,6 @@
 {
     "config": {
-        "debug": true,
+        "debug": false,
         "name": "consumption",
         "api_user": "jsialicon",
         "api_pass": "dra57fke31",
