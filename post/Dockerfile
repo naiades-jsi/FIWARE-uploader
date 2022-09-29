@@ -8,19 +8,20 @@ COPY ./requirements.txt /requirements.txt
 WORKDIR /
 RUN pip3 install -r requirements.txt
 COPY . /
-CMD ["python3", "main.py", "-c", "deployment/alicante_consumption.json"]
+
+# CMD ["python3", "main.py", "-c", "deployment/alicante_consumption.json"]
 # e3ailab/uploader_alicante_consumption_ircai
 
 # CMD ["python3", "main.py", "-c", "deployment/alicante_ad.json"]
 # e3ailab/uploader_alicante_ad_ircai
 
-# CMD ["python3", "main.py", "-c", "deployment/alicante_salinity_ms.json"]
+CMD ["python3", "main.py", "-c", "deployment/alicante_salinity_ms.json"]
 # e3ailab/uploader_alicante_salinity_ms_ircai
 
-#CMD ["python3", "main.py", "-c", "deployment/braila_ad.json"]
+# CMD ["python3", "main.py", "-c", "deployment/braila_ad.json"]
 # e3ailab/uploader_braila_ad_ircai
 
-#CMD ["python3", "main.py", "-c", "deployment/braila_leak.json"]
+# CMD ["python3", "main.py", "-c", "deployment/braila_leakage_accurate.json"]
 
 # CMD ["python3", "main.py", "-c", "deployment/braila_leakage_group.json"]
 

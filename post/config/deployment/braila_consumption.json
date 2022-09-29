@@ -9,7 +9,7 @@
         "data_name": ["value"],
         "mask": [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 95, 143, 191, 239, 287, 335],
         "kafka":{
-            "topics": [ 
+            "topics": [
                 "predictions_braila_flow318505H498_prediction",
                 "predictions_braila_flow211306H360_prediction",
                 "predictions_braila_flow211106H360_prediction",
@@ -36,7 +36,7 @@
         }
     },
     "influx_config": {
-        "token" : "AOAm_a0wPNlX3u10m0Fl7gBLeKZwjV67tYPvpU4FRLxNZPmRLS-BDV81jtUKzC_siO1VPqCkTfzo8H9OVEv5eQ==",
+        "token" : "ZykEIhhYe0KRjleAAjFX9LhEm_H7SeLiLe6Kc71f1452Lps7U6MECvOHw9UooSanWwm7SKqe0kTXDnOhoAMNNA==",
             "org" : "naiades",
             "url" : "http://atena.ijs.si:8086"
         }
