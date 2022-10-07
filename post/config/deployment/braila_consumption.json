@@ -1,6 +1,6 @@
 {
     "config": {
-        "debug": "False",
+        "debug": false,
         "name": "consumption",
         "api_user": "jsibracon",
         "api_pass": "ekf93pwe92",
@@ -37,7 +37,7 @@
     },
     "influx_config": {
         "token" : "ZykEIhhYe0KRjleAAjFX9LhEm_H7SeLiLe6Kc71f1452Lps7U6MECvOHw9UooSanWwm7SKqe0kTXDnOhoAMNNA==",
-            "org" : "naiades",
-            "url" : "http://atena.ijs.si:8086"
-        }
+        "org" : "naiades",
+        "url" : "http://atena.ijs.si:8086"
+    }
 }
