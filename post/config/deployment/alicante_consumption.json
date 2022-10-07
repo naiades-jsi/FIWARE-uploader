@@ -38,8 +38,8 @@
         }
     },
     "influx_config": {
-            "token" : "-_XjqHeiMPPH-l7GvoS_UsXbS23yRKW5N1GS9dnCN9JnoglGhsnHY1GYBr3B--4s5tOJdlkNtossQGRiR4koDg==",
-            "org" : "naiades",
-            "url" : "http://localhost:8086/"
-        }
+        "token" : "-_XjqHeiMPPH-l7GvoS_UsXbS23yRKW5N1GS9dnCN9JnoglGhsnHY1GYBr3B--4s5tOJdlkNtossQGRiR4koDg==",
+        "org" : "naiades",
+        "url" : "http://localhost:8086/"
+    }
 }
