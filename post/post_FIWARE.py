@@ -839,8 +839,8 @@ class SendData():
         # Sign message body
         body = self.sign(body)
 
-        if(self.debug):
-            print(print(json.dumps(body, indent=4, sort_keys=True)))
+        #if (self.debug):
+        #    print(print(json.dumps(body, indent=4, sort_keys=True)))
 
         # URL contstruction
         url = self.url + entity_id + "/attrs"
@@ -848,7 +848,7 @@ class SendData():
         response = requests.post(url, headers=self.headers, data=json.dumps(body) )
 
         # TODO test if it failed because the entity is not yet created
-        if(response.status_code == 301):
+        if (response.status_code == 301):
             # Create entity
             url = self.create_url
             response = requests.post(url, headers=self.headers, data=json.dumps(body) )
@@ -950,13 +950,13 @@ class SendData():
             #print("Request to {} returned {}".format(self.get_url, response.status_code))
 
             # If entity was not found do a post to create it.
-            if(response.status_code == 404):
+            if (response.status_code == 404):
                 # For entity creation fields id and type must be added
                 body["id"] = entity_id
                 body["type"] = self.get_type_from_id(entity_id)
 
-                print("{}: Entity {} missing. Creating with the following structure:".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), entity_id))
-                print(json.dumps(body, indent=4, sort_keys=True))
+                LOGGER.info("Entity {} missing. Creating with the following structure:".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), entity_id))
+                LOGGER.info(json.dumps(body, indent=4, sort_keys=True))
 
                 # Risky operation therefore do not execute in debug mode
                 if(not self.debug):
@@ -964,20 +964,20 @@ class SendData():
 
             else:
                 #print("present")
-                print(f"headers: {self.headers}")
-                print(f"URL: {url}")
-                print(f"body: {json.dumps(body, indent=4, sort_keys=True)}")
+                LOGGER.info(f"headers: {self.headers}")
+                LOGGER.info(f"URL: {url}")
+                LOGGER.info(f"body: {json.dumps(body, indent=4, sort_keys=True)}")
                 response = requests.patch(url, headers=self.headers, data=json.dumps(body))
 
             self.already_sent.append(entity_id)
         else:
             response = requests.patch(url, headers=self.headers, data=json.dumps(body))
 
-        print(response.content)
+        LOGGER.info(response.content)
 
         # Check if upload was successful
         if (response.status_code > 300):
-            print(f"Error sending to the API. Response status conde {response.status_code}", flush=True)
+            LOGGER.error(f"Error sending to the API. Response status conde {response.status_code}", flush=True)
         try:
             if(type(eval(response.content.decode("utf-8"))) is not str):
                 status_code = eval(response.content.decode("utf-8")).get("status_code")
@@ -988,7 +988,7 @@ class SendData():
                     print(f"Response body content: {message}")
                     # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
         except:
-            print(response.content)
+            LOGGER.error(response.content)
 
     def postToFiware_ld(self, data_model, entity_id):
         # Body construction
