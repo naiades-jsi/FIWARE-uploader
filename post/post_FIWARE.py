@@ -959,8 +959,12 @@ class SendData():
                 # Risky operation therefore do not execute in debug mode
                 response = requests.post(url, headers=self.headers, data=json.dumps(body))
 
+            # else POST to context broker
             else:
-                #print("present")
+                # For entity creation fields id and type must be added
+                body["id"] = entity_id
+                body["type"] = self.get_type_from_id(entity_id)
+
                 LOGGER.info(f"headers: {self.headers}")
                 LOGGER.info(f"URL: {url}")
                 LOGGER.info(f"body: {json.dumps(body, indent=4, sort_keys=True)}")
