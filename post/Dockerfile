@@ -24,10 +24,10 @@ COPY . /
 # CMD ["python3", "main.py", "-c", "deployment/braila_leakage_accurate.json"]
 
 # e3ailab/uploader_braila_leakage_approximate_ircai
-# CMD ["python3", "main.py", "-c", "deployment/braila_leakage_approximate.json"]
+CMD ["python3", "main.py", "-c", "deployment/braila_leakage_approximate.json"]
 
 # e3ailab/uploader_braila_consumption_ircai
-CMD ["python3", "main.py", "-c", "deployment/braila_consumption.json"]
+# CMD ["python3", "main.py", "-c", "deployment/braila_consumption.json"]
 
 # CMD ["python3", "main.py", "-c", "deployment/braila_ad_ms.json"]
 # e3ailab/uploader_braila_ad_ms_ircai
