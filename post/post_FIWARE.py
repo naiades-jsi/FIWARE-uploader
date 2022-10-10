@@ -226,7 +226,6 @@ class SendData():
                 data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
                 data_model["consumptionTo"]["value"] = (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
             elif(self.format == "ld"):
-                LOGGER.info("LD format!")
                 data_model["dateCreated"]["value"] = {
                     "@type": "DateTime",
                     "@value": (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
