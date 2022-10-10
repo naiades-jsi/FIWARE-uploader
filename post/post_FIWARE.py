@@ -939,16 +939,10 @@ class SendData():
         # URL contstruction
         url = self.url + entity_id + "/attrs"
 
-        if(self.debug):
-            print(f"URL ld: {url}")
-            print(json.dumps(body, indent=4, sort_keys=True))
-
         if(entity_id not in self.already_sent):
             complete_get_url = self.get_url + entity_id
             # Do a get to check if entity exists
             response = requests.get(complete_get_url, headers=self.get_headers)
-
-            #print("Request to {} returned {}".format(self.get_url, response.status_code))
 
             # If entity was not found do a post to create it.
             if (response.status_code == 404):
@@ -959,11 +953,12 @@ class SendData():
                 url = self.create_url
 
                 LOGGER.info("Entity {} missing. Creating with the following structure:".format(entity_id))
-                LOGGER.info(json.dumps(body, indent=4, sort_keys=True))
+                LOGGER.info("URL: %s", url)
+                LOGGER.info("Headers: %s", json.dumps(self.headers, indent=4, sort_keys=True))
+                LOGGER.info("BODY: %s", json.dumps(body, indent=4, sort_keys=True))
 
                 # Risky operation therefore do not execute in debug mode
-                if(not self.debug):
-                    response = requests.post(url, headers=self.headers, data=json.dumps(body))
+                # response = requests.post(url, headers=self.headers, data=json.dumps(body))
 
             else:
                 #print("present")
