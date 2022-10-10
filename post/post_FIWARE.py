@@ -127,12 +127,12 @@ class SendData():
         else:
             self.config_influx = None
 
-        print("{} => configuration finished".format(datetime.now()), flush=True)
+        LOGGER.info("configuration finished")
 
     def send(self):
-        print("{} => started listening".format(datetime.now()), flush=True)
+        LOGGER.info("Started listening")
         for msg in self.consumer:
-            print("{} => message recieved from {}".format(datetime.now(), msg.topic), flush=True)
+            LOGGER.info("Message recieved from {}".format(msg.topic))
             if(self.debug):
                 # In debug mode no try (for more info on crashe)
                 if self.name == "consumption":
@@ -148,7 +148,7 @@ class SendData():
                 elif self.name == "meta_signal":
                     self.meta_signal(msg)
                 else :
-                    print("Wrong type name.", flush=True)
+                    LOGGER.error("Wrong type name.")
             else:
                 try:
                     if self.name == "consumption":
@@ -164,18 +164,16 @@ class SendData():
                     elif self.name == "meta_signal":
                         self.meta_signal(msg)
                     else :
-                        print("Wrong type name.", flush=True)
+                        LOGGER.error("Wrong type name.")
                 except Exception as e:
-                    print(e, flush=True)
-                    print("Did not send successfully.", flush=True)
+                    LOGGER.error("Did not send successfully: %s", str(e))
 
     def consumption(self, msg):
         # sample output: {"timestamp": "2021-10-11 11:38:47.374354", "value": "[0.36906925]", "horizon": "24"}
         rec = eval(msg.value)
         topic = msg.topic # topic name
 
-        LOGGER.info("Received message: %s", topic)
-        LOGGER.info("Received data: %s", msg.value)
+        LOGGER.info("Received data: %s", json.dumps(rec))
 
         # Change timestamp to ns
         if(self.time_format == "s"):
@@ -228,15 +226,16 @@ class SendData():
                 data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
                 data_model["consumptionTo"]["value"] = (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
             elif(self.format == "ld"):
+                LOGGER.info("LD format!")
                 data_model["dateCreated"]["value"] = {
                     "@type": "DateTime",
                     "@value": (prediction_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
                 }
-                data_model["dateCreated"]["value"] = {
+                data_model["consumptionFrom"]["value"] = {
                     "@type": "DateTime",
                     "@value": (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
                 }
-                data_model["dateCreated"]["value"] = {
+                data_model["consumptionTo"]["value"] = {
                     "@type": "DateTime",
                     "@value": (to_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
                 }
