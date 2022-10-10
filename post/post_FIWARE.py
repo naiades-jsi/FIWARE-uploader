@@ -957,7 +957,7 @@ class SendData():
                 LOGGER.info("BODY: %s", json.dumps(body, indent=4, sort_keys=True))
 
                 # Risky operation therefore do not execute in debug mode
-                # response = requests.post(url, headers=self.headers, data=json.dumps(body))
+                response = requests.post(url, headers=self.headers, data=json.dumps(body))
 
             else:
                 #print("present")
@@ -974,14 +974,14 @@ class SendData():
 
         # Check if upload was successful
         if (response.status_code > 300):
-            LOGGER.error(f"Error sending to the API. Response status conde {response.status_code}", flush=True)
+            LOGGER.error(f"Error sending to the API. Response status conde {response.status_code}")
         try:
             if(type(eval(response.content.decode("utf-8"))) is not str):
                 status_code = eval(response.content.decode("utf-8")).get("status_code")
                 # Test for errors and log them
                 if (status_code > 300):
                     message = eval(response.content.decode("utf-8")).get("message")
-                    LOGGER.error(f"Error sending to the API. Response status conde {status_code}", flush=True)
+                    LOGGER.error(f"Error sending to the API. Response status code {status_code}")
                     LOGGER.info(f"Response body content: {message}")
                     # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
         except:
