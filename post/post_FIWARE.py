@@ -964,7 +964,7 @@ class SendData():
                 LOGGER.info(f"headers: {self.headers}")
                 LOGGER.info(f"URL: {url}")
                 LOGGER.info(f"body: {json.dumps(body, indent=4, sort_keys=True)}")
-                response = requests.patch(url, headers=self.headers, data=json.dumps(body))
+                response = requests.post(url, headers=self.headers, data=json.dumps(body))
 
             self.already_sent.append(entity_id)
         else:
