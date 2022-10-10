@@ -14,7 +14,7 @@
                 "predictions_braila_flow211306H360_prediction",
                 "predictions_braila_flow211106H360_prediction",
                 "predictions_braila_flow211206H360_prediction"
-                ],
+            ],
             "bootstrap_servers": "localhost:9092",
             "offset":"latest"
         },
