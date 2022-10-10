@@ -971,7 +971,8 @@ class SendData():
 
             self.already_sent.append(entity_id)
         else:
-            response = requests.patch(url, headers=self.headers, data=json.dumps(body))
+            response = requests.push(url, headers=self.headers, data=json.dumps(body))
+            pass
 
         LOGGER.info(response.content)
 
