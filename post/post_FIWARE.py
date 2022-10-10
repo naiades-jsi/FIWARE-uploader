@@ -1,3 +1,4 @@
+from tempfile import _TemporaryFileWrapper
 import requests
 from typing import Any, List, Dict
 from datetime import datetime
@@ -955,7 +956,9 @@ class SendData():
                 body["id"] = entity_id
                 body["type"] = self.get_type_from_id(entity_id)
 
-                LOGGER.info("Entity {} missing. Creating with the following structure:".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), entity_id))
+                url = self.create_url
+
+                LOGGER.info("Entity {} missing. Creating with the following structure:".format(entity_id))
                 LOGGER.info(json.dumps(body, indent=4, sort_keys=True))
 
                 # Risky operation therefore do not execute in debug mode
@@ -984,8 +987,8 @@ class SendData():
                 # Test for errors and log them
                 if (status_code > 300):
                     message = eval(response.content.decode("utf-8")).get("message")
-                    print(f"Error sending to the API. Response status conde {status_code}", flush=True)
-                    print(f"Response body content: {message}")
+                    LOGGER.error(f"Error sending to the API. Response status conde {status_code}", flush=True)
+                    LOGGER.info(f"Response body content: {message}")
                     # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
         except:
             LOGGER.error(response.content)
@@ -1099,5 +1102,9 @@ class SendData():
         A function that extracts the entity type from it's id
         given that the format of is is urn:ngsi-ld:{entity_id}:...
         """
+        type = entity_id.split(":")[2]
 
-        return entity_id.split(":")[2]
+        if (type == "Consumption-Romania"):
+            type = "WaterConsumption"
+
+        return type
