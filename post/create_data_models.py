@@ -277,8 +277,9 @@ consumption_template_ld = {
 
 leakage_group_model_template_ld = {
     "category": {
-        "type": "Text",
-        "value": "anomaly"
+        "metadata": {},
+        "type": "Property",
+        "value": "water"
     },
     "data": {
         "type" : "Property",
