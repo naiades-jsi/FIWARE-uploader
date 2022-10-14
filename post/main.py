@@ -1,3 +1,4 @@
+# imports
 from cmath import inf
 from post_FIWARE import SendData
 
@@ -5,6 +6,9 @@ import argparse
 import sys
 import json
 import logging
+
+# setting version
+fiware_uploader_version = "1.0"
 
 # logging
 LOGGER = logging.getLogger(__name__)
@@ -39,9 +43,10 @@ def main():
     else:
         influx_config = None
 
-    braila_anomaly = SendData(config, config_influx=influx_config)
-
-    braila_anomaly.send()
+    LOGGER.info("FIWARE-uploader v.%s", fiware_uploader_version)
+    LOGGER.info("Starting FIWARE-upload for %s", args.config)
+    worker = SendData(config, config_influx=influx_config)
+    worker.send()
 
 if (__name__ == '__main__'):
     main()
