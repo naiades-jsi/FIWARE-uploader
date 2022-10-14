@@ -955,7 +955,11 @@ class SendData():
                 LOGGER.info("BODY: %s", json.dumps(body, indent=4, sort_keys=True))
 
                 # Risky operation therefore do not execute in debug mode
-                response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
+                try:
+                    response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
+                except Exception as e:
+                    LOGGER.error("Exception when POST: %s", str(e))
+
 
             # else POST to context broker
             else:
@@ -968,8 +972,8 @@ class SendData():
                 LOGGER.info(f"body: {json.dumps(body, indent=4, sort_keys=True)}")
                 try:
                     response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
-                except requests.ConnectTimeout:
-                    LOGGER.error("Connection timeout!")
+                except Exception as e:
+                    LOGGER.error("Exception when POST: %s", str(e))
 
             self.already_sent.append(entity_id)
         else:
@@ -984,8 +988,9 @@ class SendData():
 
             try:
                 response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
-            except requests.ConnectTimeout:
-                LOGGER.error("Connection timeout!")
+            except Exception as e:
+                LOGGER.error("Exception when POST: %s", str(e))
+
 
         LOGGER.info("Response: %s", response.content)
 
