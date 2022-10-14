@@ -8,7 +8,7 @@ import json
 import logging
 
 # setting version
-fiware_uploader_version = "1.0.1"
+fiware_uploader_version = "1.0.4"
 
 # logging
 LOGGER = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ def main():
     else:
         influx_config = None
 
-    LOGGER.info("FIWARE-uploader v.%s", fiware_uploader_version)
+    LOGGER.info("FIWARE-uploader v%s", fiware_uploader_version)
     LOGGER.info("Starting FIWARE-upload for %s", args.config)
     worker = SendData(config, config_influx=influx_config)
     worker.send()

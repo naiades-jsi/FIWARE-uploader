@@ -1,5 +1,7 @@
 from tempfile import _TemporaryFileWrapper
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3 import Retry
 from typing import Any, List, Dict
 from datetime import datetime
 from datetime import timedelta
@@ -925,6 +927,12 @@ class SendData():
         except:
             print(response.content)
 
+    def retry_session(self):
+        session = requests.Session()
+        adapter = HTTPAdapter(max_retries=Retry(total=5, backoff_factor=2))
+        session.mount("http://", adapter)
+        return session
+
     def postToFiware_context_ld(self, data_model, entity_id):
         # Add fields specific to LD format
         data_model["@context"] = [self.context]
@@ -956,7 +964,8 @@ class SendData():
 
                 # Risky operation therefore do not execute in debug mode
                 try:
-                    response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
+                    # response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
+                    response = self.retry_session().post(url, headers=self.headers, data=json.dumps(body), timeout=1)
                 except Exception as e:
                     LOGGER.error("Exception when POST: %s", str(e))
 
@@ -971,7 +980,8 @@ class SendData():
                 LOGGER.info(f"URL: {url}")
                 LOGGER.info(f"body: {json.dumps(body, indent=4, sort_keys=True)}")
                 try:
-                    response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
+                    # response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
+                    response = self.retry_session().post(url, headers=self.headers, data=json.dumps(body), timeout=1)
                 except Exception as e:
                     LOGGER.error("Exception when POST: %s", str(e))
 
@@ -987,7 +997,8 @@ class SendData():
             LOGGER.info(f"body: {json.dumps(body, indent=4, sort_keys=True)}")
 
             try:
-                response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
+                # response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
+                response = self.retry_session().post(url, headers=self.headers, data=json.dumps(body), timeout=1)
             except Exception as e:
                 LOGGER.error("Exception when POST: %s", str(e))
 
