@@ -955,7 +955,7 @@ class SendData():
                 LOGGER.info("BODY: %s", json.dumps(body, indent=4, sort_keys=True))
 
                 # Risky operation therefore do not execute in debug mode
-                response = requests.post(url, headers=self.headers, data=json.dumps(body))
+                response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
 
             # else POST to context broker
             else:
@@ -966,7 +966,10 @@ class SendData():
                 LOGGER.info(f"headers: {self.headers}")
                 LOGGER.info(f"URL: {url}")
                 LOGGER.info(f"body: {json.dumps(body, indent=4, sort_keys=True)}")
-                response = requests.post(url, headers=self.headers, data=json.dumps(body))
+                try:
+                    response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
+                except requests.ConnectTimeout:
+                    LOGGER.error("Connection timeout!")
 
             self.already_sent.append(entity_id)
         else:
@@ -978,10 +981,13 @@ class SendData():
             LOGGER.info(f"headers: {self.headers}")
             LOGGER.info(f"URL: {url}")
             LOGGER.info(f"body: {json.dumps(body, indent=4, sort_keys=True)}")
-            response = requests.post(url, headers=self.headers, data=json.dumps(body))
-            pass
 
-        LOGGER.info(response.content)
+            try:
+                response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
+            except requests.ConnectTimeout:
+                LOGGER.error("Connection timeout!")
+
+        LOGGER.info("Response: %s", response.content)
 
         # Check if upload was successful
         if (response.status_code > 300):
