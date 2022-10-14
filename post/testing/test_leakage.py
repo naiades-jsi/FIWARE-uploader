@@ -7,11 +7,14 @@ producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
                          dumps(x).encode('utf-8'))
 
 topic = "braila_leakage_position2182"
+# this message is not really working with the uploader
 message = {
    "timestamp": 1638921110,
-   "position": {1: [[ 1.5, 5.2 ]], 2: [[1.5, 5.2], [2, 4]]},
+   "position": {1: [[45.2458676937, 27.9371631536]], 2: [[45.2458676937, 27.9371631536], [45.4458676937, 27.1371631536]]},
    "is_final": True
 }
+
+# this is the correct message for the uploader
 message = {
    "timestamp": 1638921110,
    "position": [45.2458676937, 27.9371631536],
