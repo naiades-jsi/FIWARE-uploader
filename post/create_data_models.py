@@ -232,6 +232,10 @@ alert_template_ld = {
     }
 }
 leakage_alert_template_ld = {
+    "category": {
+        "type": "Property",
+        "value": "water"
+    },
     "dateIssued": {
         "type": "Property"
         # eg. "value": "2017-01-02T09:25:55.00Z"
@@ -251,7 +255,7 @@ leakage_alert_template_ld = {
     # Attributes that get updated
     "updatedAttributes": {
         "type": "Property",
-        "value": "dateIssued,description,ksiSignature,location,updatedAttributes"
+        "value": "category,dateIssued,description,ksiSignature,location,updatedAttributes"
     }
 }
 

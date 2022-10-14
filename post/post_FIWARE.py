@@ -607,10 +607,10 @@ class SendData():
 
         sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor name from topic name
         position = rec["position"]
-        final_location = rec["is_final"] == "true"
+        final_location = rec["is_final"] == True
 
-        if(final_location):
-            #print("final", flush=True)
+        if (final_location):
+            LOGGER.info("Sending final leakage position")
             """data_model["finalLeackageLocation"] = {
                 "type": "geo:json",
                 "value": {
@@ -618,7 +618,6 @@ class SendData():
                     "coordinates": position
                 }
             }"""
-
 
             # Select the correct format
             if(self.format == "ld"):
@@ -636,7 +635,7 @@ class SendData():
                     "@value": (time_stamp).isoformat("T", "seconds") + "Z"
                 }
             else:
-                print(f"Could not send because of unsuported format {self.format}.")
+                LOGGER.error(f"Could not send because of unsuported format {self.format}.")
 
             #print(str(position).replace("'", ""), flush=True)
             alert["description"]["value"] = str(position).replace("'", "")
@@ -652,7 +651,7 @@ class SendData():
             elif(self.format == "v2"):
                 self.postToFiware_context_v2(alert, alert_id)
             else:
-                print(f"Could not send because of unsuported format {self.format}.")
+                LOGGER.error(f"Could not send because of unsuported format {self.format}.")
 
         else:
             # Select the correct format
@@ -672,7 +671,7 @@ class SendData():
             elif(self.format == "v2"):
                 self.postToFiware_context_v2(data_model, entity_id)
             else:
-                print(f"Could not send because of unsuported format {self.format}.")
+                LOGGER.error(f"Could not send because of unsuported format {self.format}.")
 
     def flower_bed(self, msg):
         # TODO: test signature

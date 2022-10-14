@@ -18,7 +18,7 @@ message = {
 message = {
    "timestamp": 1638921110,
    "position": [45.2458676937, 27.9371631536],
-   "is_final": False
+   "is_final": True
 }
 
 # urn:ngsi-ld:Alert:ES-Braila-Radunegru-FinaLekageLocation
