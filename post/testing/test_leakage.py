@@ -26,7 +26,7 @@ message = {
    "position": [ LAT, LNG ] / {1: [LAT, LONG], 2:[[LAT, LONG, LAT2, LONG2, LAT3, LONG3,...],[...]]},
    "is_final": boolean
 }"""
-for i in range(100):
+for i in range(1):
     print(i)
     producer.send(topic, value=message)
     sleep(10)

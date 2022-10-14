@@ -590,7 +590,7 @@ class SendData():
         # TODO: test signature
         # jaka's component
         # sample data : { "timestamp": 12912903193912, "position": [ LAT, LNG ], "final_location": boolean }
-        rec = eval(msg.value) # kafka record
+        rec = json.loads(msg.value) # kafka record
 
         # Change timestamp to ns
         if(self.time_format == "s"):
