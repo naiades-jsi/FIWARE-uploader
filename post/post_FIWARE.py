@@ -881,12 +881,12 @@ class SendData():
         # URL contstruction
         url = self.url + entity_id + "/attrs"
 
-        if(self.debug):
-            print(f"URL: {url}")
-            print(print(json.dumps(body, indent=4, sort_keys=True)))
+        if (self.debug):
+            LOGGER.info("URL: %s", url)
+            LOGGER.info(json.dumps(body, indent=4, sort_keys=True))
 
         # If this is the first upload since the rerun the entity might need to be created
-        if(entity_id not in self.already_sent):
+        if (entity_id not in self.already_sent):
             complete_get_url = self.get_url + entity_id
             # Do a get to check if entity exists
             #print(complete_get_url)
@@ -898,34 +898,45 @@ class SendData():
                 body["id"] = entity_id
                 body["type"] = self.get_type_from_id(entity_id)
 
-                print("{}: Entity {} missing. Creating with the following structure:".format(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), entity_id))
-                print(json.dumps(body, indent=4, sort_keys=True))
+                LOGGER.info("Entity %s missing. Creating with the following structure:", entity_id)
+                LOGGER.info(json.dumps(body, indent=4, sort_keys=True))
 
                 # Risky operation therefore do not execute in debug mode
-                if(not self.debug):
-                    response = requests.post(self.create_url, headers=self.headers, data=json.dumps(body))
+                try:
+                    # response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
+                    response = self.retry_session().post(self.create_url, headers=self.headers, data=json.dumps(body), timeout=1)
+                except Exception as e:
+                    LOGGER.error("Exception when POST: %s", str(e))
 
             else:
-                response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10)
+                try:
+                    # response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10)
+                    response = self.retry_session().patch(url, headers=self.headers, data=json.dumps(body), timeout=1)
+                except Exception as e:
+                    LOGGER.error("Exception when PATCH: %s", str(e))
 
             self.already_sent.append(entity_id)
         else:
-            response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10)
+            # response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10)
+            try:
+                response = self.retry_session().patch(url, headers=self.headers, data=json.dumps(body), timeout=1)
+            except Exception as e:
+                LOGGER.error("Exception when PATCH: %s", str(e))
 
         # Check if upload was successful
         if (response.status_code > 300):
-            print(f"Error sending to the API. Response status code {response.status_code}", flush=True)
+            LOGGER.error("Error sending to the API. Response status code %s", response.status_code)
         try:
             if(type(eval(response.content.decode("utf-8"))) is not str):
                 status_code = eval(response.content.decode("utf-8")).get("status_code")
                 # Test for errors and log them
                 if (status_code > 300):
                     message = eval(response.content.decode("utf-8")).get("message")
-                    print(f"Error sending to the API. Response status conde {status_code}", flush=True)
-                    print(f"Response body content: {message}")
+                    LOGGER.error("Error sending to the API. Response status conde %d", status_code)
+                    LOGGER.info("Response body content: %s", message)
                     # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
         except:
-            print(response.content)
+            LOGGER.exception(response.content)
 
     def retry_session(self):
         session = requests.Session()
