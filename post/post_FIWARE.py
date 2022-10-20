@@ -940,7 +940,7 @@ class SendData():
                 # Test for errors and log them
                 if (response.status_code > 300):
                     message = eval(response.content.decode("utf-8")).get("message")
-                    LOGGER.error("Error sending to the API. Response status conde %d", response.status_code)
+                    LOGGER.error("Error sending to the API. Response status code %d", response.status_code)
                     LOGGER.info("Response body content: %s", message)
                     # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
         except:
