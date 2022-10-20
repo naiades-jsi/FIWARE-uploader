@@ -8,7 +8,7 @@ import json
 import logging
 
 # setting version
-fiware_uploader_version = "1.0.5"
+fiware_uploader_version = "1.0.6"
 
 # logging
 LOGGER = logging.getLogger(__name__)

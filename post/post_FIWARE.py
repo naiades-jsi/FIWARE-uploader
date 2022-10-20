@@ -909,6 +909,10 @@ class SendData():
                     LOGGER.error("Exception when POST: %s", str(e))
 
             else:
+                LOGGER.info("Headers: %s", self.headers)
+                LOGGER.info("URL: %s", url)
+                LOGGER.info("Body: %s", json.dumps(body, indent=4, sort_keys=True))
+
                 try:
                     # response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10)
                     response = self.retry_session().patch(url, headers=self.headers, data=json.dumps(body), timeout=1)
@@ -917,6 +921,10 @@ class SendData():
 
             self.already_sent.append(entity_id)
         else:
+            LOGGER.info("Headers: %s", self.headers)
+            LOGGER.info("URL: %s", url)
+            LOGGER.info("Body: %s", json.dumps(body, indent=4, sort_keys=True))
+
             # response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10)
             try:
                 response = self.retry_session().patch(url, headers=self.headers, data=json.dumps(body), timeout=1)
@@ -930,9 +938,9 @@ class SendData():
             if(type(eval(response.content.decode("utf-8"))) is not str):
                 status_code = eval(response.content.decode("utf-8")).get("status_code")
                 # Test for errors and log them
-                if (status_code > 300):
+                if (response.status_code > 300):
                     message = eval(response.content.decode("utf-8")).get("message")
-                    LOGGER.error("Error sending to the API. Response status conde %d", status_code)
+                    LOGGER.error("Error sending to the API. Response status conde %d", response.status_code)
                     LOGGER.info("Response body content: %s", message)
                     # raise Custom_error(f"Error sending to the API. Response stauts code: {response.status_code}")
         except:
