@@ -893,7 +893,7 @@ class SendData():
             response = requests.get(complete_get_url, headers=self.get_headers)
 
             # If entity was not found do a post to create it.
-            if(response.status_code == 404):
+            if (response.status_code == 404):
                 # For entity creation fields id and type must be added
                 body["id"] = entity_id
                 body["type"] = self.get_type_from_id(entity_id)
@@ -904,7 +904,8 @@ class SendData():
                 # Risky operation therefore do not execute in debug mode
                 try:
                     # response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
-                    response = self.retry_session().post(self.create_url, headers=self.headers, data=json.dumps(body), timeout=1)
+                    response = self.retry_session().post(self.create_url, headers=self.headers, data=json.dumps(body), timeout=10)
+                    LOGGER.info("Response: %s", response.content)
                 except Exception as e:
                     LOGGER.error("Exception when POST: %s", str(e))
 
@@ -915,7 +916,8 @@ class SendData():
 
                 try:
                     # response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10)
-                    response = self.retry_session().patch(url, headers=self.headers, data=json.dumps(body), timeout=1)
+                    response = self.retry_session().patch(url, headers=self.headers, data=json.dumps(body), timeout=10)
+                    LOGGER.info("Response: %s", response.content)
                 except Exception as e:
                     LOGGER.error("Exception when PATCH: %s", str(e))
 
@@ -927,7 +929,8 @@ class SendData():
 
             # response = requests.patch(url, headers=self.headers, data=json.dumps(body), timeout=10)
             try:
-                response = self.retry_session().patch(url, headers=self.headers, data=json.dumps(body), timeout=1)
+                response = self.retry_session().patch(url, headers=self.headers, data=json.dumps(body), timeout=10)
+                LOGGER.info("Response: %s", response.content)
             except Exception as e:
                 LOGGER.error("Exception when PATCH: %s", str(e))
 
@@ -948,7 +951,7 @@ class SendData():
 
     def retry_session(self):
         session = requests.Session()
-        adapter = HTTPAdapter(max_retries=Retry(total=5, backoff_factor=2))
+        adapter = HTTPAdapter(max_retries=Retry(total=10, backoff_factor=2))
         session.mount("http://", adapter)
         return session
 
@@ -984,7 +987,7 @@ class SendData():
                 # Risky operation therefore do not execute in debug mode
                 try:
                     # response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
-                    response = self.retry_session().post(url, headers=self.headers, data=json.dumps(body), timeout=1)
+                    response = self.retry_session().post(url, headers=self.headers, data=json.dumps(body), timeout=10)
                 except Exception as e:
                     LOGGER.error("Exception when POST: %s", str(e))
 
@@ -1000,7 +1003,7 @@ class SendData():
                 LOGGER.info(f"body: {json.dumps(body, indent=4, sort_keys=True)}")
                 try:
                     # response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
-                    response = self.retry_session().post(url, headers=self.headers, data=json.dumps(body), timeout=1)
+                    response = self.retry_session().post(url, headers=self.headers, data=json.dumps(body), timeout=10)
                 except Exception as e:
                     LOGGER.error("Exception when POST: %s", str(e))
 
@@ -1017,7 +1020,7 @@ class SendData():
 
             try:
                 # response = requests.post(url, headers=self.headers, data=json.dumps(body), timeout=5)
-                response = self.retry_session().post(url, headers=self.headers, data=json.dumps(body), timeout=1)
+                response = self.retry_session().post(url, headers=self.headers, data=json.dumps(body), timeout=10)
             except Exception as e:
                 LOGGER.error("Exception when POST: %s", str(e))
 
