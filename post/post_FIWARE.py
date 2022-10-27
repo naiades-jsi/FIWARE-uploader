@@ -63,6 +63,8 @@ class SendData():
     API_user: str
     API_pass: str
 
+    last_sent: int
+
     def __init__(self, config, config_influx = None):
         if("debug" in config):
             self.debug = config["debug"] # == "True"
@@ -184,6 +186,16 @@ class SendData():
             timestamp_in_ns = int(rec[self.time_name]*1000000)
         elif(self.time_format == "us"):
             timestamp_in_ns = int(rec[self.time_name]*1000)
+
+        # we only send the first prediction (for test, and then the first after midnight)
+        update_time = timestamp_in_ns/1000000000
+        update_time_timestamp = datetime.utcfromtimestamp(update_time)
+        update_timestamp = (update_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
+        if self.last_sent == update_timestamp:
+            LOGGER.info("Timestamp not interesting for prediction update: %s", update_timestamp)
+            return
+        else:
+            self.last_sent == update_timestamp
 
         # extract value from record
         # value = eval(rec["value"])[0]
