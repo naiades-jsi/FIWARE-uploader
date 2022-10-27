@@ -191,7 +191,7 @@ class SendData():
         update_time = timestamp_in_ns/1000000000
         update_time_timestamp = datetime.utcfromtimestamp(update_time)
         update_timestamp = (update_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
-        if self.last_sent == update_timestamp:
+        if hasattr(self, "last_sent") and (self.last_sent == update_timestamp):
             LOGGER.info("Timestamp not interesting for prediction update: %s", update_timestamp)
             return
         else:
