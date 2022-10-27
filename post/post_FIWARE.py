@@ -189,16 +189,24 @@ class SendData():
         # value = eval(rec["value"])[0]
         # iterate through all the horizons in the mask
         for i in self.mask:
-            #print(f"i: {i}")
-            # Extract the corret value
-            value = rec["value"][i]
-
             # calculate horizon in hours and convert it to the readable form
             horizon_in_h = (i+1)/2
-            if(horizon_in_h>=24):
+            if(horizon_in_h >= 24):
                 horizon_str = str(int(horizon_in_h/24)) + "d"
             else:
                 horizon_str = str(int(horizon_in_h)) + "h"
+
+            # Extract the corret value
+            # single value is valid for hourly predictions
+            value = rec["value"][i]
+
+            # if we have daily horizon, then we need to extract average value for
+            # the flow
+            if (horizon_in_h >= 24):
+                sum = 0
+                for j in range(48):
+                    s = s + rec["value"][i + j - 1]
+                value = sum / 48
 
             sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
 
