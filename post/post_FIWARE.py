@@ -195,7 +195,7 @@ class SendData():
             LOGGER.info("Timestamp not interesting for prediction update: %s", update_timestamp)
             return
         else:
-            self.last_sent == update_timestamp
+            self.last_sent = update_timestamp
 
         # extract value from record
         # value = eval(rec["value"])[0]
@@ -217,7 +217,10 @@ class SendData():
             if (horizon_in_h >= 24):
                 sum = 0
                 for j in range(48):
-                    s = s + rec["value"][i + j - 1]
+                    try:
+                        sum = sum + rec["value"][i + j - 1]
+                    except:
+                        LOGGER.info("Index %d/%d out of range.", i + j - 1, len(rec["value"]))
                 value = sum / 48
 
             sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
