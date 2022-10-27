@@ -225,7 +225,7 @@ class SendData():
             # TODO during winter time it needs to be +1
             if (self.format == "v2"):
                 data_model["dateCreated"]["value"] = (prediction_time_timestamp).replace(minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z" # +2 ali +1
-                data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
+                data_model["consumptionFrom"]["value"] = (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
                 data_model["consumptionTo"]["value"] = (to_time_timestamp).replace(minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
             elif (self.format == "ld"):
                 data_model["dateCreated"]["value"] = {
@@ -234,7 +234,7 @@ class SendData():
                 }
                 data_model["consumptionFrom"]["value"] = {
                     "@type": "DateTime",
-                    "@value": (from_time_timestamp).replace(minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
+                    "@value": (from_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
                 }
                 data_model["consumptionTo"]["value"] = {
                     "@type": "DateTime",
