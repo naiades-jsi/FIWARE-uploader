@@ -84,6 +84,11 @@ class SendData():
         if(self.name == "consumption"):
             self.mask = config["mask"]
 
+        # if factors exist, they are used to multiply the final values
+        # (e.g. to convert values of consumption prediction to real consumption)
+        if "factors" in config:
+            self.factors = config["factors"]
+
         # Check if format is is acceptable
         if(self.time_format != "s" and self.time_format != "ms" and
            self.time_format != "ns" and self.time_format != "us"):
@@ -265,6 +270,9 @@ class SendData():
                 }
             else:
                 LOGGER.error(f"Could not send because of unsuported format {self.format}.")
+
+            # based on the topic name, we employ the correct factor, if it exists
+
 
             data_model["consumption"]["value"] = value
             #data_model["consumptionMax"] = None
