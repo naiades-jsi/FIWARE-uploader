@@ -272,7 +272,12 @@ class SendData():
                 LOGGER.error(f"Could not send because of unsuported format {self.format}.")
 
             # based on the topic name, we employ the correct factor, if it exists
-
+            # find index of the topic in the topic list
+            if hasattr(self, "factors"):
+                index = self.topics.index(topic)
+                factor = self.factors[index]
+                LOGGER.info("Factor for %s is %f", topic, factor)
+                value = value * factor
 
             data_model["consumption"]["value"] = value
             #data_model["consumptionMax"] = None
