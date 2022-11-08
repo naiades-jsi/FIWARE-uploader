@@ -227,6 +227,10 @@ class SendData():
                     except:
                         LOGGER.info("Index %d/%d out of range.", i + j - 1, len(rec["value"]))
                 value = sum / 48
+                # for alicante we are sending the sum value (volume) and not flow
+                if "alicante" in topic:
+                    LOGGER.info("For Alicante we are using sum value (volume).")
+                    value = value * 24
 
             sensor_name = re.findall(self.sensor_name_re, topic)[0] # extract sensor from topic name
 
