@@ -238,6 +238,10 @@ class SendData():
             prediction_time = int(rec["prediction_time"]) # Must be in seconds
             from_time = timestamp_in_ns/1000000000
             to_time = from_time + horizon_in_h * 3600
+            # if we have daily horizon, then from time is 24 hours before to_time
+            if (horizon_in_h >= 24):
+                from_time = to_time - 24 * 3600
+
             # Cast time in seconds
             prediction_time_timestamp = datetime.utcfromtimestamp(int(prediction_time))
             from_time_timestamp = datetime.utcfromtimestamp(from_time)
