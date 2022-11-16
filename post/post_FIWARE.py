@@ -178,6 +178,12 @@ class SendData():
                     LOGGER.error("Did not send successfully: %s", str(e))
 
     def consumption(self, msg):
+        # populate last sent if it doesn't exist
+        if not hasattr(self, 'last_sent'):
+            self.last_sent = ""
+        if not hasattr(self, 'last_sent_22'):
+            self.last_sent_22 = ""
+
         # sample output: {"timestamp": "2021-10-11 11:38:47.374354", "value": "[0.36906925]", "horizon": "24"}
         rec = eval(msg.value)
         topic = msg.topic # topic name
@@ -200,14 +206,9 @@ class SendData():
         # send data at midnight and at 22:00-23:00
 
         if (
-            (hasattr(self, "last_sent") and (self.last_sent == update_timestamp)) or
-            (hasattr(self, "last_sent_22") and (self.last_sent_22 == update_timestamp) and (update_time_timestamp.hour == 22))
+            (self.last_sent != update_timestamp) or
+            ((self.last_sent_22 != update_timestamp) and (update_time_timestamp.hour == 22))
         ):
-            LOGGER.info("Timestamp not interesting for prediction update: %s", update_timestamp)
-            LOGGER.info("Hour of the day: %s", update_time_timestamp.hour)
-            LOGGER.info("Last update at 22:00 was on %s", self.last_sent_22)
-            return
-        else:
             self.last_sent = update_timestamp
             self.early_hour = 0
 
@@ -219,6 +220,11 @@ class SendData():
 
             LOGGER.info("Prediction is %d hours early.", self.early_hour)
             LOGGER.info("Timestamp is %s", update_timestamp)
+        else:
+            LOGGER.info("Timestamp not interesting for prediction update: %s", update_timestamp)
+            LOGGER.info("Hour of the day: %s", update_time_timestamp.hour)
+            LOGGER.info("Last update at 22:00 was on %s", self.last_sent_22)
+            return
 
         # extract value from record
         # value = eval(rec["value"])[0]
