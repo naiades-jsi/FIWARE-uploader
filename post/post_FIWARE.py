@@ -200,20 +200,25 @@ class SendData():
         # send data at midnight and at 22:00-23:00
 
         if (
-            hasattr(self, "last_sent") and (self.last_sent == update_timestamp) and
-            hasattr(self, "last_sent_22") and (self.last_sent_22 == update_timestamp)
+            (hasattr(self, "last_sent") and (self.last_sent == update_timestamp)) or
+            (hasattr(self, "last_sent_22") and (self.last_sent_22 == update_timestamp) and (update_time_timestamp.hour == 22))
         ):
             LOGGER.info("Timestamp not interesting for prediction update: %s", update_timestamp)
+            LOGGER.info("Hour of the day: %s", update_time_timestamp.hour)
             LOGGER.info("Last update at 22:00 was on %s", self.last_sent_22)
             return
         else:
             self.last_sent = update_timestamp
             self.early_hour = 0
+
             if (update_time_timestamp.hour == 22):
                 self.last_sent_22 = update_timestamp
                 self.early_hour = 2
             else:
                 self.last_sent_22 = ""
+
+            LOGGER.info("Prediction is %d hours early.", self.early_hour)
+            LOGGER.info("Timestamp is %s", update_timestamp)
 
         # extract value from record
         # value = eval(rec["value"])[0]
@@ -250,7 +255,7 @@ class SendData():
 
             # Time
             prediction_time = int(rec["prediction_time"]) # Must be in seconds
-            from_time = timestamp_in_ns/1000000000
+            from_time = timestamp_in_ns/1000000000 + self.early_hour * 60 * 60 # handling early prediction
             to_time = from_time + horizon_in_h * 3600
             # if we have daily horizon, then from time is 24 hours before to_time
             # else we are using from_time that is 1 hour before to_time

@@ -29,14 +29,24 @@ message = {
     "prediction_time": 1667895008.9638128
 }
 
+# make artificial values
+message["value"] = []
+
+for i in range(0, 384):
+    message["value"].append(i)
+
 # urn:ngsi-ld:Consumption:Spain-Alicante-
+timestamp = 1668509450000  # early
+timestamp = 1668550210000  # at 22:00
+
+message["timestamp"] = timestamp
 
 print(topic)
 
 for i in range(1):
     print(i)
     #print(message)
-    for ind in range(len(message["value"])):
-        message["value"][ind] += 0.3
+    #for ind in range(len(message["value"])):
+    #    message["value"][ind] += 0.3
     producer.send(topic, value=message)
     sleep(10)
