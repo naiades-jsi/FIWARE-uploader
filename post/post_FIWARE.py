@@ -206,8 +206,8 @@ class SendData():
         # send data at midnight and at 22:00-23:00
 
         if (
-            (self.last_sent != update_timestamp) or
-            ((self.last_sent_22 != update_timestamp) and (update_time_timestamp.hour == 22))
+            (self.last_sent > update_timestamp) or
+            ((self.last_sent_22 > update_timestamp) and (update_time_timestamp.hour == 22))
         ):
             self.last_sent = update_timestamp
             self.early_hour = 0
