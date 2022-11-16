@@ -196,11 +196,24 @@ class SendData():
         update_time = timestamp_in_ns/1000000000
         update_time_timestamp = datetime.utcfromtimestamp(update_time)
         update_timestamp = (update_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
-        if hasattr(self, "last_sent") and (self.last_sent == update_timestamp):
+
+        # send data at midnight and at 22:00-23:00
+
+        if (
+            hasattr(self, "last_sent") and (self.last_sent == update_timestamp) and
+            hasattr(self, "last_sent_22") and (self.last_sent_22 == update_timestamp)
+        ):
             LOGGER.info("Timestamp not interesting for prediction update: %s", update_timestamp)
+            LOGGER.info("Last update at 22:00 was on %s", self.last_sent_22)
             return
         else:
             self.last_sent = update_timestamp
+            self.early_hour = 0
+            if (update_time_timestamp.hour == 22):
+                self.last_sent_22 = update_timestamp
+                self.early_hour = 2
+            else:
+                self.last_sent_22 = ""
 
         # extract value from record
         # value = eval(rec["value"])[0]
@@ -215,7 +228,8 @@ class SendData():
 
             # Extract the corret value
             # single value is valid for hourly predictions
-            value = rec["value"][i]
+            mask_i = i + self.early_hour * 2
+            value = rec["value"][mask_i]
 
             # if we have daily horizon, then we need to extract average value for
             # the flow
@@ -223,7 +237,7 @@ class SendData():
                 sum = 0
                 for j in range(48):
                     try:
-                        sum = sum + rec["value"][i + j - 1]
+                        sum = sum + rec["value"][mask_i + j - 1]
                     except:
                         LOGGER.info("Index %d/%d out of range.", i + j - 1, len(rec["value"]))
                 value = sum / 48
