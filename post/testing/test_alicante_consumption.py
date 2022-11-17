@@ -37,10 +37,10 @@ for i in range(0, 384):
 
 # urn:ngsi-ld:Consumption:Spain-Alicante-
 timestamp = 1668509450000  # early
-timestamp = 1668550210000  # at 22:00
-timestamp = 1668557410000  # at 01:00 next day
-timestamp = 1668589810000  # at 10:00 next day
-timestamp = 1668636610000  # at 22:00 next day
+#timestamp = 1668550210000  # at 22:00
+#timestamp = 1668557410000  # at 01:00 next day
+#timestamp = 1668589810000  # at 10:00 next day
+#timestamp = 1668636610000  # at 22:00 next day
 
 message["timestamp"] = timestamp
 
@@ -52,4 +52,4 @@ for i in range(1):
     #for ind in range(len(message["value"])):
     #    message["value"][ind] += 0.3
     producer.send(topic, value=message)
-    sleep(10)
+    sleep(1)

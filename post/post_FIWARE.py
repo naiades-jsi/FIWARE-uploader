@@ -205,9 +205,11 @@ class SendData():
 
         # send data at midnight and at 22:00-23:00
 
+        LOGGER.info("Last_sent: %s, update_timestamp: %s", self.last_sent, update_timestamp)
+
         if (
-            (self.last_sent > update_timestamp) or
-            ((self.last_sent_22 > update_timestamp) and (update_time_timestamp.hour == 22))
+            (self.last_sent < update_timestamp) or
+            ((self.last_sent_22 < update_timestamp) and (update_time_timestamp.hour == 22))
         ):
             self.last_sent = update_timestamp
             self.early_hour = 0
@@ -215,8 +217,6 @@ class SendData():
             if (update_time_timestamp.hour == 22):
                 self.last_sent_22 = update_timestamp
                 self.early_hour = 2
-            else:
-                self.last_sent_22 = ""
 
             LOGGER.info("Prediction is %d hours early.", self.early_hour)
             LOGGER.info("Timestamp is %s", update_timestamp)
