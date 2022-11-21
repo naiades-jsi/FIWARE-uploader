@@ -6,7 +6,6 @@ producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
                          value_serializer=lambda x:
                          dumps(x).encode('utf-8'))
 
-topic = "predictions_alicante_alipark_flow"
 message = {
     "timestamp": 1667861402180,
     "value": [
@@ -37,10 +36,14 @@ for i in range(0, 384):
 
 # urn:ngsi-ld:Consumption:Spain-Alicante-
 timestamp = 1668509450000  # early
-#timestamp = 1668550210000  # at 22:00
-#timestamp = 1668557410000  # at 01:00 next day
-#timestamp = 1668589810000  # at 10:00 next day
-#timestamp = 1668636610000  # at 22:00 next day
+timestamp = 1668550210000  # at 22:00
+timestamp = 1668557410000  # at 01:00 next day
+timestamp = 1668589810000  # at 10:00 next day
+timestamp = 1668636610000  # at 22:00 next day
+
+topic = "predictions_alicante_alipark_flow"
+#topic = "predictions_alicante_autobuses_flow"
+
 
 message["timestamp"] = timestamp
 

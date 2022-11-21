@@ -1,3 +1,4 @@
+import traceback
 from tempfile import _TemporaryFileWrapper
 import requests
 from requests.adapters import HTTPAdapter
@@ -175,6 +176,7 @@ class SendData():
                     else :
                         LOGGER.error("Wrong type name.")
                 except Exception as e:
+                    traceback.print_exc()
                     LOGGER.error("Did not send successfully: %s", str(e))
 
     def consumption(self, msg):
@@ -210,8 +212,7 @@ class SendData():
         update_timestamp = (update_time_timestamp).replace(hour=0, minute=0, second=0, microsecond=0).isoformat("T", "seconds") + "Z"
 
         # send data at midnight and at 22:00-23:00
-
-        LOGGER.info("Last_sent: %s, update_timestamp: %s", self.last_sent[topic], update_timestamp[topic])
+        LOGGER.info("Last_sent: %s, update_timestamp: %s", self.last_sent[topic], update_timestamp)
 
         if (
             (self.last_sent[topic] < update_timestamp) or
