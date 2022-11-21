@@ -218,12 +218,9 @@ class SendData():
                 self.last_sent_22 = update_timestamp
                 self.early_hour = 2
 
-            LOGGER.info("Prediction is %d hours early.", self.early_hour)
-            LOGGER.info("Timestamp is %s", update_timestamp)
+            LOGGER.info("Prediction is %d hours early, timestamp is %s.", self.early_hour, update_timestamp)
         else:
-            LOGGER.info("Timestamp not interesting for prediction update: %s", update_timestamp)
-            LOGGER.info("Hour of the day: %s", update_time_timestamp.hour)
-            LOGGER.info("Last update at 22:00 was on %s", self.last_sent_22)
+            LOGGER.info("Timestamp not interesting for prediction update: %s, hour of the day: %s, last update at 22h was on %s", update_timestamp, update_time_timestamp.hour, self.last_sent_22)
             return
 
         # extract value from record
