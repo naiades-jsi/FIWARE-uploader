@@ -188,7 +188,7 @@ class SendData():
         rec = eval(msg.value)
         topic = msg.topic # topic name
 
-        LOGGER.info("Received data: %s", json.dumps(rec))
+        # LOGGER.info("Received data: %s", json.dumps(rec))
 
         # Change timestamp to ns
         if(self.time_format == "s"):
