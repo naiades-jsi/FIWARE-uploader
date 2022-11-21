@@ -180,13 +180,19 @@ class SendData():
     def consumption(self, msg):
         # populate last sent if it doesn't exist
         if not hasattr(self, 'last_sent'):
-            self.last_sent = ""
+            self.last_sent = {}
         if not hasattr(self, 'last_sent_22'):
-            self.last_sent_22 = ""
+            self.last_sent_22 = {}
 
         # sample output: {"timestamp": "2021-10-11 11:38:47.374354", "value": "[0.36906925]", "horizon": "24"}
         rec = eval(msg.value)
         topic = msg.topic # topic name
+
+        # is last_sent for topic updated?
+        if topic not in self.last_sent:
+            self.last_sent[topic] = ""
+        if topic not in self.last_sent_22:
+            self.last_sent_22[topic] = ""
 
         # LOGGER.info("Received data: %s", json.dumps(rec))
 
@@ -205,22 +211,22 @@ class SendData():
 
         # send data at midnight and at 22:00-23:00
 
-        LOGGER.info("Last_sent: %s, update_timestamp: %s", self.last_sent, update_timestamp)
+        LOGGER.info("Last_sent: %s, update_timestamp: %s", self.last_sent[topic], update_timestamp[topic])
 
         if (
-            (self.last_sent < update_timestamp) or
-            ((self.last_sent_22 < update_timestamp) and (update_time_timestamp.hour == 22))
+            (self.last_sent[topic] < update_timestamp) or
+            ((self.last_sent_22[topic] < update_timestamp) and (update_time_timestamp.hour == 22))
         ):
-            self.last_sent = update_timestamp
+            self.last_sent[topic] = update_timestamp
             self.early_hour = 0
 
             if (update_time_timestamp.hour == 22):
-                self.last_sent_22 = update_timestamp
+                self.last_sent_22[topic] = update_timestamp
                 self.early_hour = 2
 
             LOGGER.info("Prediction is %d hours early, timestamp is %s.", self.early_hour, update_timestamp)
         else:
-            LOGGER.info("Timestamp not interesting for prediction update: %s, hour of the day: %s, last update at 22h was on %s", update_timestamp, update_time_timestamp.hour, self.last_sent_22)
+            LOGGER.info("Timestamp not interesting for prediction update: %s, hour of the day: %s, last update at 22h was on %s", update_timestamp, update_time_timestamp.hour, self.last_sent_22[topic])
             return
 
         # extract value from record
