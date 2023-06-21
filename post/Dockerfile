@@ -10,7 +10,7 @@ RUN pip3 install -r requirements.txt
 COPY . /
 
 # e3ailab/uploader_alicante_consumption_ircai
-CMD ["python3", "main.py", "-c", "deployment/alicante_consumption.json"]
+# CMD ["python3", "main.py", "-c", "deployment/alicante_consumption.json"]
 
 # e3ailab/uploader_alicante_ad_ircai
 # CMD ["python3", "main.py", "-c", "deployment/alicante_ad.json"]
@@ -33,5 +33,5 @@ CMD ["python3", "main.py", "-c", "deployment/alicante_consumption.json"]
 # CMD ["python3", "main.py", "-c", "deployment/braila_ad_ms.json"]
 # e3ailab/uploader_braila_ad_ms_ircai
 
-# CMD ["python3", "main.py", "-c", "deployment/carouge_watering.json"]
+CMD ["python3", "main.py", "-c", "deployment/carouge_watering.json"]
 # e3ailab/uploader_carouge_watering_ircai
